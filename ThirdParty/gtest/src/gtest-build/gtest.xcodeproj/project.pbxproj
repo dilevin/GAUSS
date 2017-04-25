@@ -1,0 +1,882 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		456EC1833A4F466A910B30A6 /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 9BCBCC55513F4F4CABE1BD1B /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				B69488CB8501477FB1E643BB /* CMake Rules */,
+			);
+			dependencies = (
+				BC59A87B93A04697AF82C3A3 /* PBXTargetDependency */,
+				8911B9C8F13D448BA7B91BE6 /* PBXTargetDependency */,
+				E99FED28AB4E4C8D93090677 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		479C0B28169742E19727E44F /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = C8051D44A5284DB590443F50 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				758CA1AD331C49F7A4135A3E /* CMake Rules */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		40133BD412504EF2B09917D4 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = C039AFDD83D645368DAFA2C6 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */; };
+		4A255A34D7DD416C94714BAC /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = B2E8AF3931264A248A77EA95 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */; };
+		65C9A4E4C19D40A18F5F7027 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest-all.cc */ = {isa = PBXBuildFile; fileRef = CD02B318B6B34E0FAB38677E /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest-all.cc */; };
+		DD13AA373CC74D1CA28A6203 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest_main.cc */ = {isa = PBXBuildFile; fileRef = E741C64B5CEB4FFB96DC5856 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest_main.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		03777CE6D14E414D8EFA9F7C = {
+			isa = PBXBuildStyle;
+		};
+		77D3473AF57A40CC91153DCF /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		B218C5B4CD9F40A199354D1E /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+		BDB3A2E4B5CF42C0B9BBC1C7 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		E2651649046A4BB8BAF2173D /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		4AD02E578AEE47C6AA0D79A7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 479C0B28169742E19727E44F;
+			remoteInfo = ZERO_CHECK;
+		};
+		58F8B4287FDA4ACA83A7EE4B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 479C0B28169742E19727E44F;
+			remoteInfo = ZERO_CHECK;
+		};
+		D59B07102B1548C6AEEE347E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1F2EDD4AAB6246D5B55ED08C;
+			remoteInfo = gtest;
+		};
+		E1B5E7038640422A982EDC1F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9559046941D343078F59EF70;
+			remoteInfo = gtest_main;
+		};
+		E4AD0D697FE340239082175F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1F2EDD4AAB6246D5B55ED08C;
+			remoteInfo = gtest;
+		};
+		EAFABC3A25AC442B8815FCA7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2A6A238768E4425820CC06D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 479C0B28169742E19727E44F;
+			remoteInfo = ZERO_CHECK;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4B92A7062D244F19BE7429FA /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		6B256C83FD9F421A9C436356 /* gtest_main */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgtest_main.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6A6DBB037334763A1573CC9 /* gtest */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2E8AF3931264A248A77EA95 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		C039AFDD83D645368DAFA2C6 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		CD02B318B6B34E0FAB38677E /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest-all.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = "gtest-all.cc"; path = "src/gtest-all.cc"; sourceTree = SOURCE_ROOT; };
+		D7CF58D372CD4487825C76D1 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		E741C64B5CEB4FFB96DC5856 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest_main.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = gtest_main.cc; path = src/gtest_main.cc; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1D96220A60404AB892417C3B /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		2F9E7406B0AA4F77A278B615 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A6A6DBB037334763A1573CC9 /* gtest */,
+				6B256C83FD9F421A9C436356 /* gtest_main */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32E8353E6A7E43F0B04A5535 /* gtest */ = {
+			isa = PBXGroup;
+			children = (
+				582770872AF84CB4AAD2F0AF /* Source Files */,
+				B2E8AF3931264A248A77EA95 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */,
+			);
+			name = gtest;
+			sourceTree = "<group>";
+		};
+		3810DF6C4B6149EA81C62604 /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				1D96220A60404AB892417C3B /* CMake Rules */,
+				4B92A7062D244F19BE7429FA /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		3C21EAB325A549379736F62C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				76C9C87DEF25476EBEE05A4B /* gtest_main */,
+				32E8353E6A7E43F0B04A5535 /* gtest */,
+				3810DF6C4B6149EA81C62604 /* ALL_BUILD */,
+				8E00C933D2A945758DB2B1C7 /* ZERO_CHECK */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		582770872AF84CB4AAD2F0AF /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				CD02B318B6B34E0FAB38677E /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest-all.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		6B8F195FCEAB4E9A8D3035C6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		7167ACE6CD384BDAA84DA129 = {
+			isa = PBXGroup;
+			children = (
+				3C21EAB325A549379736F62C /* Sources */,
+				6B8F195FCEAB4E9A8D3035C6 /* Resources */,
+				2F9E7406B0AA4F77A278B615 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		76C9C87DEF25476EBEE05A4B /* gtest_main */ = {
+			isa = PBXGroup;
+			children = (
+				A56F77F0E82E4F5E88752A69 /* Source Files */,
+				C039AFDD83D645368DAFA2C6 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */,
+			);
+			name = gtest_main;
+			sourceTree = "<group>";
+		};
+		7F1E8E0CCCA24ACE9B90F699 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		8E00C933D2A945758DB2B1C7 /* ZERO_CHECK */ = {
+			isa = PBXGroup;
+			children = (
+				7F1E8E0CCCA24ACE9B90F699 /* CMake Rules */,
+				D7CF58D372CD4487825C76D1 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/CMakeLists.txt */,
+			);
+			name = ZERO_CHECK;
+			sourceTree = "<group>";
+		};
+		A56F77F0E82E4F5E88752A69 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				E741C64B5CEB4FFB96DC5856 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest_main.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1F2EDD4AAB6246D5B55ED08C /* gtest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FE60ABACC4F4975959B0FB7 /* Build configuration list for PBXNativeTarget "gtest" */;
+			buildPhases = (
+				0E5B4ECE20C04F70B01C8970 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5E6337CCE8FB42399B2DDBE4 /* PBXTargetDependency */,
+			);
+			name = gtest;
+			productName = gtest;
+			productReference = A6A6DBB037334763A1573CC9 /* gtest */;
+			productType = "com.apple.product-type.library.static";
+		};
+		9559046941D343078F59EF70 /* gtest_main */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2B5E93793044971AE05D1E8 /* Build configuration list for PBXNativeTarget "gtest_main" */;
+			buildPhases = (
+				0D3D2325BDA04DA7BFEFF05B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E46350F1CBBA494689015FBA /* PBXTargetDependency */,
+				A7B7094E74F54F16B1889A52 /* PBXTargetDependency */,
+			);
+			name = gtest_main;
+			productName = gtest_main;
+			productReference = 6B256C83FD9F421A9C436356 /* gtest_main */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D2A6A238768E4425820CC06D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 0820;
+			};
+			buildConfigurationList = EC6409ADE3AE4BB09A84115E /* Build configuration list for PBXProject "gtest" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				77D3473AF57A40CC91153DCF /* Debug */,
+				B218C5B4CD9F40A199354D1E /* Release */,
+				BDB3A2E4B5CF42C0B9BBC1C7 /* MinSizeRel */,
+				E2651649046A4BB8BAF2173D /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 7167ACE6CD384BDAA84DA129;
+			projectDirPath = /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest;
+			projectRoot = "";
+			targets = (
+				456EC1833A4F466A910B30A6 /* ALL_BUILD */,
+				479C0B28169742E19727E44F /* ZERO_CHECK */,
+				1F2EDD4AAB6246D5B55ED08C /* gtest */,
+				9559046941D343078F59EF70 /* gtest_main */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		758CA1AD331C49F7A4135A3E /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build -f /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeScripts/ZERO_CHECK_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		8318A1DC4A1B45D395DC6972 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		B69488CB8501477FB1E643BB /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build -f /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeScripts/ALL_BUILD_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		CE6A679811DC4E04B1948F4A = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0D3D2325BDA04DA7BFEFF05B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD13AA373CC74D1CA28A6203 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest_main.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0E5B4ECE20C04F70B01C8970 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65C9A4E4C19D40A18F5F7027 /* /Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/src/gtest-all.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5E6337CCE8FB42399B2DDBE4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 479C0B28169742E19727E44F /* ZERO_CHECK */;
+			targetProxy = EAFABC3A25AC442B8815FCA7 /* PBXContainerItemProxy */;
+		};
+		8911B9C8F13D448BA7B91BE6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9559046941D343078F59EF70 /* gtest_main */;
+			targetProxy = E1B5E7038640422A982EDC1F /* PBXContainerItemProxy */;
+		};
+		A7B7094E74F54F16B1889A52 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1F2EDD4AAB6246D5B55ED08C /* gtest */;
+			targetProxy = D59B07102B1548C6AEEE347E /* PBXContainerItemProxy */;
+		};
+		BC59A87B93A04697AF82C3A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 479C0B28169742E19727E44F /* ZERO_CHECK */;
+			targetProxy = 4AD02E578AEE47C6AA0D79A7 /* PBXContainerItemProxy */;
+		};
+		E46350F1CBBA494689015FBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 479C0B28169742E19727E44F /* ZERO_CHECK */;
+			targetProxy = 58F8B4287FDA4ACA83A7EE4B /* PBXContainerItemProxy */;
+		};
+		E99FED28AB4E4C8D93090677 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1F2EDD4AAB6246D5B55ED08C /* gtest */;
+			targetProxy = E4AD0D697FE340239082175F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0123C84FC29F47E2929870BD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		0AD54519D20C41C1A37D8DB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk;
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/build";
+			};
+			name = Debug;
+		};
+		24C8CEE715854876B22DB661 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		2E654EFD54704F6D850DF588 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		3C4AC682A7754477AC50FCD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		40B4FAA1317A4331A25A82F8 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		44EA5A104B9C4308BECB518E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "     -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		5740F8C3B4954536B5C46F4F /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk;
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/build";
+			};
+			name = RelWithDebInfo;
+		};
+		5F73F34F232344B5AF80709C /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		72C08F13C2784588BF72C13F /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		8D6A734D570C436AB91D1D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk;
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/build";
+			};
+			name = Release;
+		};
+		9605A18113024F8FB5D1F8B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "     -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		A042BF5AB16C4DD08AEB2F03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		B00557B78A3B4D95B431B281 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		B6215E0C280248ACA78478F2 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		BCADFDE898A54B8A8DC55F95 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		DD5D52FC721441F2AFD6F5B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		DF29E29957F442D7B47BE671 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk;
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/build";
+			};
+			name = MinSizeRel;
+		};
+		E62195CB76664A08AAF234AA /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG   -DGTEST_HAS_PTHREAD=1    ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		E663D7710D1949AF8F9F63C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest/include,/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4FE60ABACC4F4975959B0FB7 /* Build configuration list for PBXNativeTarget "gtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44EA5A104B9C4308BECB518E /* Debug */,
+				0123C84FC29F47E2929870BD /* Release */,
+				5F73F34F232344B5AF80709C /* MinSizeRel */,
+				40B4FAA1317A4331A25A82F8 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9BCBCC55513F4F4CABE1BD1B /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD5D52FC721441F2AFD6F5B1 /* Debug */,
+				E663D7710D1949AF8F9F63C6 /* Release */,
+				B6215E0C280248ACA78478F2 /* MinSizeRel */,
+				BCADFDE898A54B8A8DC55F95 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B2B5E93793044971AE05D1E8 /* Build configuration list for PBXNativeTarget "gtest_main" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9605A18113024F8FB5D1F8B1 /* Debug */,
+				A042BF5AB16C4DD08AEB2F03 /* Release */,
+				72C08F13C2784588BF72C13F /* MinSizeRel */,
+				E62195CB76664A08AAF234AA /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C8051D44A5284DB590443F50 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2E654EFD54704F6D850DF588 /* Debug */,
+				3C4AC682A7754477AC50FCD7 /* Release */,
+				B00557B78A3B4D95B431B281 /* MinSizeRel */,
+				24C8CEE715854876B22DB661 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EC6409ADE3AE4BB09A84115E /* Build configuration list for PBXProject "gtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AD54519D20C41C1A37D8DB6 /* Debug */,
+				8D6A734D570C436AB91D1D38 /* Release */,
+				DF29E29957F442D7B47BE671 /* MinSizeRel */,
+				5740F8C3B4954536B5C46F4F /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D2A6A238768E4425820CC06D /* Project object */;
+}

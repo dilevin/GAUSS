@@ -1,0 +1,16 @@
+
+cmake_minimum_required(VERSION 3.5)
+
+project (Core)
+set(CMAKE_CXX_STANDARD 14)
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GAUSS_BINARY_DIR}/bin )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GAUSS_BINARY_DIR}/lib )
+
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
+file(GLOB HEADER_CODE ${Core_SOURCE_DIR}/include/*.h)
+file(GLOB SRC_CODE ${Core_SOURCE_DIR}/cpp/*.cpp)
+
+include_directories(${Core_SOURCE_DIR}/include)
+add_library(Core ${HEADER_CODE} ${SRC_CODE})

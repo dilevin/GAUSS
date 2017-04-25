@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.5)
+
+macro(initUI)
+   set(CMAKE_INCLUDE_CURRENT_DIR ON)
+   # Instruct CMake to run moc automatically when needed.
+   set(CMAKE_AUTOMOC ON)
+
+   # Find the QtWidgets library
+   find_package(Qt5Core)
+   find_package(Qt5Widgets)
+   find_package(Qt53DCore)
+   find_package(Qt53DExtras)
+   find_package(Qt53DInput)
+   find_package(Qt53DLogic)
+   find_package(Qt53DRender)
+   
+    include_directories(${Qt5Core_INCLUDE_DIRS} 
+			${Qt5Widgets_INCLUDE_DIRS} 
+			${Qt53DCore_INCLUDE_DIRS}
+			${Qt53DExtras_INCLUDE_DIRS}
+			${Qt53DInput_INCLUDE_DIRS}
+			${Qt53DLogic_INCLUDE_DIRS}
+			${Qt53DRender_INCLUDE_DIRS})
+
+   set(UI_LIBS  Qt5::Core Qt5::Widgets Qt5::3DCore Qt5::3DExtras 
+		Qt5::3DExtras Qt5::3DInput Qt5::3DLogic
+		Qt5::3DRender CACHE INTERNAL "" FORCE)
+
+endmacro(initUI)
+
+

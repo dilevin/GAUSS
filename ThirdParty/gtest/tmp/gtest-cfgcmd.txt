@@ -1,0 +1,1 @@
+cmd='/usr/local/Cellar/cmake/3.7.1/bin/cmake;-GXcode;/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest'

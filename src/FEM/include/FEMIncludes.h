@@ -9,6 +9,7 @@
 #ifndef FEMIncludes_h
 #define FEMIncludes_h
 
+#include <DOFParticle.h>
 #include <PhysicalSystemFEM.h>
 #include <Element.h>
 #include <Energy.h>

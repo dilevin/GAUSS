@@ -15,6 +15,10 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+#define STRINGIFY(s) #s
+
+#define DataDir(s) STRINGIFY(s)
+
 #define Vert(f, c) V(F(f), c) //Handle raw vertex, face pointers
 
 //Random utilities and classes that I might need
@@ -95,6 +99,10 @@ namespace Gauss {
         unsigned int m_N = sizeof...(T);
         unsigned int m_val[sizeof...(T)];
     };
+    
+    inline std::string dataDir() {
+        return std::string(DataDir(GAUSS_DATA_DIR));
+    }
     
 }
 #endif /* Utilities_h */

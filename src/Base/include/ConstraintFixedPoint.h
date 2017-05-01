@@ -67,6 +67,31 @@ namespace Gauss {
     template<typename DataType>
     using ConstraintFixedPoint = Constraint<DataType, ConstraintFixedPointImpl<DataType> >;
     
+    //Utility functions to fix a bunch of points
+    template<typename World, typename FEMSystem>
+    void fixDisplacementMin(World &world, FEMSystem *system, unsigned int dim = 0) {
+        //find all vertices with minimum x coordinate and fix DOF associated with them
+        auto minX = system->getImpl().getV()(0,dim);
+        std::vector<unsigned int> minV;
+        
+        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(system->getImpl().getV()(ii,dim) < minX) {
+                minX = system->getImpl().getV()(ii,dim);
+                minV.clear();
+                minV.push_back(ii);
+            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < 1e-5) {
+                minV.push_back(ii);
+            }
+        }
+        
+        //add a bunch of constraints
+        for(auto iV : minV) {
+            world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
+        }
+    }
+
+    
 }
 
 #endif /* ConstraintFixedPoint_h */

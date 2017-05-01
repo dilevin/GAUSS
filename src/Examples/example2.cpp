@@ -20,30 +20,6 @@ AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
-//Utility functions to fix a bunch of points
-template<typename World, typename FEMSystem>
-void fixDisplacementLeft(World &world, FEMSystem *system) {
-    //find all vertices with minimum x coordinate and fix DOF associated with them
-    auto minX = system->getImpl().getV()(0,0);
-    std::vector<unsigned int> minV;
-    
-    for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
-        
-        if(system->getImpl().getV()(ii,0) < minX) {
-            minX = system->getImpl().getV()(ii,0);
-            minV.clear();
-            minV.push_back(ii);
-        } else if(fabs(system->getImpl().getV()(ii,0) - minX) < 1e-5) {
-            minV.push_back(ii);
-        }
-    }
-    
-    //add a bunch of constraints
-    for(auto iV : minV) {
-        world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
-    }
-}
-
 int main(int argc, char **argv) {
     std::cout<<"Test Linear FEM \n";
     
@@ -54,34 +30,12 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-    readTetgen(V, F, "../../data/meshesTetgen/Beam/Beam.node", "../../data/meshesTetgen/Beam/Beam.ele");
-    
-    std::cout<<"V:\n"<<V<<"\n\n";
-    std::cout<<"F:\n"<<F<<"\n\n";
-    //Mesh (old test code)
-    //Eigen::MatrixXd V(4,3);
-    //Eigen::MatrixXi F(1,4);
-    
-    //Load bar mesh and tetrahedralize using libigl
-    //set boundary conditions and simulate using Gauss
-    //V << 0, 0, 0,
-    //1, 0, 0,
-    //0, 1, 0,
-    //0, 0, 1,
-    
-    //F<<0, 1, 2, 3;
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     
-    //add my constraint
-    //ConstraintFixedPoint<double> *fixedPoint = new ConstraintFixedPoint<double>(&test->getQ()[0], Eigen::Vector3d(0,0,0));
-    //ConstraintFixedPoint<double> *fixedPoint1 = new ConstraintFixedPoint<double>(&test->getQ()[1], Eigen::Vector3d(0,0,0));
-    //ConstraintFixedPoint<double> *fixedPoint2 = new ConstraintFixedPoint<double>(&test->getQ()[3], Eigen::Vector3d(0,0,0));
     world.addSystem(test);
-    fixDisplacementLeft(world, test);
-    //world.addConstraint(fixedPoint);
-    //world.addConstraint(fixedPoint1);
-    //world.addConstraint(fixedPoint2);
+    fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
     auto q = mapStateEigen(world);

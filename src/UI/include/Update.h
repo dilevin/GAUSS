@@ -225,11 +225,11 @@ namespace Gauss {
             Qt3DRender::QFilterKey *filterKey = new Qt3DRender::QFilterKey;
             
             //load shader code
-            wfGL3Shader->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile("../../data/shaders/robustwireframe.vert")));
+            wfGL3Shader->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile(QString::fromStdString(dataDir())+"/shaders/robustwireframe.vert")));
             
-            wfGL3Shader->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile("../../data/shaders/robustwireframe.frag")));
+            wfGL3Shader->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile(QString::fromStdString(dataDir())+"/shaders/robustwireframe.frag")));
             
-            wfGL3Shader->setGeometryShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile("../../data/shaders/robustwireframe.geom")));
+            wfGL3Shader->setGeometryShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl::fromLocalFile(QString::fromStdString(dataDir())+"/shaders/robustwireframe.geom")));
             
             //filter decides when to use each shader
             filterKey->setName(QStringLiteral("renderingStyle"));

@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 {
     std::cout<<"Example 1\n";
 
-    
     //Setup Physics
     MyWorld world;
     PhysicalSystemParticleSingle<double> *test =

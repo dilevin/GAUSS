@@ -1,193 +1,25 @@
 //
-//  Update.h
+//  RenderableFEM.h
 //  Gauss
 //
-//  Created by David Levin on 2/14/17.
+//  Created by David Levin on 5/1/17.
 //
 //
 
-#ifndef Update_h
-#define Update_h
-#include <State.h>
-#include <DOFParticle.h>
-#include <Qt3DRender/QGeometryRenderer>
-#include <Qt3DRender/QGeometry>
-#include <Qt3DRender/QAttribute>
-#include <Qt3DRender/QBuffer>
-#include <Qt3DCore/QEntity.h>
-#include <Qt3DExtras/QSphereMesh>
-#include <Qt3DExtras/QCylinderMesh>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QPerVertexColorMaterial>
-#include <Qt3DCore/QTransform>
-#include <UtilitiesEigen.h>
-#include <FEMIncludes.h>
-#include <QMaterial.h>
-#include <qeffect.h>
-#include <Qt3DRender/QRenderPass>
-#include <Qt3DRender/QTechnique>
-#include <Qt3DRender/QShaderProgram>
-#include <Qt3DRender/QFilterKey>
-#include <Qt3DRender/QParameter>
-#include <Qt3DRender/QGraphicsApiFilter>
-#include <QUrl>
+#ifndef RenderableFEM_h
+#define RenderableFEM_h
 
-//TODO Add in displacements to mesh so that it hopefully animates
+#include <Update.h>
 
 namespace Gauss {
-//classes for updating and instanting rendering components
-    template<typename DataType, typename ...Params>
-    class Renderable
-    {
-    public:
-        Renderable() {  }
-        
-        virtual Qt3DCore::QEntity * getEntity(Qt3DCore::QEntity *root, State<DataType> &state) = 0;
-        
-        virtual void update(State<DataType> &state) const = 0;
-            
-    protected:
-    private:
-            
-    };
-
-    //Renderable for a Single Particle DOF
-    template<typename DataType, unsigned int PropertyIndex>
-    class Renderable<ParticleSystem::DOFParticle<DataType, PropertyIndex> > : public Renderable<DataType>
-    {
     
-    public:
-        Renderable(ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof) : Renderable<DataType>() {
-            m_r = 1.0;
-            m_dof = &dof;
-        }
-        
-        Qt3DCore::QEntity * getEntity(Qt3DCore::QEntity *root, State<DataType> &state) {
-        
-            //geometry
-            m_sphere = new Qt3DExtras::QSphereMesh();
-            m_sphere->setRadius(1.0);
-            m_sphere->setRings(20);
-            m_sphere->setSlices(20);
-            
-            //use phong material for now
-            Qt3DExtras::QPhongMaterial *sphereMaterial = new Qt3DExtras::QPhongMaterial();
-            sphereMaterial->setDiffuse(QColor(255,0.0,0.0));
-            
-            //transform
-            m_transform = new Qt3DCore::QTransform();
-            m_transform->setScale(m_r);
-          
-            std::pair<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
-            
-            m_transform->setTranslation(QVector3D(ptr.first[0], ptr.first[1], ptr.first[2]));
-
-            //return entity
-            m_entity = new Qt3DCore::QEntity(root);
-            m_entity->addComponent(m_sphere);
-            m_entity->addComponent(sphereMaterial);
-            m_entity->addComponent(m_transform);
-                                        
-            return m_entity;
-            
-        }
-
-        
-        void update(State<DataType> &state) const {
-            std::pair<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
-            m_transform->setTranslation(QVector3D(ptr.first[0], ptr.first[1], ptr.first[2]));
-            m_sphere->setRadius(m_r);
-        }
-        
-    protected:
-        
-        DataType m_r; //radius of sphere
-        Qt3DCore::QEntity *m_entity;
-        Qt3DCore::QTransform *m_transform;
-        Qt3DExtras::QSphereMesh *m_sphere;
-        ParticleSystem::DOFParticle<DataType, PropertyIndex> *m_dof;
-        
-    private:
-    };
-    
-    //Renderable line between two dofs
-    template<typename DataType, unsigned int PropertyIndex>
-    class Renderable<ParticleSystem::DOFParticle<DataType, PropertyIndex>,
-    ParticleSystem::DOFParticle<DataType, PropertyIndex> > : public Renderable<DataType>
-    {
-    public:
-        Renderable(ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof0,
-                   ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof1) : Renderable<DataType>() {
-            m_r = 0.1;
-            m_dof0 = &dof0;
-            m_dof1 = &dof1;
-        }
-
-        Qt3DCore::QEntity * getEntity(Qt3DCore::QEntity *root, State<DataType> &state) {
-            
-            Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_dof0, state);
-            Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_dof1, state);
-            Eigen::Vector3d dq = q1 - q0;
-            
-            //geometry
-            m_cylinder = new Qt3DExtras::QCylinderMesh();
-            m_cylinder->setRadius(1.0);
-            m_cylinder->setRings(20);
-            m_cylinder->setLength(1.0);
-            
-            //use phong material for now
-            Qt3DExtras::QPhongMaterial *cylinderMaterial = new Qt3DExtras::QPhongMaterial();
-            cylinderMaterial->setDiffuse(QColor(220.0,220.0,220.0));
-            
-            //transform
-            m_transform = new Qt3DCore::QTransform();
-            m_transform->setScale3D(QVector3D(m_r, m_r, dq.norm()));
-            m_transform->setTranslation(QVector3D(q0[0]+0.5*dq[0], q0[1]+0.5*dq[1], q0[2]+0.5*dq[2]));
-            
-            //return entity
-            m_entity = new Qt3DCore::QEntity(root);
-            m_entity->addComponent(m_cylinder);
-            m_entity->addComponent(cylinderMaterial);
-            m_entity->addComponent(m_transform);
-            
-            return m_entity;
-            
-        }
-
-        void update(State<DataType> &state) const {
-            Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_dof0, state);
-            Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_dof1, state);
-            Eigen::Vector3d dq = q1 + q0;
-            Eigen::Vector3d difq = q1 - q0;
-            Eigen::Vector3d axis = difq.cross(Eigen::Vector3d(0.0, 1.0, 0.0));
-            
-            m_transform->setScale3D(QVector3D(m_r, (q1-q0).norm(), m_r));
-            m_transform->setTranslation(QVector3D(0.5*dq[0], 0.5*dq[1], 0.5*dq[2]));
-            m_transform->setRotation(QQuaternion::fromAxisAndAngle(axis[0], axis[1], axis[2], 57.7*acos((q1-q0)[1])));
-            
-            
-        }
-        
-    protected:
-        double m_r;
-        Qt3DCore::QEntity *m_entity;
-        Qt3DCore::QTransform *m_transform;
-        Qt3DExtras::QCylinderMesh *m_cylinder;
-        ParticleSystem::DOFParticle<DataType, PropertyIndex> *m_dof0, *m_dof1;
-        
-    private:
-    };
-    
-    //Renderable object for linear tet element
-    //Add new Renderable that stores seperate vertices for each element so I can render per facet colors for stresses or materials.
-    
-    /*template<typename DataType>
+    template<typename DataType>
     class Renderable<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
-                                    FEM::Element<DataType, 4, FEM::QuadratureExact,
-                                    FEM::EnergyKineticNonLumped,
-                                    FEM::EnergyLinearElasticity,
-                                    FEM::BodyForceGravity,
-                                    FEM::ShapeFunctionLinearTet> > > >: public Renderable<DataType>
+    FEM::Element<DataType, 4, FEM::QuadratureExact,
+    FEM::EnergyKineticNonLumped,
+    FEM::EnergyLinearElasticity,
+    FEM::BodyForceGravity,
+    FEM::ShapeFunctionLinearTet> > > >: public Renderable<DataType>
     {
     public:
         
@@ -197,7 +29,7 @@ namespace Gauss {
         FEM::EnergyLinearElasticity,
         FEM::BodyForceGravity,
         FEM::ShapeFunctionLinearTet> > >;
-
+        
         
         Renderable(FEMSystem *fem) : Renderable<DataType>() {
             std::cout<<"Renderable Tet FEM \n";
@@ -265,7 +97,7 @@ namespace Gauss {
             
             m_vertexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, m_tetGeometry);
             Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, m_tetGeometry);
-
+            
             
             long totalScalarV = m_fem->getImpl().getV().rows()*m_fem->getImpl().getV().cols();
             long numTets = m_fem->getImpl().getF().rows();
@@ -342,7 +174,7 @@ namespace Gauss {
                 rawVertexArray[totalScalarV+3*F(tetId,1)+0] = n1.x();
                 rawVertexArray[totalScalarV+3*F(tetId,1)+1] = n1.y();
                 rawVertexArray[totalScalarV+3*F(tetId,1)+2] = n1.z();
-               
+                
                 rawVertexArray[totalScalarV+3*F(tetId,2)+0] = n2.x();
                 rawVertexArray[totalScalarV+3*F(tetId,2)+1] = n2.y();
                 rawVertexArray[totalScalarV+3*F(tetId,2)+2] = n2.z();
@@ -457,11 +289,11 @@ namespace Gauss {
             m_transform->setRotationZ(0.0);
             m_transform->setTranslation(QVector3D(0,0,0));
             
-           //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
-           // Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
+            //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
+            // Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
             
             //material->setDiffuse(QColor(220.0, 0.0,0.0));
-
+            
             m_entity = new Qt3DCore::QEntity(root);
             m_entity->addComponent(m_tetRenderer);
             m_entity->addComponent(m_transform);
@@ -505,7 +337,9 @@ namespace Gauss {
         Qt3DRender::QBuffer *m_vertexDataBuffer;
         
     private:
-    };*/
+    };
+
+    
 }
 
-#endif /* Update_h */
+#endif /* RenderableFEM_h */

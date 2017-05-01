@@ -5,6 +5,7 @@
 #include <State.h>
 #include <Qt3DCore/QEntity.h>
 #include <Update.h>
+#include <RenderableFEM.h>
 
 //specific physical system types
 #include <PhysicalSystemParticles.h>

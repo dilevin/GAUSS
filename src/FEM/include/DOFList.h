@@ -52,6 +52,8 @@ namespace Gauss {
                     dof.offsetGlobalId(DOFBase<DataType, PropertyIndex>::m_globalId);
                 }
             }
+            
+            inline unsigned int &getNumDOFs() { return m_dofList.size(); }
 
         protected:
             std::vector<DOF<DataType, PropertyIndex> > m_dofList;

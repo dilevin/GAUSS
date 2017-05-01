@@ -98,6 +98,13 @@ namespace Gauss {
                 return m_elements[i];
                 
             }
+            
+            inline const ElementType * getElement(unsigned int i) const {
+                assert(i < m_elements.size());
+                return m_elements[i];
+                
+            }
+            
             auto & getQ() { return m_q; }
             const auto & getQ() const { return m_q; }
             
@@ -106,6 +113,10 @@ namespace Gauss {
             
             inline auto & getV() { return m_V; }
             inline auto & getF() { return m_F; }
+            
+            inline const auto & getV() const { return m_V; }
+            inline const auto & getF() const { return m_F; }
+            
         protected:
             
             //Mesh

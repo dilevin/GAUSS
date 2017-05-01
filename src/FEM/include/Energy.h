@@ -61,8 +61,15 @@ namespace Gauss {
                 m_mu = poissonsRatio;
             }
             
+            //accessors
+            inline DataType & setE() { return m_E; }
+            inline DataType & setMu() { return m_mu; }
+            
+            inline const DataType & getE() const { return m_E; }
+            inline const DataType & getMu() const { return m_mu; }
+            
         protected:
-            double m_E, m_mu;
+            DataType m_E, m_mu;
             
         private:
             

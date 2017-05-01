@@ -19,6 +19,18 @@ int Gauss::openIfstream(std::ifstream &in, std::string filename)
     return 0;
 }
 
+//Written by Dave Levin (University of Toronto)
+int Gauss::openOfstream(std::ofstream &out, std::string filename)
+{
+    out.open(filename);
+    if(!out.good()) {
+        std::cout<<"Cannot write to "<<filename<<"\n";
+        return -1;
+    }
+    
+    return 0;
+    
+}
 
 //Lions share of code borrowed from Desai Chen for SIMIT
 void Gauss::readTetgen(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const std::string nodeFile, const std::string eleFile) {

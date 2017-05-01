@@ -99,11 +99,15 @@ namespace Gauss {
             Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, m_tetGeometry);
             
             
-            long totalScalarV = m_fem->getImpl().getV().rows()*m_fem->getImpl().getV().cols();
+            //long totalScalarV = m_fem->getImpl().getV().rows()*m_fem->getImpl().getV().cols();
+            
+            //total numebr of verts = numVetsPerElement*numElements
+            long totalScalarV = 3*m_fem->getImpl().getF().cols()*m_fem->getImpl().getF().rows();
             long numTets = m_fem->getImpl().getF().rows();
             
-            m_vertexBufferData.resize((3*totalScalarV) * sizeof(float)); //data for vertex positions + ...
-            m_updateData.resize(totalScalarV*sizeof(float));
+            //data for vertex positions + vertex normals + vertex colors = 3*totalScalarV
+            m_vertexBufferData.resize((3*totalScalarV) * sizeof(float)); //array for drawing
+            m_updateData.resize(totalScalarV*sizeof(float)); //array for updating during animation
             
             
             //per face color and per face normals
@@ -116,9 +120,13 @@ namespace Gauss {
             
             int idx = 0;
             int vertexId = 0;
+            int tetId = 0;
+            const auto & V = m_fem->getImpl().getV();
+            const auto & F = m_fem->getImpl().getF();
+            
             
             //vertex positions
-            for(; idx < totalScalarV; ++vertexId) {
+            /*for(; idx < totalScalarV; ++vertexId) {
                 rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,0);
                 rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,0);
                 
@@ -128,6 +136,47 @@ namespace Gauss {
                 rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,2);
                 rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,2);
                 
+            }*/
+            
+            for(; idx<totalScalarV; ++tetId) {
+                
+                //vertex 1
+                vertexId = F(tetId, 0);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,0);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,0);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,1);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,1);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,2);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,2);
+                
+                
+                //vertex 2
+                vertexId = F(tetId, 1);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,0);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,0);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,1);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,1);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,2);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,2);
+                
+                //vertex 3
+                vertexId = F(tetId, 2);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,0);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,0);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,1);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,1);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,2);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,2);
+                
+                //vertex 4
+                vertexId = F(tetId, 3);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,0);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,0);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,1);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,1);
+                rawUpdatePositionArray[idx] = m_fem->getImpl().getV()(vertexId,2);
+                rawVertexArray[idx++] = m_fem->getImpl().getV()(vertexId,2);
+
             }
             
             QVector3D v0, v1, v2, v3;
@@ -143,12 +192,8 @@ namespace Gauss {
             QVector3D n3;
             
             //really lazy vertex normals for now
-            int tetId = 0;
-            const auto & V = m_fem->getImpl().getV();
-            const auto & F = m_fem->getImpl().getF();
-            
-            
-            
+            tetId = 0;
+        
             for(; tetId < numTets; ) {
                 
                 v0 = QVector3D(V(F(tetId,0),0), V(F(tetId,0),1), V(F(tetId,0),2));
@@ -167,7 +212,25 @@ namespace Gauss {
                 n2 = QVector3D(n132 + n012 + n023).normalized();
                 n3 = QVector3D(n132 + n310 + n023).normalized();
                 
-                rawVertexArray[totalScalarV+3*F(tetId,0)+0] = n0.x();
+                rawVertexArray[idx++] = n0.x();
+                rawVertexArray[idx++] = n0.y();
+                rawVertexArray[idx++] = n0.z();
+                
+                rawVertexArray[idx++] = n1.x();
+                rawVertexArray[idx++] = n1.y();
+                rawVertexArray[idx++] = n1.z();
+                
+                rawVertexArray[idx++] = n2.x();
+                rawVertexArray[idx++] = n2.y();
+                rawVertexArray[idx++] = n2.z();
+                
+                rawVertexArray[idx++] = n3.x();
+                rawVertexArray[idx++] = n3.y();
+                rawVertexArray[idx++] = n3.z();
+                
+                tetId++;
+                
+                /*rawVertexArray[totalScalarV+3*F(tetId,0)+0] = n0.x();
                 rawVertexArray[totalScalarV+3*F(tetId,0)+1] = n0.y();
                 rawVertexArray[totalScalarV+3*F(tetId,0)+2] = n0.z();
                 
@@ -182,7 +245,7 @@ namespace Gauss {
                 rawVertexArray[totalScalarV+3*F(tetId,3)+0] = n3.x();
                 rawVertexArray[totalScalarV+3*F(tetId,3)+1] = n3.y();
                 rawVertexArray[totalScalarV+3*F(tetId,3)+2] = n3.z();
-                tetId++;
+                tetId++;*/
                 
             }
             
@@ -190,9 +253,11 @@ namespace Gauss {
             
             //face colors
             for(; idx < (3*totalScalarV); ) {
+                
+                double color = static_cast<double>((idx/3)%2 > 0);
                 rawVertexArray[idx++] = red.x();
-                rawVertexArray[idx++] = red.y();
-                rawVertexArray[idx++] = red.z();
+                rawVertexArray[idx++] = color*red.y();
+                rawVertexArray[idx++] = color*red.z();
             }
             
             
@@ -204,23 +269,23 @@ namespace Gauss {
             
             idx = 0;
             tetId = 0;
-            for(;idx < 12*numTets; ++tetId) {
+            for(unsigned int idy = 0;idx < 12*numTets; ) {
                 // Front
-                rawIndexArray[idx++] = F(tetId, 0);
-                rawIndexArray[idx++] = F(tetId, 2);
-                rawIndexArray[idx++] = F(tetId, 1);
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
                 // Bottom
-                rawIndexArray[idx++] = F(tetId, 3);
-                rawIndexArray[idx++] = F(tetId, 0);
-                rawIndexArray[idx++] = F(tetId, 1);
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
                 // Left
-                rawIndexArray[idx++] = F(tetId, 0);
-                rawIndexArray[idx++] = F(tetId, 3);
-                rawIndexArray[idx++] = F(tetId, 2);
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
                 // Right
-                rawIndexArray[idx++] = F(tetId, 1);
-                rawIndexArray[idx++] = F(tetId, 2);
-                rawIndexArray[idx++] = F(tetId, 3);
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy++;
             }
             
             m_vertexDataBuffer->setData(m_vertexBufferData);
@@ -235,7 +300,7 @@ namespace Gauss {
             positionAttribute->setVertexSize(3);
             positionAttribute->setByteOffset(0);
             positionAttribute->setByteStride(0);
-            positionAttribute->setCount(V.rows());
+            positionAttribute->setCount(totalScalarV/3);
             positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
             
             Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
@@ -245,7 +310,7 @@ namespace Gauss {
             normalAttribute->setVertexSize(3);
             normalAttribute->setByteOffset(totalScalarV * sizeof(float));
             normalAttribute->setByteStride(0);
-            normalAttribute->setCount(12*numTets);
+            normalAttribute->setCount(totalScalarV/3);
             normalAttribute->setName(Qt3DRender::QAttribute::defaultNormalAttributeName());
             
             Qt3DRender::QAttribute *colorAttribute = new Qt3DRender::QAttribute();
@@ -255,7 +320,7 @@ namespace Gauss {
             colorAttribute->setVertexSize(3);
             colorAttribute->setByteOffset((2*totalScalarV)* sizeof(float));
             colorAttribute->setByteStride(0);
-            colorAttribute->setCount(totalScalarV);
+            colorAttribute->setCount(totalScalarV/3);
             colorAttribute->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
             
             Qt3DRender::QAttribute *indexAttribute = new Qt3DRender::QAttribute();
@@ -265,7 +330,7 @@ namespace Gauss {
             indexAttribute->setVertexSize(1);
             indexAttribute->setByteOffset(0);
             indexAttribute->setByteStride(0);
-            indexAttribute->setCount(12*numTets);
+            indexAttribute->setCount(totalScalarV/3);
             
             m_tetGeometry->addAttribute(positionAttribute);
             m_tetGeometry->addAttribute(normalAttribute);

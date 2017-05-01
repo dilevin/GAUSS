@@ -1,6 +1,8 @@
 #ifndef _FORCE_H
 #define _FORCE_H
 
+#include <State.h>
+
 namespace Gauss {
     template<typename DataType, typename Impl >
     class Force

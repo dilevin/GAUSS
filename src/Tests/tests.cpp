@@ -16,6 +16,7 @@
 //FEM Stuff
 #include <Element.h>
 #include <PhysicalSystemFEM.h>
+#include <FEMIncludes.h>
 
 //Eigen
 #include <Eigen/Dense>
@@ -25,9 +26,6 @@
 using namespace Gauss;
 using namespace ParticleSystem;
 
-//types
-template<typename DataType>
-using LinearTet = FEM::Element<DataType, 4, FEM::QuadratureExact, FEM::EnergyKineticNonLumped, FEM::EnergyPotentialNone, FEM::ShapeFunctionLinearTet>;
 
 //Single Particle Tests
 TEST (SingleParticleTest, Tests) {

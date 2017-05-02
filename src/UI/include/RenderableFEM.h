@@ -96,6 +96,7 @@ namespace Gauss {
             m_tetGeometry = new Qt3DRender::QGeometry(m_tetRenderer);
             
             m_vertexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, m_tetGeometry);
+            
             Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, m_tetGeometry);
             
             
@@ -106,14 +107,14 @@ namespace Gauss {
             long numTets = m_fem->getImpl().getF().rows();
             
             //data for vertex positions + vertex normals + vertex colors = 3*totalScalarV
-            m_vertexBufferData.resize((3*totalScalarV) * sizeof(float)); //array for drawing
+            m_vertexBufferData.resize(3*totalScalarV* sizeof(float)); //array for drawing
             m_updateData.resize(totalScalarV*sizeof(float)); //array for updating during animation
             
             
             //per face color and per face normals
             
             // Colors
-            QVector3D red(1.0f, 0.0f, 0.0f);
+            QVector3D red(1.0f, 1.0f, 0.0f);
             
             float *rawVertexArray = reinterpret_cast<float *>(m_vertexBufferData.data());
             float *rawUpdatePositionArray = reinterpret_cast<float *>(m_updateData.data());
@@ -249,15 +250,30 @@ namespace Gauss {
                 
             }
             
-            idx += totalScalarV;
+            //idx += totalScalarV;
             
             //face colors
-            for(; idx < (3*totalScalarV); ) {
+            tetId = 0;
+            for(; tetId < numTets; ++tetId) {
                 
-                double color = static_cast<double>((idx/3)%2 > 0);
-                rawVertexArray[idx++] = red.x();
-                rawVertexArray[idx++] = color*red.y();
+                double color = static_cast<double>(tetId%2 > 0);
+                rawVertexArray[idx++] = color*red.x();
+                rawVertexArray[idx++] = red.y();
                 rawVertexArray[idx++] = color*red.z();
+                
+                rawVertexArray[idx++] = color*red.x();
+                rawVertexArray[idx++] = red.y();
+                rawVertexArray[idx++] = color*red.z();
+                
+                rawVertexArray[idx++] = color*red.x();
+                rawVertexArray[idx++] = red.y();
+                rawVertexArray[idx++] = color*red.z();
+                
+                rawVertexArray[idx++] = color*red.x();
+                rawVertexArray[idx++] = red.y();
+                rawVertexArray[idx++] = color*red.z();
+                
+                
             }
             
             
@@ -271,21 +287,23 @@ namespace Gauss {
             tetId = 0;
             for(unsigned int idy = 0;idx < 12*numTets; ) {
                 // Front
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy+0;
+                rawIndexArray[idx++] = idy+2;
+                rawIndexArray[idx++] = idy+1;
                 // Bottom
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy+3;
+                rawIndexArray[idx++] = idy+0;
+                rawIndexArray[idx++] = idy+1;
                 // Left
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy+0;
+                rawIndexArray[idx++] = idy+3;
+                rawIndexArray[idx++] = idy+2;
                 // Right
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
-                rawIndexArray[idx++] = idy++;
+                rawIndexArray[idx++] = idy+1;
+                rawIndexArray[idx++] = idy+2;
+                rawIndexArray[idx++] = idy+3;
+                
+                idy += 4;
             }
             
             m_vertexDataBuffer->setData(m_vertexBufferData);
@@ -355,14 +373,14 @@ namespace Gauss {
             m_transform->setTranslation(QVector3D(0,0,0));
             
             //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
-            // Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
+            Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
             
             //material->setDiffuse(QColor(220.0, 0.0,0.0));
             
             m_entity = new Qt3DCore::QEntity(root);
             m_entity->addComponent(m_tetRenderer);
             m_entity->addComponent(m_transform);
-            m_entity->addComponent(wireframeMaterial);
+            m_entity->addComponent(material);
             
             //setup update array
             
@@ -382,8 +400,45 @@ namespace Gauss {
             //2.) Update using mesh data + state which for linear FEM is the displacement of the node
             Eigen::Map<Eigen::VectorXd> pos = mapDOFEigen(m_fem->getQ(), state);
             
-            for(unsigned int ii=0;  ii <pos.rows(); ++ii) {
-                rawData[ii] = rawOriginalData[ii] + pos[ii];
+            unsigned int vertexId, idx;
+            idx = 0;
+            for(unsigned int ii=0;  ii < m_fem->getImpl().getF().rows(); ++ii) {
+                
+                vertexId = m_fem->getImpl().getF()(ii, 0);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                idx++;
+                
+                //vertex 2
+                vertexId = m_fem->getImpl().getF()(ii, 1);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                idx++;
+                
+                //vertex 3
+                vertexId = m_fem->getImpl().getF()(ii, 2);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                idx++;
+                
+                //vertex 4
+                vertexId = m_fem->getImpl().getF()(ii, 3);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                idx++;
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                idx++;
+            
             }
             
             //Update

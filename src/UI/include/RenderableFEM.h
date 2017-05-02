@@ -43,8 +43,8 @@ namespace Gauss {
             Qt3DRender::QEffect *wireframeEffect = new Qt3DRender::QEffect;
             
             //parameters
-            Qt3DRender::QParameter *m_ambient = new Qt3DRender::QParameter(QStringLiteral("ka"), QColor::fromRgbF(0.45f, 0.05f, 0.05f, 1.0f));
-            Qt3DRender::QParameter *m_diffuse = new Qt3DRender::QParameter(QStringLiteral("kd"), QColor::fromRgbF(1.0f, 0.0f, 0.0f, 0.0f));
+            Qt3DRender::QParameter *m_ambient = new Qt3DRender::QParameter(QStringLiteral("ka"), QColor::fromRgbF(0.45f, 0.45f, 0.45f, 1.0f));
+            Qt3DRender::QParameter *m_diffuse = new Qt3DRender::QParameter(QStringLiteral("kd"), QColor::fromRgbF(1.0f, 1.0f, 1.0f, 0.0f));
             Qt3DRender::QParameter *m_specular = new Qt3DRender::QParameter(QStringLiteral("ks"), QColor::fromRgbF(0.1f, 0.1f, 0.1f, 1.0f));
             Qt3DRender::QParameter *m_shininess = new Qt3DRender::QParameter(QStringLiteral("shininess"), 10.0);
             Qt3DRender::QParameter *m_lineWidth = new Qt3DRender::QParameter(QStringLiteral("line.width"), 3.0);
@@ -254,9 +254,23 @@ namespace Gauss {
             
             //face colors
             tetId = 0;
+            
+            //scale materials and use them to scale the colors
+            //Let's just embrace lambdas
+            auto ymMax = (*std::max_element(m_fem->getImpl().getElements().begin(),
+                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+            auto ymMin = (*std::min_element(m_fem->getImpl().getElements().begin(),
+                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+            
+        
+            double dym = (ymMax - ymMin);
+            double color = 0.0;
+            dym = (dym > 0 ? dym : 1.0);
+            
             for(; tetId < numTets; ++tetId) {
                 
-                double color = static_cast<double>(tetId%2 > 0);
+                color =(m_fem->getImpl().getElement(tetId)->getE() - ymMin)/dym;
+                color = 0.0;
                 rawVertexArray[idx++] = color*red.x();
                 rawVertexArray[idx++] = red.y();
                 rawVertexArray[idx++] = color*red.z();
@@ -373,14 +387,14 @@ namespace Gauss {
             m_transform->setTranslation(QVector3D(0,0,0));
             
             //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
-            Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
+            //Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial();
             
             //material->setDiffuse(QColor(220.0, 0.0,0.0));
             
             m_entity = new Qt3DCore::QEntity(root);
             m_entity->addComponent(m_tetRenderer);
             m_entity->addComponent(m_transform);
-            m_entity->addComponent(material);
+            m_entity->addComponent(wireframeMaterial);
             
             //setup update array
             

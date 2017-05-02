@@ -15,6 +15,7 @@ uniform float shininess;    // Specular shininess factor
 in WireframeVertex {
     vec3 position;
     vec3 normal;
+    vec4 color; 
     noperspective vec4 edgeA;
     noperspective vec4 edgeB;
     flat int configuration;
@@ -49,6 +50,9 @@ vec3 adsModel2( const in vec3 pos, const in vec3 n )
     vec3 diffuseColor, specularColor;
     adsModel(fs_in.position, fs_in.normal, eyePosition, shininess, diffuseColor, specularColor);
 
+    diffuseColor.r *= fs_in.color.r;
+    diffuseColor.g *= fs_in.color.g;
+    diffuseColor.b *= fs_in.color.b;
     return (ka + kd*diffuseColor + ks*specularColor);
 }
 

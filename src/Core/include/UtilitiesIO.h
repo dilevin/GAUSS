@@ -25,7 +25,35 @@ namespace Gauss {
     //write data to tetgen
     inline void writeTetgenFiles(const std::string file, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F) { }
     
-    //write simulation file
+    //read simulation file (at some point use templates to automatically select the right method, for now these are FEM specific)
+    template<typename Simulation>
+    Simulation * readSimFromFile(const std::string filename) {
+        
+        std::ifstream iFile;
+        
+        if(openIfstream(iFile, filename) < 0) {
+            std::cout<<"Failed to open "<<filename<<"\n";
+            return nullptr;
+        }
+        
+        //read in finite element meshes
+        std::string nodeName, eleName;
+        
+        iFile >> nodeName;
+        iFile >> eleName;
+        
+        std::cout<<"Reading geometrry from "<<nodeName<<" and "<<eleName<<"\n";
+        
+        Eigen::MatrixXd V;
+        Eigen::MatrixXi F;
+        
+        readTetgen(V,F, nodeName, eleName);
+        
+        return new Simulation(V,F);
+        
+    }
+    
+    //write simulation file (see above about specializations)
     template<typename Simulation>
     void writeSimToFile(const std::string simName, const std::string nodeFile, const std::string eleFile, const Simulation *sim) {
         
@@ -46,6 +74,33 @@ namespace Gauss {
         //write out list of element YM and MU
         for(unsigned int iel=0; iel<sim->getImpl().getF().rows(); ++iel) {
             oFile << sim->getImpl().getElement(iel)->getE() <<" "<<sim->getImpl().getElement(iel)->getMu() <<"\n";
+        }
+        
+    }
+    
+    //read in simulation state
+    template<typename DataType>
+    void readStateFile(State<DataType> &state, const std::string filename) {
+    
+        std::ifstream iFile;
+        
+        if(openIfstream(iFile, filename) < 0) {
+            return;
+        }
+        
+        unsigned int stateSize ;
+        
+        iFile >> stateSize;
+        
+        std::cout<<"Loading state of size "<<stateSize<<"\n";
+    
+        if(state.getNumScalarDOF() != stateSize) {
+            std::cout<<"Error reading state from disk, state size mismatch \n";
+            return;
+        }
+        
+        for(unsigned int ii=0; ii<stateSize; ++ii) {
+            iFile>>state[ii];
         }
         
     }

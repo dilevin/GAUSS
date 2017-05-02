@@ -100,9 +100,9 @@ namespace Gauss {
         unsigned int m_val[sizeof...(T)];
     };
     
-    inline std::string dataDir() {
-        return std::string(DataDir(GAUSS_DATA_DIR));
-    }
+    std::string dataDir();
+    
+    std::string timeStampString(std::string toStamp);
     
 }
 #endif /* Utilities_h */

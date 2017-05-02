@@ -6,11 +6,13 @@ layout( triangle_strip, max_vertices = 3 ) out;
 in EyeSpaceVertex {
     vec3 position;
     vec3 normal;
+    vec4 color; 
 } gs_in[];
 
 out WireframeVertex {
     vec3 position;
     vec3 normal;
+    vec4 color;
     noperspective vec4 edgeA;
     noperspective vec4 edgeB;
     flat int configuration;
@@ -49,7 +51,6 @@ void main()
         // Common configuration where all vertices are within the viewport
         gs_out.edgeA = vec4(0.0);
         gs_out.edgeB = vec4(0.0);
-
         // Calculate lengths of 3 edges of triangle
         float a = length( p[1] - p[2] );
         float b = length( p[2] - p[0] );
@@ -71,6 +72,7 @@ void main()
         gs_out.edgeA = vec4( ha, 0.0, 0.0, 0.0 );
         gs_out.normal = gs_in[0].normal;
         gs_out.position = gs_in[0].position;
+        gs_out.color = gs_in[0].color;
         gl_Position = gl_in[0].gl_Position;
         EmitVertex();
 
@@ -78,6 +80,7 @@ void main()
         gs_out.edgeA = vec4( 0.0, hb, 0.0, 0.0 );
         gs_out.normal = gs_in[1].normal;
         gs_out.position = gs_in[1].position;
+        gs_out.color = gs_in[1].color;
         gl_Position = gl_in[1].gl_Position;
         EmitVertex();
 
@@ -85,6 +88,7 @@ void main()
         gs_out.edgeA = vec4( 0.0, 0.0, hc, 0.0 );
         gs_out.normal = gs_in[2].normal;
         gs_out.position = gs_in[2].position;
+        gs_out.color = gs_in[2].color;
         gl_Position = gl_in[2].gl_Position;
         EmitVertex();
 
@@ -112,16 +116,19 @@ void main()
         // Pass through the other vertex attributes
         gs_out.normal = gs_in[0].normal;
         gs_out.position = gs_in[0].position;
+        gs_out.color = gs_in[0].color;
         gl_Position = gl_in[0].gl_Position;
         EmitVertex();
 
         gs_out.normal = gs_in[1].normal;
         gs_out.position = gs_in[1].position;
+        gs_out.color = gs_in[1].color;
         gl_Position = gl_in[1].gl_Position;
         EmitVertex();
 
         gs_out.normal = gs_in[2].normal;
         gs_out.position = gs_in[2].position;
+        gs_out.color = gs_in[2].color;
         gl_Position = gl_in[2].gl_Position;
         EmitVertex();
 

@@ -99,6 +99,9 @@ namespace Gauss {
                 
             }
             
+            inline std::vector<ElementType *> & getElements() { return m_elements; }
+            inline const std::vector<ElementType *> & getElements() const { return m_elements; }
+            
             inline const ElementType * getElement(unsigned int i) const {
                 assert(i < m_elements.size());
                 return m_elements[i];
@@ -116,6 +119,7 @@ namespace Gauss {
             
             inline const auto & getV() const { return m_V; }
             inline const auto & getF() const { return m_F; }
+            
             
         protected:
             

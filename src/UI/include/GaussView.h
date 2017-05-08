@@ -48,8 +48,6 @@ namespace Gauss {
                 m_timer = new QTimer();
                 QObject::connect(m_timer, SIGNAL(timeout()), scene, SLOT(takeStep()));
                 
-
-                
             }
             
             ~GaussView() {

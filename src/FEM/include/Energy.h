@@ -31,6 +31,22 @@ namespace Gauss {
             
             inline double getDensity() { return m_rho; }
             
+            //infinitessimal gradients and hessians
+            template<typename Vector>
+            inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
+                //do Nothing (I don't think I use this for anything really)
+            }
+            
+            template<typename Matrix>
+            inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
+             
+                //compute mass matrix at point X = m_rho*J(x)^T*J(x)
+                Eigen::MatrixXd M;
+                ShapeFunction::J(M, x, state);
+
+                H = m_rho*M.transpose()*M;
+            }
+            
         protected:
             double m_rho;
             

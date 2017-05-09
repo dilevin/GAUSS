@@ -92,8 +92,7 @@ namespace Gauss {
             template<typename Matrix>
             inline void getHessian(Matrix &H, const State<DataType> &state) {
             
-                assign(H, m_massMatrix, std::array<DOFBase<DataType,1>, 4>{{*m_qDotDofs[0], *m_qDotDofs[1], *m_qDotDofs[2], *m_qDotDofs[3]}},
-                               std::array<DOFBase<DataType,1>, 4>{{*m_qDotDofs[0], *m_qDotDofs[1], *m_qDotDofs[2], *m_qDotDofs[3]}});
+                assign(H, m_massMatrix, m_qDotDofs, m_qDotDofs);
 
                 
                 //Only need two numbers for element mass matrix
@@ -228,15 +227,14 @@ namespace Gauss {
                 q << v0, v1, v2, v3;
                 Eigen::Matrix<double, 12,1> f0 = m_K*q;
                 
-                assign(f, f0, std::array<DOFBase<DataType,0>, 4>{{*m_qDofs[0], *m_qDofs[1], *m_qDofs[2], *m_qDofs[3]}});
+                assign(f, f0, m_qDofs);
                 
             }
             
             template<typename Matrix>
             inline void getHessian(Matrix &H, const State<DataType> &state) {
                 
-                assign(H, m_K, std::array<DOFBase<DataType,0>, 4>{{*m_qDofs[0], *m_qDofs[1], *m_qDofs[2], *m_qDofs[3]}},
-                               std::array<DOFBase<DataType,0>, 4>{{*m_qDofs[0], *m_qDofs[1], *m_qDofs[2], *m_qDofs[3]}});
+                assign(H, m_K, m_qDofs, m_qDofs);
                 
             }
             
@@ -292,7 +290,8 @@ namespace Gauss {
                 
                 Eigen::Vector3d nodalF = m_rho*m_V0*0.25*m_g;
                 Eigen::Matrix<double, 12,1> elementF = nodalF.replicate(4,1);
-                assign(f, elementF, std::array<DOFBase<DataType,0>, 4>{{*m_qDofs[0], *m_qDofs[1], *m_qDofs[2], *m_qDofs[3]}});
+                //assign(f, elementF, std::array<DOFBase<DataType,0>, 4>{{*m_qDofs[0], *m_qDofs[1], *m_qDofs[2], *m_qDofs[3]}});
+                assign(f, elementF, m_qDofs);
                 
                 
             }

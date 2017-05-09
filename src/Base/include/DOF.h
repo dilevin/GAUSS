@@ -117,6 +117,7 @@ namespace Gauss {
         
     private:
     };
+    
 }
 
 #endif

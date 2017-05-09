@@ -14,6 +14,19 @@
 #include <Utilities.h>
 #include <World.h>
 
+
+//some useful types
+namespace Eigen {
+    template<typename DataType>
+    using Vector3x = Eigen::Matrix<DataType, 3,1>;
+    
+    template<typename DataType>
+    using VectorXx = Eigen::Matrix<DataType, Eigen::Dynamic, 1>;
+    
+    template<typename DataType>
+    using MatrixXx = Eigen::Matrix<DataType, Eigen::Dynamic, 1>;
+}
+
 namespace Gauss {
     //state ptr direct to eigen map for a single property (position or velocity)
     template<unsigned int Property, typename World>

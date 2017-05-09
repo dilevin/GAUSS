@@ -15,7 +15,7 @@ namespace Gauss {
         using LinearTet = Element<DataType, 4, QuadratureExact, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionLinearTet>;
         
         template<typename DataType>
-        using LinearHex = Element<DataType, 8, QuadratureNone, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionHexTrilinear>;
+        using LinearHex = Element<DataType, 8, QuadratureHex8, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionHexTrilinear>;
 
     }
 }

@@ -114,8 +114,13 @@ namespace Gauss {
                 m_g << gx,gy,gz;
             }
             
+            template<typename Vector>
+            inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
+                f = m_rho*m_g;
+            }
+            
         protected:
-            Eigen::Vector3d m_g;
+            Eigen::Vector3x<DataType> m_g;
             double m_rho;
         };
         

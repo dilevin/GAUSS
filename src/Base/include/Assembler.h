@@ -66,6 +66,13 @@ static_if<isAssembler<Assembler>::val()>([&](auto f){ \
 // EQUALS MAT should take the connectivity as a variable
 namespace Gauss {
     
+    //utility functions for converting actual objects to pointers (smooth out some interface issues)
+    template<typename T>
+    inline T* ptr(T* obj)  { return obj; }
+    
+    template<typename T>
+    inline T* ptr(T &obj) { return &obj; }
+    
     class AssemblerBase {
     public:
         AssemblerBase() { m_rowOffset = 0; m_colOffset = 0; }
@@ -162,9 +169,9 @@ namespace Gauss {
                 //add double to system as a diagonal matrix
                 for(unsigned int idof=0;idof < i.size(); ++idof) {
                     for(unsigned int jdof=0;jdof < j.size(); ++jdof) {
-                            for(unsigned int ii=0; ii<i[idof].getNumScalarDOF(); ++ii) {
-                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+i[idof].getGlobalId()+ii,
-                                                                                          parent->m_colOffset+j[jdof].getGlobalId()+ii,
+                            for(unsigned int ii=0; ii<ptr(i[idof])->getNumScalarDOF(); ++ii) {
+                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+ptr(i[idof])->getGlobalId()+ii,
+                                                                                          parent->m_colOffset+ptr(j[jdof])->getGlobalId()+ii,
                                                                                           toAssembler));
                             }
                     }
@@ -184,12 +191,12 @@ namespace Gauss {
             
                 ipos = 0;
                 for(idof=0, ii=0; idof<i.size(); ++idof) {
-                    for(ii=0; ii<i[idof].getNumScalarDOF(); ++ii) {
+                    for(ii=0; ii<ptr(i[idof])->getNumScalarDOF(); ++ii) {
                         jpos = 0;
                         for(jdof = 0, jj=0; jdof<j.size(); ++jdof) {
-                            for(jj = 0; jj<j[jdof].getNumScalarDOF(); ++jj) {
-                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+i[idof].getGlobalId()+ii,
-                                                                                          parent->m_colOffset+j[jdof].getGlobalId()+jj,
+                            for(jj = 0; jj<ptr(j[jdof])->getNumScalarDOF(); ++jj) {
+                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+ptr(i[idof])->getGlobalId()+ii,
+                                                                                          parent->m_colOffset+ptr(j[jdof])->getGlobalId()+jj,
                                                                                           toAssembler(ipos+ii, jpos+jj)));
                             }
                             
@@ -282,8 +289,8 @@ namespace Gauss {
                                   const Eigen::Matrix<Precision, ROWS, 1> &toAssembler) {
                 unsigned int localId = 0;
                 for(unsigned int idof=0;idof < i.size(); ++idof) {
-                        for(unsigned int ii=0; ii<i[idof].getNumScalarDOF(); ++ii, ++localId) {
-                            parent->m_assembled[parent->m_rowOffset+i[idof].getGlobalId()+ii] += toAssembler[localId];
+                        for(unsigned int ii=0; ii<ptr(i[idof])->getNumScalarDOF(); ++ii, ++localId) {
+                            parent->m_assembled[parent->m_rowOffset+ptr(i[idof])->getGlobalId()+ii] += toAssembler[localId];
                         }
                     }
                 }

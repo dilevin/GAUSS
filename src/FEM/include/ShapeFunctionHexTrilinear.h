@@ -45,6 +45,15 @@ namespace Gauss {
                 
                 //using node numberings from http://www.colorado.edu/engineering/CAS/courses.d/AFEM.d/AFEM.Ch11.d/AFEM.Ch11.pdf
                 //but with right handed coordinate system
+                //     4----------5
+                //    /|         /|
+                //   7-|--------6 |
+                //   | |        | |
+                //   | 0 -------|-1    +y
+                //   |/         |/     |
+                //   3----------2      0-- +x
+                //                    /
+                //                   +z
                 
                 double x[3];
                 phi<5>(&x[0]);
@@ -59,28 +68,28 @@ namespace Gauss {
                 Eigen::Vector3d e = alpha(x);
                 
                 static_if<(Vertex==0)>([&](auto f) {
-                    return (1-e(0))*(1-e(1))*(1-e(2));
+                    return (1.0/8.0)*(1-e(0))*(1-e(1))*(1-e(2));
                 }).else_([&](auto f) {
                     static_if<(Vertex==1)>([&](auto f) {
-                        return 0.0;
+                        return (1.0/8.0)*(1+e(0))*(1-e(1))*(1-e(2));
                     }).else_([&](auto f) {
                         static_if<(Vertex==2)>([&](auto f) {
-                            return 0.0;
+                            return (1.0/8.0)*(1+e(0))*(1+e(1))*(1-e(2));
                         }).else_([&](auto f) {
                             static_if<(Vertex==3)>([&](auto f) {
-                                return 0.0;
+                                return (1.0/8.0)*(1-e(0))*(1+e(1))*(1-e(2));
                             }).else_([&](auto f) {
                                 static_if<(Vertex==4)>([&](auto f) {
-                                    return 0.0;
+                                    return (1.0/8.0)*(1-e(0))*(1-e(1))*(1+e(2));
                                 }).else_([&](auto f) {
                                     static_if<(Vertex==5)>([&](auto f) {
-                                        return 0.0;
+                                        return (1.0/8.0)*(1+e(0))*(1-e(1))*(1+e(2));
                                     }).else_([&](auto f) {
                                         static_if<(Vertex==6)>([&](auto f) {
-                                            return 0.0;
+                                            return (1.0/8.0)*(1+e(0))*(1+e(1))*(1+e(2));
                                         }).else_([&](auto f) {
                                             //final shape function
-                                            return 0.0;
+                                            return (1.0/8.0)*(1-e(0))*(1+e(1))*(1+e(2));
                                         });
                                     });
                                 });
@@ -95,12 +104,16 @@ namespace Gauss {
                 return 0.0;
             }
             
+            inline Eigen::Vector3x<DataType> x(double alphaX, double alphaY, double alphaZ) const {
+                return m_x0 + Eigen::Vector3x<DataType>((alphaX+1.)*m_dx(0)*0.5, (alphaY+1.)*m_dx(1)*0.5,(alphaZ+1.)*m_dx(2)*0.5);
+            }
+            
             inline Eigen::Vector3d alpha(double *x) {
             
                 Eigen::Vector3d e = Eigen::Map<Eigen::Vector3d>(x)-m_x0;
-                e(0) /= m_dx(0);
-                e(1) /= m_dx(1);
-                e(2) /= m_dx(2);
+                e(0) = 2.0*(e(0)/m_dx(0))-1.0;
+                e(1) = 2.0*(e(1)/m_dx(1))-1.0;
+                e(2) = 2.0*(e(2)/m_dx(2))-1.0;
                 
                 return e;
             }
@@ -148,7 +161,7 @@ namespace Gauss {
             }
             
             
-            constexpr unsigned int getNumVerts() { return 4; }
+            constexpr unsigned int getNumVerts() { return 8; }
             
         protected:
             

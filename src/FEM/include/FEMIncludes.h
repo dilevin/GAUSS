@@ -13,8 +13,12 @@
 #include <PhysicalSystemFEM.h>
 #include <Element.h>
 #include <Energy.h>
+
+//Quadrature rules
 #include <Quadrature.h>
 #include <QuadratureExact.h>
+#include <QuadratureHex8.h>
+
 #include <ShapeFunction.h>
 #include <ShapeFunctionHexTrilinear.h>
 #include <ElementTypes.h>

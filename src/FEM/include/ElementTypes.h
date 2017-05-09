@@ -13,6 +13,9 @@ namespace Gauss {
     namespace FEM {
         template<typename DataType>
         using LinearTet = Element<DataType, 4, QuadratureExact, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionLinearTet>;
+        
+        template<typename DataType>
+        using LinearHex = Element<DataType, 8, QuadratureNone, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionHexTrilinear>;
 
     }
 }

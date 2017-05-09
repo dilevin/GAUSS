@@ -17,6 +17,10 @@ namespace Gauss {
         class QuadratureNone : public Energy {
         public:
             
+            template<typename QDOFList, typename QDotDOFList>
+            inline QuadratureNone(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
+                Energy(V,F,qDOFList, qDotDOFList){ }
+            
             inline void getValue(DataType &f, State<DataType> &state) { }
 
             template<typename Vector, typename DOFList>

@@ -14,6 +14,8 @@ using namespace ParticleSystem; //For Force Spring
 
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
+typedef PhysicalSystemFEM<double, LinearHex> FEMLinearHexes;
+
 typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
@@ -33,6 +35,8 @@ int main(int argc, char **argv) {
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
+    
+    LinearHex<double> hexTex(V,F, std::array<DOFBase<double,0> *, 8>(), std::array<DOFBase<double,1> *, 8>());
     
     world.addSystem(test);
     fixDisplacementMin(world, test);

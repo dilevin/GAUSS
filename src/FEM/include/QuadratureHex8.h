@@ -13,11 +13,13 @@ namespace Gauss {
     namespace FEM {
         
         template<typename DataType, typename Energy>
-        class QuadratureHex8 : Energy {
+        class QuadratureHex8 : public Energy {
         public:
             
             using Energy::m_dx;
             using Energy::m_x0;
+            using Energy::m_qDofs;
+            using Energy::m_qDotDofs;
             
             template<typename QDOFList, typename QDotDOFList>
             inline QuadratureHex8(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
@@ -27,10 +29,10 @@ namespace Gauss {
                 
             }
             
-            template<typename Vector, typename DOFList>
-            inline void getGradient(Vector &f, State<DataType> &state) {
+            template<typename Vector>
+            inline void getGradient(Vector &f, const State<DataType> &state) {
             
-                DataType w = static_cast<DataType>(1.0);
+                DataType w = static_cast<DataType>(Energy::volume()/8.0);
                 DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
             
                 Eigen::VectorXx<DataType> fInt;
@@ -40,42 +42,40 @@ namespace Gauss {
                 
                 Energy::getGradient(fInt, Energy::x(-alpha,-alpha,-alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,-alpha,-alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,alpha,-alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,-alpha,-alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(-alpha,-alpha,alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,-alpha,alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,alpha,alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
+                assign(f, fInt, Energy::m_qDofs);
                 
                 Energy::getGradient(fInt, Energy::x(alpha,-alpha,alpha).data(), state);
                 fInt *= w;
-                assign(f, fInt, Energy::m_qDof);
-                
-                
+                assign(f, fInt, Energy::m_qDofs);
                 
             }
             
-            template<typename Matrix, typename DOFList>
-            inline void getHessian(Matrix &H, State<DataType> &state, const DOFList &q) {
+            template<typename Matrix>
+            inline void getHessian(Matrix &H, const State<DataType> &state) {
                 DataType w = static_cast<DataType>(1.0);
                 DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
                 
@@ -86,35 +86,35 @@ namespace Gauss {
                 
                 Energy::getHessian(HInt, Energy::x(-alpha,-alpha,-alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,-alpha,-alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,alpha,-alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,-alpha,-alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(-alpha,-alpha,alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,-alpha,alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,alpha,alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
                 Energy::getHessian(HInt, Energy::x(alpha,-alpha,alpha).data(), state);
                 HInt *= w;
-                assign(H, HInt, Energy::m_qDof, Energy::m_qDof);
+                assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
             }
             
         protected:

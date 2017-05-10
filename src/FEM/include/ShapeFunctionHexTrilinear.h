@@ -134,7 +134,7 @@ namespace Gauss {
             
             //Jacobian: derivative with respect to degrees of freedom
             template<typename Matrix>
-            inline void J(Matrix &output, double *x, State<DataType> &state) {
+            inline void J(Matrix &output, double *x, const State<DataType> &state) {
                 
                 //just a 3x12 matrix of shape functions
                 //kind of assuming everything is initialized before we get here
@@ -149,17 +149,18 @@ namespace Gauss {
 
                 output.resize(3,24);
                 output.setZero();
-                output.block(0,0, 3,3) = phi0*Matrix::Identity();
-                output.block(0,3, 3,3) = phi1*Matrix::Identity();
-                output.block(0,6, 3,3) = phi2*Matrix::Identity();
-                output.block(0,9, 3,3) = phi3*Matrix::Identity();
-                output.block(0,12, 3,3) = phi4*Matrix::Identity();
-                output.block(0,15, 3,3) = phi5*Matrix::Identity();
-                output.block(0,18, 3,3) = phi6*Matrix::Identity();
-                output.block(0,21, 3,3) = phi7*Matrix::Identity();
+                output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,3, 3,3) = phi1*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,6, 3,3) = phi2*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,9, 3,3) = phi3*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,12, 3,3) = phi4*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,15, 3,3) = phi5*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,18, 3,3) = phi6*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,21, 3,3) = phi7*Eigen::Matrix<DataType,3,12>::Identity();
                 
             }
             
+            inline double volume() { return m_dx(0)*m_dx(1)*m_dx(2); }
             
             constexpr unsigned int getNumVerts() { return 8; }
             

@@ -77,6 +77,16 @@ namespace Gauss {
                 m_mu = poissonsRatio;
             }
             
+            template<typename Vector>
+            inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
+                
+            }
+            
+            template<typename Matrix>
+            inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
+                
+            }
+            
             //accessors
             inline DataType & setE() { return m_E; }
             inline DataType & setMu() { return m_mu; }
@@ -117,6 +127,11 @@ namespace Gauss {
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
                 f = m_rho*m_g;
+            }
+            
+            template<typename Matrix>
+            inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
+                
             }
             
         protected:

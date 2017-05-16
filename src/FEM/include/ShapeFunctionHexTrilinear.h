@@ -8,14 +8,22 @@
 
 #ifndef ShapeFunctionHexTrilinear_h
 #define ShapeFunctionHexTrilinear_h
+#include <UtilitiesEigen.h>
+
+
 
 namespace Gauss {
     namespace FEM {
 
+        
         //TODO Add trilinear hexahedral shape function + approriate quadrature rules
         template<typename DataType>
         class ShapeFunctionHexTrilinear {
         public:
+            
+            using MatrixB = Eigen::Matrix<DataType, 6,24>;
+            using MatrixJ = Eigen::Matrix<DataType, 3, 24>;
+            using VectorQ = Eigen::Matrix<DataType, 24,1>;
             
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionHexTrilinear(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) {
@@ -41,7 +49,7 @@ namespace Gauss {
                 m_qDotDofs[7] = qDotDOFList[7];
                 
                 m_x0 << Vert(0,0), Vert(0,1), Vert(0,2);
-                m_dx = V.block(F(6), 0, 1,3) - V.block(F(0), 0, 1, 3);
+                m_dx = (V.block(F(6), 0, 1,3) - V.block(F(0), 0, 1, 3)).transpose();
                 
                 //using node numberings from http://www.colorado.edu/engineering/CAS/courses.d/AFEM.d/AFEM.Ch11.d/AFEM.Ch11.pdf
                 //but with right handed coordinate system
@@ -56,22 +64,51 @@ namespace Gauss {
                 //                   +z
                 
                 double x[3];
-                phi<5>(&x[0]);
+                std::cout<<"PHI: \n"<<phi<5>(&x[0])<<"\n";
                 
             }
             
             //drop my gets for this just because my hands get tired of typing it all the time
-            template<unsigned int Vertex>
+            template<int Vertex>
             inline double phi(double *x) {
                 
                 assert(Vertex < 8);
+                std::cout<<"Vertex :"<<Vertex<<"\n";
+                std::cout<<"BOOL: "<<(Vertex==5)<<"\n";
                 Eigen::Vector3d e = alpha(x);
+                double phiOut = 0.0;
                 
                 static_if<(Vertex==0)>([&](auto f) {
-                    return (1.0/8.0)*(1-e(0))*(1-e(1))*(1-e(2));
+                    phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1-e(2));
+                });
+                static_if<(Vertex==1)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1-e(2));
+                });
+                static_if<(Vertex==2)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1+e(2));
+                });
+                static_if<(Vertex==3)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1+e(2));
+                });
+                static_if<(Vertex==4)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1-e(2));
+                });
+                static_if<Vertex==5>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1-e(2));
+                });
+                static_if<(Vertex==6)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1+e(2));
+                });
+                static_if<(Vertex==7)>([&](auto f) {
+                    phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1+e(2));
+                });
+                
+                
+                /*static_if<(Vertex==0)>([&](auto f) {
+                    return (1.0/8.0)*(1-f(e)(0))*(1-f(e)(1))*(1-f(e)(2));
                 }).else_([&](auto f) {
                     static_if<(Vertex==1)>([&](auto f) {
-                        return (1.0/8.0)*(1+e(0))*(1-e(1))*(1-e(2));
+                        return (1.0/8.0)*(1+f(e)(0))*(1-f(e)(1))*(1-f(e)(2));
                     }).else_([&](auto f) {
                         static_if<(Vertex==2)>([&](auto f) {
                             return (1.0/8.0)*(1+e(0))*(1+e(1))*(1-e(2));
@@ -83,7 +120,7 @@ namespace Gauss {
                                     return (1.0/8.0)*(1-e(0))*(1-e(1))*(1+e(2));
                                 }).else_([&](auto f) {
                                     static_if<(Vertex==5)>([&](auto f) {
-                                        return (1.0/8.0)*(1+e(0))*(1-e(1))*(1+e(2));
+                                        return (1.0/8.0)*(1+f(e)(0))*(1-f(e)(1))*(1+f(e)(2));
                                     }).else_([&](auto f) {
                                         static_if<(Vertex==6)>([&](auto f) {
                                             return (1.0/8.0)*(1+e(0))*(1+e(1))*(1+e(2));
@@ -97,11 +134,9 @@ namespace Gauss {
                         });
                     });
                     
-                });
-                
-                assert(1==0);
-                std::cout<<"Error, should not reach here \n";
-                return 0.0;
+                });*/
+            
+                return phiOut;
             }
             
             inline Eigen::Vector3x<DataType> x(double alphaX, double alphaY, double alphaZ) const {
@@ -132,9 +167,33 @@ namespace Gauss {
                 assert(1 == 0);
             }
             
+    
+            inline Eigen::Matrix<DataType, 6, 24> B(double *x, const State<DataType> &state) {
+            
+                return MatrixB();
+            }
+            
+            inline VectorQ q(const State<DataType> &state) {
+                
+                VectorQ tmp;
+                
+                
+                tmp<<  mapDOFEigen(*m_qDofs[0], state),
+                       mapDOFEigen(*m_qDofs[1], state),
+                       mapDOFEigen(*m_qDofs[2], state),
+                       mapDOFEigen(*m_qDofs[3], state),
+                       mapDOFEigen(*m_qDofs[4], state),
+                       mapDOFEigen(*m_qDofs[5], state),
+                       mapDOFEigen(*m_qDofs[6], state),
+                       mapDOFEigen(*m_qDofs[7], state);
+                
+                return tmp;
+            }
+            
             //Jacobian: derivative with respect to degrees of freedom
-            template<typename Matrix>
-            inline void J(Matrix &output, double *x, const State<DataType> &state) {
+            inline MatrixJ J(double *x, const State<DataType> &state) {
+                
+                MatrixJ output;
                 
                 //just a 3x12 matrix of shape functions
                 //kind of assuming everything is initialized before we get here
@@ -149,14 +208,16 @@ namespace Gauss {
 
                 output.resize(3,24);
                 output.setZero();
-                output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,3, 3,3) = phi1*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,6, 3,3) = phi2*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,9, 3,3) = phi3*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,12, 3,3) = phi4*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,15, 3,3) = phi5*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,18, 3,3) = phi6*Eigen::Matrix<DataType,3,12>::Identity();
-                output.block(0,21, 3,3) = phi7*Eigen::Matrix<DataType,3,12>::Identity();
+                output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,3, 3,3) = phi1*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,6, 3,3) = phi2*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,9, 3,3) = phi3*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,12, 3,3) = phi4*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,15, 3,3) = phi5*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,18, 3,3) = phi6*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,21, 3,3) = phi7*Eigen::Matrix<DataType,3,3>::Identity();
+                
+                return output;
                 
             }
             

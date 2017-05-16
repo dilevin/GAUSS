@@ -100,9 +100,9 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     (*forceVector).head(world.getNumQDotDOFs()) = (*massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot +
                                                   dt*(*forceVector).head(world.getNumQDotDOFs());
     
-    //toMatlab(*massMatrix, "./testM.txt");
-    //toMatlab(*stiffnessMatrix, "./testK.txt");
-    //toMatlab(*forceVector, "./testf.txt");
+    toMatlab(*massMatrix, "./testMHex.txt");
+    toMatlab(*stiffnessMatrix, "./testKHex.txt");
+    toMatlab(*forceVector, "./testfHex.txt");
     
     //std::cout<<"F: "<<(*forceVector)<<"\n";
     

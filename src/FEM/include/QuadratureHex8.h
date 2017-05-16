@@ -32,7 +32,7 @@ namespace Gauss {
             template<typename Vector>
             inline void getGradient(Vector &f, const State<DataType> &state) {
             
-                DataType w = static_cast<DataType>(Energy::volume()/8.0);
+                DataType w = static_cast<DataType>(Energy::volume());
                 DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
             
                 Eigen::VectorXx<DataType> fInt;
@@ -52,7 +52,7 @@ namespace Gauss {
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
-                Energy::getGradient(fInt, Energy::x(alpha,-alpha,-alpha).data(), state);
+                Energy::getGradient(fInt, Energy::x(-alpha,alpha,-alpha).data(), state);
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
@@ -68,7 +68,7 @@ namespace Gauss {
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
-                Energy::getGradient(fInt, Energy::x(alpha,-alpha,alpha).data(), state);
+                Energy::getGradient(fInt, Energy::x(-alpha,alpha,alpha).data(), state);
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
@@ -96,7 +96,7 @@ namespace Gauss {
                 HInt *= w;
                 assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
-                Energy::getHessian(HInt, Energy::x(alpha,-alpha,-alpha).data(), state);
+                Energy::getHessian(HInt, Energy::x(-alpha,alpha,-alpha).data(), state);
                 HInt *= w;
                 assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
@@ -112,7 +112,7 @@ namespace Gauss {
                 HInt *= w;
                 assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 
-                Energy::getHessian(HInt, Energy::x(alpha,-alpha,alpha).data(), state);
+                Energy::getHessian(HInt, Energy::x(-alpha,alpha,alpha).data(), state);
                 HInt *= w;
                 assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
             }

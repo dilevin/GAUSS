@@ -179,7 +179,7 @@ namespace Gauss {
             }
         };
         
-        template<typename I, typename J, unsigned int ROWS, unsigned int COLS>
+        template<typename I, typename J, int ROWS, int COLS>
         struct assembleStruct<I, J, Eigen::Matrix<double, ROWS, COLS> > {
             inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const Eigen::Matrix<double, ROWS, COLS> &toAssembler) {
                 

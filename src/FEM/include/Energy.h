@@ -41,9 +41,8 @@ namespace Gauss {
             inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
              
                 //compute mass matrix at point X = m_rho*J(x)^T*J(x)
-                Eigen::MatrixXd M;
-                ShapeFunction::J(M, x, state);
-
+                typename ShapeFunction::MatrixJ M = ShapeFunction::J(x, state);
+                    
                 H = m_rho*M.transpose()*M;
             }
             
@@ -62,7 +61,6 @@ namespace Gauss {
             EnergyPotentialNone(Eigen::MatrixXd &V, Eigen::MatrixXi &F, DOFList &dofList) : ShapeFunction(V,F, dofList) { }
         };
         
-        //Linear Elasticity
         template<typename DataType, typename ShapeFunction>
         class EnergyLinearElasticity : public ShapeFunction {
         public:
@@ -80,11 +78,23 @@ namespace Gauss {
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
                 
+                /*//returning the force which is really the negative gradient
+                 Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDofs[0], state);
+                 Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDofs[1], state);
+                 Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDofs[2], state);
+                 Eigen::Map<Eigen::VectorXd> v3 = mapDOFEigen(*m_qDofs[3], state);
+                 
+                 Eigen::Matrix<double, 12,1> q;
+                 q << v0, v1, v2, v3;
+                 Eigen::Matrix<double, 12,1> f0 = m_K*q;*/
+                
+                f = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state)*ShapeFunction::q(state);
+
             }
             
             template<typename Matrix>
             inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
-                
+                H = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state);
             }
             
             //accessors
@@ -96,6 +106,7 @@ namespace Gauss {
             
         protected:
             DataType m_E, m_mu;
+            Eigen::Matrix66x<DataType> m_C;
             
         private:
             
@@ -126,7 +137,9 @@ namespace Gauss {
             
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
-                f = m_rho*m_g;
+            
+                //assuming force does same rate of work so generalized force = J'T*f
+                f = ShapeFunction::J(x,state).transpose()*m_rho*m_g;
             }
             
             template<typename Matrix>

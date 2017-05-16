@@ -6,6 +6,7 @@
 #include <Qt3DCore/QEntity.h>
 #include <Update.h>
 #include <RenderableFEM.h>
+#include <RenderableFEMHex.h>
 
 //specific physical system types
 #include <PhysicalSystemParticles.h>

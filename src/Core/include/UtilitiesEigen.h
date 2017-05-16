@@ -24,7 +24,13 @@ namespace Eigen {
     using VectorXx = Eigen::Matrix<DataType, Eigen::Dynamic, 1>;
     
     template<typename DataType>
-    using MatrixXx = Eigen::Matrix<DataType, Eigen::Dynamic, 1>;
+    using MatrixXx = Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>;
+    
+    //Comes up a lot in constitutive models
+    template<typename DataType>
+    using Matrix66x = Eigen::Matrix<DataType, 6,6>;
+    
+    
 }
 
 namespace Gauss {

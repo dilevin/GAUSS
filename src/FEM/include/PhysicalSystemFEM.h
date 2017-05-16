@@ -46,14 +46,11 @@ namespace Gauss {
                 std::array<DOFBase<DataType,0> *, ElementType::numDOFs()> qDOFArray;
                 std::array<DOFBase<DataType,1> *, ElementType::numDOFs()> qDotDOFArray;
                 for(unsigned int iel=0; iel < m_numElements; iel++) {
-                    qDOFArray[0] = &m_q[F(iel,0)];
-                    qDOFArray[1] = &m_q[F(iel,1)];
-                    qDOFArray[2] = &m_q[F(iel,2)];
-                    qDOFArray[3] = &m_q[F(iel,3)];
-                    qDotDOFArray[0] = &m_qDot[F(iel,0)];
-                    qDotDOFArray[1] = &m_qDot[F(iel,1)];
-                    qDotDOFArray[2] = &m_qDot[F(iel,2)];
-                    qDotDOFArray[3] = &m_qDot[F(iel,3)];
+                    
+                    for(unsigned int idof=0;idof < ElementType::numDOFs(); ++idof) {
+                        qDOFArray[idof] = &m_q[F(iel,idof)];
+                        qDotDOFArray[idof] = &m_qDot[F(iel,idof)];
+                    }
                     
                     Felement = m_F.row(iel);
                    

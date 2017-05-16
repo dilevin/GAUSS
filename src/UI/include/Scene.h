@@ -13,8 +13,13 @@
 
 #include "PhysicsEntity.h"
 #include "Update.h"
+
+//FEM Renderables
 #include "RenderableFEM.h"
+#include "RenderableFEMHex.h"
+
 #include <TimeStepper.h>
+
 namespace Gauss {
 
     

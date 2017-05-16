@@ -70,15 +70,17 @@ namespace Gauss {
                 assert(Vertex > 0);
                 assert(Vertex < 4);
                 
+                DataType phiOut;
+                
                 //compile time if to get the shape function I want (just returning barycentric coordinates for this
                 //case
                 static_if<(Vertex > 0)>([&](auto f){
-                    return m_T.row(Vertex-1)*(Eigen::Map<Eigen::Matrix<DataType, 3,1> >(x) - m_x3);
+                    phiOut = m_T.row(Vertex-1)*(Eigen::Map<Eigen::Matrix<DataType, 3,1> >(x) - m_x3);
                 }).else_([&](auto f) {
-                    return 1.0 - (m_T*(Eigen::Map<Eigen::Matrix<DataType, 3,1> >(x) - m_x3)).sum();
+                    phiOut = 1.0 - (m_T*(Eigen::Map<Eigen::Matrix<DataType, 3,1> >(x) - m_x3)).sum();
                 });
                 
-                
+                return phiOut;
             }
             
             template<unsigned int Vertex>
@@ -114,6 +116,13 @@ namespace Gauss {
                 
             }
         
+            inline Eigen::Matrix<DataType, 6, 12> B(double *x, const State<DataType> &state) {
+                
+                //fill in B matrix for this element
+                std::cout<<"B Matrix not implemented yet for linear tetrahedron \n";
+                assert(1 ==0);
+            }
+            
             //Jacobian: derivative with respect to degrees of freedom
             template<typename Matrix>
             inline void J(Matrix &output, double *x, State<DataType> &state) {

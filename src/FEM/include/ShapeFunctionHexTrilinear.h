@@ -63,9 +63,6 @@ namespace Gauss {
                 //                    /
                 //                   +z
                 
-                double x[3];
-                std::cout<<"PHI: \n"<<phi<5>(&x[0])<<"\n";
-                
             }
             
             //drop my gets for this just because my hands get tired of typing it all the time
@@ -73,8 +70,6 @@ namespace Gauss {
             inline double phi(double *x) {
                 
                 assert(Vertex < 8);
-                std::cout<<"Vertex :"<<Vertex<<"\n";
-                std::cout<<"BOOL: "<<(Vertex==5)<<"\n";
                 Eigen::Vector3d e = alpha(x);
                 double phiOut = 0.0;
                 
@@ -156,6 +151,38 @@ namespace Gauss {
             template<unsigned int Vertex>
             inline std::array<DataType, 3> dphi(double *x) {
                 
+                std::array<DataType,3> deriv;
+                
+                assert(Vertex < 8);
+                Eigen::Vector3d e = alpha(x);
+              
+                static_if<(Vertex==0)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1-e(2));
+                });
+                static_if<(Vertex==1)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1-e(2));
+                });
+                static_if<(Vertex==2)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1+e(2));
+                });
+                static_if<(Vertex==3)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1+e(2));
+                });
+                static_if<(Vertex==4)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1-e(2));
+                });
+                static_if<Vertex==5>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1-e(2));
+                });
+                static_if<(Vertex==6)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1+e(2));
+                });
+                static_if<(Vertex==7)>([&](auto f) {
+                    //phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1+e(2));
+                });
+
+                
+                return deriv;
             }
             
             
@@ -170,7 +197,16 @@ namespace Gauss {
     
             inline Eigen::Matrix<DataType, 6, 24> B(double *x, const State<DataType> &state) {
             
-                return MatrixB();
+                MatrixB tmp;
+                
+                tmp <<      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0;
+                
+                return tmp;
             }
             
             inline VectorQ q(const State<DataType> &state) {

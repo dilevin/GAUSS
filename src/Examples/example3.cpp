@@ -54,14 +54,14 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
-    MyTimeStepper stepper(0.01);
+    MyTimeStepper stepper(0.00001);
     MyScene *scene = new MyScene(&world, &stepper);
     
     //Display
     QGuiApplication app(argc, argv);
     
     GAUSSVIEW(scene);
-    //gaussView.startScene();
+    gaussView.startScene();
     
     return app.exec();
 }

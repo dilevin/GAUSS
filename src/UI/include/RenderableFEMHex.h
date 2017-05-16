@@ -499,9 +499,20 @@ namespace Gauss {
             
             unsigned int vertexId, idx;
             idx = 0;
-            for(unsigned int ii=0;  ii < m_fem->getImpl().getF().rows(); ++ii) {
+            
+            for(unsigned int elId=0;  elId < m_fem->getImpl().getF().rows(); ++elId) {
                 
-                vertexId = m_fem->getImpl().getF()(ii, 0);
+                for(unsigned int ii=0; ii<m_fem->getImpl().getF().cols(); ++ii) {
+                    vertexId = m_fem->getImpl().getF()(elId, ii);
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                    idx++;
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                    idx++;
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                    idx++;
+                }
+                
+                /*vertexId = m_fem->getImpl().getF()(ii, 0);
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
                 idx++;
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
@@ -534,7 +545,7 @@ namespace Gauss {
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
                 idx++;
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
-                idx++;
+                idx++;*/
                 
             }
             

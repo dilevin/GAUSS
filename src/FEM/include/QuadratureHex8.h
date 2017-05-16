@@ -48,6 +48,7 @@ namespace Gauss {
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
+                
                 Energy::getGradient(fInt, Energy::x(alpha,alpha,-alpha).data(), state);
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);

@@ -36,8 +36,6 @@ int main(int argc, char **argv) {
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     
-    LinearHex<double> hexTex(V,F, std::array<DOFBase<double,0> *, 8>(), std::array<DOFBase<double,1> *, 8>());
-    
     world.addSystem(test);
     fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)

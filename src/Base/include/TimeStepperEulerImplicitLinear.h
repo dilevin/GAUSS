@@ -96,15 +96,16 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
     
 
+    //std::cout<<"F: "<<(*forceVector)<<"\n";
     //setup RHS
     (*forceVector).head(world.getNumQDotDOFs()) = (*massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot +
                                                   dt*(*forceVector).head(world.getNumQDotDOFs());
     
-    toMatlab(*massMatrix, "./testMHex.txt");
-    toMatlab(*stiffnessMatrix, "./testKHex.txt");
-    toMatlab(*forceVector, "./testfHex.txt");
+    //toMatlab(*massMatrix, "./testMHex.txt");
+    //toMatlab(*stiffnessMatrix, "./testKHex.txt");
+    //toMatlab(*forceVector, "./testfHex.txt");
     
-    //std::cout<<"F: "<<(*forceVector)<<"\n";
+    //std::cout<<"F: \n"<<(*forceVector)<<"\n";
     
     //solve system (Need interface for solvers but for now just use Eigen LLt)
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;

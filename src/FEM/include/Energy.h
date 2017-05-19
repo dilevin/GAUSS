@@ -66,13 +66,28 @@ namespace Gauss {
         public:
             template<typename QDOFList, typename QDotDOFList>
             EnergyLinearElasticity(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
-                m_E = 1e7;
-                m_mu = 0.45;
+                setParameters(1e7, 0.45);
+                
             }
             
             inline void setParameters(double youngsModulus, double poissonsRatio) {
                 m_E = youngsModulus;
                 m_mu = poissonsRatio;
+                
+                m_C.setZero();
+                m_C(0,0) = 1.0-m_mu;
+                m_C(0,1) = m_mu;
+                m_C(0,2) = m_mu;
+                m_C(1,0) = m_mu;
+                m_C(1,1) = 1.0-m_mu;
+                m_C(1,2) = m_mu;
+                m_C(2,0) = m_mu;
+                m_C(2,1) = m_mu;
+                m_C(2,2) = 1.0-m_mu;
+                m_C(3,3) = 0.5*(1.0-2.0*m_mu);
+                m_C(4,4) = 0.5*(1.0-2.0*m_mu);
+                m_C(5,5) = 0.5*(1.0-2.0*m_mu);
+                m_C *= (m_E/((1.0+m_mu)*(1.0-2.0*m_mu)));
             }
             
             template<typename Vector>
@@ -88,14 +103,18 @@ namespace Gauss {
                  q << v0, v1, v2, v3;
                  Eigen::Matrix<double, 12,1> f0 = m_K*q;*/
                 
-                f = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state)*ShapeFunction::q(state);
+                f = -B(this, x, state).transpose()*m_C*B(this, x, state)*ShapeFunction::q(state);
 
             }
             
             template<typename Matrix>
             inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
-                H = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state);
+                //H = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state);
+                
+                H = -B(this, x, state).transpose()*m_C*B(this, x, state);
+            
             }
+            
             
             //accessors
             inline DataType & setE() { return m_E; }

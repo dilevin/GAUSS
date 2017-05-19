@@ -25,6 +25,10 @@ namespace Gauss {
             using MatrixJ = Eigen::Matrix<DataType, 3, 24>;
             using VectorQ = Eigen::Matrix<DataType, 24,1>;
             
+            //convenience matrix type
+            template<unsigned int Rows>
+            using MatrixDOF = Eigen::Matrix<DataType, Rows, 24>;
+            
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionHexTrilinear(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) {
 
@@ -156,29 +160,48 @@ namespace Gauss {
                 assert(Vertex < 8);
                 Eigen::Vector3d e = alpha(x);
               
+                
+                //need dalpha/dx
+                
                 static_if<(Vertex==0)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1-e(2));
+                    deriv[0] = -0.25*((1. - e(1))*(1. - e(2)))/m_dx(0);
+                    deriv[1] = -0.25*((1. - e(0))*(1. - e(2)))/m_dx(1);
+                    deriv[2] = -0.25*((1. - e(0))*(1. - e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==1)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1-e(2));
+                    deriv[0] =  0.25*((1. - e(1))*(1. - e(2)))/m_dx(0);
+                    deriv[1] = -0.25*((1. + e(0))*(1. - e(2)))/m_dx(1);
+                    deriv[2] = -0.25*((1. + e(0))*(1. - e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==2)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1+e(0))*(1-e(1))*(1+e(2));
+                    deriv[0] =  0.25*((1. - e(1))*(1. + e(2)))/m_dx(0);
+                    deriv[1] = -0.25*((1. + e(0))*(1. + e(2)))/m_dx(1);
+                    deriv[2] =  0.25*((1. + e(0))*(1. - e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==3)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1-e(0))*(1-e(1))*(1+e(2));
+                    deriv[0] = -0.25*((1. - e(1))*(1. + e(2)))/m_dx(0);
+                    deriv[1] = -0.25*((1. - e(0))*(1. + e(2)))/m_dx(1);
+                    deriv[2] =  0.25*((1. - e(0))*(1. - e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==4)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1-e(2));
+                    deriv[0] = -0.25*((1. + e(1))*(1. - e(2)))/m_dx(0);
+                    deriv[1] =  0.25*((1. - e(0))*(1. - e(2)))/m_dx(1);
+                    deriv[2] = -0.25*((1. - e(0))*(1. + e(1)))/m_dx(2);
                 });
                 static_if<Vertex==5>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1-e(2));
+                    deriv[0] =  0.25*((1. + e(1))*(1. - e(2)))/m_dx(0);
+                    deriv[1] =  0.25*((1. + e(0))*(1. - e(2)))/m_dx(1);
+                    deriv[2] = -0.25*((1. + e(0))*(1. + e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==6)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1+e(0))*(1+e(1))*(1+e(2));
+                    deriv[0] =  0.25*((1. + e(1))*(1. + e(2)))/m_dx(0);
+                    deriv[1] =  0.25*((1. + e(0))*(1. + e(2)))/m_dx(1);
+                    deriv[2] =  0.25*((1. + e(0))*(1. + e(1)))/m_dx(2);
                 });
                 static_if<(Vertex==7)>([&](auto f) {
-                    //phiOut =  (1.0/8.0)*(1-e(0))*(1+e(1))*(1+e(2));
+                    deriv[0] = -0.25*((1. + e(1))*(1. + e(2)))/m_dx(0);
+                    deriv[1] =  0.25*((1. - e(0))*(1. + e(2)))/m_dx(1);
+                    deriv[2] =  0.25*((1. - e(0))*(1. + e(1)))/m_dx(2);
                 });
 
                 
@@ -195,7 +218,7 @@ namespace Gauss {
             }
             
     
-            inline Eigen::Matrix<DataType, 6, 24> B(double *x, const State<DataType> &state) {
+            /*inline Eigen::Matrix<DataType, 6, 24> B(double *x, const State<DataType> &state) {
             
                 MatrixB tmp;
                 
@@ -207,7 +230,7 @@ namespace Gauss {
                             0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0;
                 
                 return tmp;
-            }
+            }*/
             
             inline VectorQ q(const State<DataType> &state) {
                 
@@ -254,6 +277,26 @@ namespace Gauss {
                 output.block(0,21, 3,3) = phi7*Eigen::Matrix<DataType,3,3>::Identity();
                 
                 return output;
+                
+            }
+            
+            //spatial derivative of Jacobian (needed to evaluate spatial gradient of displacement/positions
+            //rows are derivatives in different directions
+            inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) {
+            
+                MatrixJ tmp;
+                
+                tmp.setZero();
+                tmp.col(component) = Eigen::Map3x<DataType>(dphi<0>(x).data());
+                tmp.col(3+component) = Eigen::Map3x<DataType>(dphi<1>(x).data());
+                tmp.col(6+component) = Eigen::Map3x<DataType>(dphi<2>(x).data());
+                tmp.col(9+component) = Eigen::Map3x<DataType>(dphi<3>(x).data());
+                tmp.col(12+component) = Eigen::Map3x<DataType>(dphi<4>(x).data());
+                tmp.col(15+component) = Eigen::Map3x<DataType>(dphi<5>(x).data());
+                tmp.col(18+component) = Eigen::Map3x<DataType>(dphi<6>(x).data());
+                tmp.col(21+component) = Eigen::Map3x<DataType>(dphi<7>(x).data());
+                
+                return tmp;
                 
             }
             

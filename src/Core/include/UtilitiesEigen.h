@@ -30,6 +30,10 @@ namespace Eigen {
     template<typename DataType>
     using Matrix66x = Eigen::Matrix<DataType, 6,6>;
     
+    //useful maps
+    template<typename DataType>
+    using Map3x = Eigen::Map<Vector3x<DataType> >;
+    
     
 }
 

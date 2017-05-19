@@ -115,13 +115,6 @@ namespace Gauss {
                          m_q3*Eigen::Map<Eigen::VectorXd>(dphi<3>).transpose();
                 
             }
-        
-            inline Eigen::Matrix<DataType, 6, 12> B(double *x, const State<DataType> &state) {
-                
-                //fill in B matrix for this element
-                std::cout<<"B Matrix not implemented yet for linear tetrahedron \n";
-                assert(1 ==0);
-            }
             
             //Jacobian: derivative with respect to degrees of freedom
             template<typename Matrix>
@@ -143,6 +136,7 @@ namespace Gauss {
                 
             }
             
+            //add dJ
             
             constexpr unsigned int getNumVerts() { return 4; }
             
@@ -157,6 +151,30 @@ namespace Gauss {
         private:
             
         };
+        
+        //useful differential operators
+        //B is the standard matrix form of the engineering linear strain (i.e with cross strains are multiplied by 2)
+        template<typename ShapeFunction, typename DataType>
+        typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, double *x, const State<DataType> &state) {
+            
+            typename ShapeFunction::template MatrixDOF<6> tmp;
+            
+            typename ShapeFunction::MatrixJ GradJx = N->GradJ(0, x, state);
+            typename ShapeFunction::MatrixJ GradJy = N->GradJ(1, x, state);
+            typename ShapeFunction::MatrixJ GradJz = N->GradJ(2, x, state);
+            
+            
+            //setup the B matrix using the Jacobian gradients
+            tmp.row(0) = GradJx.row(0);
+            tmp.row(1) = GradJy.row(1);
+            tmp.row(2) = GradJz.row(2);
+            tmp.row(3) = (GradJx.row(1) + GradJy.row(0));
+            tmp.row(4) = (GradJy.row(2) + GradJz.row(1));
+            tmp.row(5) = (GradJx.row(2) + GradJz.row(0));
+            
+            //std::cout<<"B:\n" <<tmp<<"\n";
+            return tmp;
+        }
     }
 }
 

@@ -19,6 +19,9 @@ add_definitions(-DGAUSS_DATA_DIR=${PROJECT_SOURCE_DIR}/data)
 #grab important packages
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+#libigl include directory
+set(LIBIGL_INCLUDE_PATH "path" CACHE FILEPATH "Root include directory for libigl")
+
 #Eigen
 find_package(Eigen3 REQUIRED)
 
@@ -48,6 +51,8 @@ set_target_properties(libgtest PROPERTIES
 
 #Individual feature directories
 include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${LIBIGL_INCLUDE_PATH})
+
 include_directories("${source_dir}/include") #gtest
 include_directories(${PROJECT_SOURCE_DIR}/src/Core/include 
 		    ${PROJECT_SOURCE_DIR}/src/Base/include)

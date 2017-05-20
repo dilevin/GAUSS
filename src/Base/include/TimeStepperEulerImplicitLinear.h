@@ -108,14 +108,14 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     //std::cout<<"F: \n"<<(*forceVector)<<"\n";
     
     //solve system (Need interface for solvers but for now just use Eigen LLt)
-    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+    Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
     Eigen::SparseMatrix<double> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     solver.compute(systemMatrix);
     
     if(solver.info()!=Eigen::Success) {
         // decomposition failed
         assert(1 == 0);
-        std::cout<<"Decompotion Failed \n";
+        std::cout<<"Decomposition Failed \n";
         exit(1);
     }
     

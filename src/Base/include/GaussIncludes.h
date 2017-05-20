@@ -16,6 +16,7 @@
 #include <Assembler.h>
 #include <Utilities.h>
 #include <UtilitiesEigen.h>
+#include <UtilitiesGeometry.h>
 
 
 #endif /* GaussIncludes_h */

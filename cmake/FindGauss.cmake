@@ -74,6 +74,7 @@ if(USE_OPENMP)
         set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE})
         set(GAUSS_LINK_DIR  ${LLVM_LIB})
         set(GAUSS_LIBS ${LLVM_LIB}/libiomp5.dylib)
+        add_definitions(-DGAUSS_OPENMP)
 endif(USE_OPENMP)
 
 #define the initUI macro

@@ -41,11 +41,13 @@ if(APPLE)
         set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE} CACHE INTERNAL "")
         set(GAUSS_LINK_DIR  ${LLVM_LIB} CACHE INTERNAL "")
         set(GAUSS_LIBS ${LLVM_LIB}/libiomp5.dylib CACHE INTERNAL "")
+        add_definitions(-DGAUSS_OPENMP)
     endif(USE_OPENMP)
 else()
     find_package(OpenMP REQUIRED)
     set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)    
+    add_definitions(-DGAUSS_OPENMP)
 endif(APPLE)
 
 #Output directories

@@ -250,8 +250,8 @@ namespace Gauss {
             //needs to be handled by an object
         }
         
-        const  Eigen::SparseMatrix<Precision> & getMatrix() const { return m_assembled; }
-        Eigen::SparseMatrix<Precision> & getMatrix() { return m_assembled; }
+        const  auto & getMatrix() const { return m_assembled; }
+        auto & getMatrix() { return m_assembled; }
         
     protected:
         
@@ -259,7 +259,7 @@ namespace Gauss {
         std::vector<Eigen::Triplet<Precision>> m_tripletList;
         
         //Sparse Matrix
-        Eigen::SparseMatrix<Precision> m_assembled;
+        Eigen::SparseMatrix<Precision, Eigen::RowMajor> m_assembled;
         
     private:
         

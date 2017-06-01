@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <UtilitiesEigen.h>
+#include <UtilitiesGeometry.h>
 
 namespace Gauss {
 
@@ -26,6 +27,7 @@ namespace Gauss {
     inline void writeTetgenFiles(const std::string file, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F) { }
     
     //read simulation file (at some point use templates to automatically select the right method, for now these are FEM specific)
+    //these are linear hex specific for now (I know, very lazy)
     template<typename Simulation>
     Simulation * readSimFromFile(const std::string filename) {
         
@@ -36,8 +38,13 @@ namespace Gauss {
             return nullptr;
         }
         
+        Eigen::MatrixXd V;
+        Eigen::MatrixXi F;
+        
+        
         //read in finite element meshes
-        std::string nodeName, eleName;
+        /*From when I was using tetrahedral finite elements
+         std::string nodeName, eleName;
         
         iFile >> nodeName;
         iFile >> eleName;
@@ -47,9 +54,38 @@ namespace Gauss {
         Eigen::MatrixXd V;
         Eigen::MatrixXi F;
         
-        readTetgen(V,F, nodeName, eleName);
+        readTetgen(V,F, nodeName, eleName);*/
         
-        return new Simulation(V,F);
+        //Hex mesh grids only for now
+        //Voxel grid from libigl
+        igl::grid(Eigen::RowVector3i(15, 5,5),  V);
+        elementsFromGrid(Eigen::RowVector3i(15, 5,5), V, F);
+
+        unsigned int numNodes = 0;
+        iFile >> numNodes;
+        iFile >> numNodes;
+        
+        auto *sim = new Simulation(V,F);
+        
+        //read in and set Young's modulus and poisson's ratio
+        double YM, mu;
+        YM = 0.0;
+        mu = 0.0;
+        
+        for(unsigned int iel=0; iel<sim->getImpl().getF().rows(); ++iel) {
+            iFile>> YM;
+            iFile>> mu;
+            
+            std::cout<<"YM: "<<YM<<" mu: "<<mu<<"\n";
+            
+            sim->getImpl().getElement(iel)->setParameters(YM, mu);
+            sim->getImpl().getElement(iel)->setParameters(YM, mu);
+            
+            //oFile << sim->getImpl().getElement(iel)->getE() <<" "<<sim->getImpl().getElement(iel)->getMu() <<"\n";
+        }
+
+        
+        return sim;
         
     }
     
@@ -65,11 +101,12 @@ namespace Gauss {
         }
         
         //write out geometry files in lines 1 and 2
-        oFile << nodeFile << "\n";
-        oFile << eleFile << "\n";
+        //oFile << nodeFile << "\n";
+        //oFile << eleFile << "\n";
         
         //total number of elements
         oFile << sim->getImpl().getF().rows()<<"\n";
+        oFile << sim->getImpl().getF().cols()<<"\n";
         
         //write out list of element YM and MU
         for(unsigned int iel=0; iel<sim->getImpl().getF().rows(); ++iel) {

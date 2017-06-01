@@ -11,13 +11,28 @@
 #include <UtilitiesGeometry.h>
 
 //Build Hexahedral element list from array containing regular grid
-void Gauss::elementsFromGrid(Eigen::RowVector3i res, Eigen::MatrixXi &F) {
+void Gauss::elementsFromGrid(Eigen::RowVector3i res, Eigen::MatrixXd &V, Eigen::MatrixXi &F) {
     
     int nX, nY, nZ;
 
     nX = res(0) - 1;
     nY = res(1) - 1;
     nZ = res(2) - 1;
+    
+    //rescale elements so that they are all unit size
+    //find max dimensions
+    int maxDim = (nX > nY ? nX : nY);
+    maxDim = (maxDim > nZ ? maxDim : nZ);
+    
+    double scaleX = static_cast<double>(nX)/static_cast<double>(maxDim);
+    double scaleY = static_cast<double>(nY)/static_cast<double>(maxDim);
+    double scaleZ = static_cast<double>(nZ)/static_cast<double>(maxDim);
+
+    for(unsigned int ii=0; ii<V.rows(); ++ii) {
+        V(ii,0)*=scaleX;
+        V(ii,1)*=scaleY;
+        V(ii,2)*=scaleZ;
+    }
     
     F.resize(nX*nY*nZ, 8); //resize to build hexahedral elements
     

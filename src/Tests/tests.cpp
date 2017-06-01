@@ -1,5 +1,5 @@
 #include <iostream>
-#include <gtest/gtest.h>
+/*#include <gtest/gtest.h>
 
 //Gauss Includes
 #include <PhysicalSystem.h>
@@ -197,13 +197,13 @@ TEST(FEM, InitLinearFEM) {
     
     
     
-}
+}*/
 
 int main(int argc, char **argv) {
     std::cout<<"Start Tests ..... \n";
     
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+   // ::testing::InitGoogleTest(&argc, argv);
+    //return RUN_ALL_TESTS();
     
-    return 1;
+    //return 1;
 }

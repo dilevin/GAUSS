@@ -108,7 +108,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     //std::cout<<"F: \n"<<(*forceVector)<<"\n";
     
     //solve system (Need interface for solvers but for now just use Eigen LLt)
-    Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
     Eigen::SparseMatrix<double> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     solver.compute(systemMatrix);
     

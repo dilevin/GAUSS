@@ -22,6 +22,7 @@ AssemblerEigenVector<double> > MyTimeStepper;
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 int main(int argc, char **argv) {
+    
     std::cout<<"Test Linear FEM \n";
     
     //Setup Physics
@@ -46,13 +47,9 @@ int main(int argc, char **argv) {
     F << 0,1,2,3,4,5,6,7;*/
     
     //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(10, 10,10),  V);
+    igl::grid(Eigen::RowVector3i(15, 5,5),  V);
     
-    std::cout<<V<<"\n";
-    
-    elementsFromGrid(Eigen::RowVector3i(10, 10,10), F);
-    
-    std::cout<<F<<"\n";
+    elementsFromGrid(Eigen::RowVector3i(15, 5,5), V, F);
     
     FEMLinearHexes *test = new FEMLinearHexes(V,F);
     

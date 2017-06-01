@@ -66,7 +66,7 @@ namespace Gauss {
         public:
             template<typename QDOFList, typename QDotDOFList>
             EnergyLinearElasticity(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
-                setParameters(1e5, 0.45);
+                setParameters(1e6, 0.45);
                 
             }
             
@@ -114,11 +114,6 @@ namespace Gauss {
                 H = -B(this, x, state).transpose()*m_C*B(this, x, state);
             
             }
-            
-            
-            //accessors
-            inline DataType & setE() { return m_E; }
-            inline DataType & setMu() { return m_mu; }
             
             inline const DataType & getE() const { return m_E; }
             inline const DataType & getMu() const { return m_mu; }

@@ -9,6 +9,8 @@
 #ifndef RenderableFEMHex_h
 #define RenderableFEMHex_h
 
+#include <FEMIncludes.h>
+
 namespace Gauss {
     
     //Renderable for a hexahedral finite element mesh 
@@ -294,12 +296,12 @@ namespace Gauss {
             
             //scale materials and use them to scale the colors
             //Let's just embrace lambdas
-            auto ymMax = (*std::max_element(m_fem->getImpl().getElements().begin(),
-                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+            auto ymMax = (*std::max_element(m_fem->getImpl().getElements().begin(), m_fem->getImpl().getElements().end(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
             auto ymMin = (*std::min_element(m_fem->getImpl().getElements().begin(),
-                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+                                            m_fem->getImpl().getElements().end(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
             
             
+            std::cout<<"MAX/MIN "<<ymMax<<"/"<<ymMin<<"\n";
             double dym = (ymMax - ymMin);
             double color = 0.0;
             dym = (dym > 0 ? dym : 1.0);
@@ -307,7 +309,8 @@ namespace Gauss {
             for(; elId < numElements; ++elId) {
                 
                 color =(m_fem->getImpl().getElement(elId)->getE() - ymMin)/dym;
-                color = 0.0;
+                
+                //std::cout<<"Color: "<<color<<"\n";
                 
                 for(unsigned int ii=0; ii<F.cols(); ++ii) {
                     rawVertexArray[idx++] = color*red.x();

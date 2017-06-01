@@ -33,6 +33,7 @@ namespace Gauss {
             //temporary global indices until I update the state to give these to me
             //automatically
             PhysicalSystemFEMImpl(Eigen::MatrixXd &V, Eigen::MatrixXi &F) : m_q(V.rows()), m_qDot(V.rows()) {
+                
                 m_V = V;
                 m_F = F;
                 m_numVerts = m_V.rows();

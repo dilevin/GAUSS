@@ -55,7 +55,8 @@ load_cache(${Gauss_ROOT_DIR}/build/)
 message(WARNING "BLAH: " ${Base_BINARY_DIR})
 
 #include files
-set(Gauss_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIR}
+set(Gauss_INCLUDE_DIRS  ${LIBIGL_INCLUDE_PATH}
+                        ${EIGEN3_INCLUDE_DIR}
                         ${Base_SOURCE_DIR}/include 
                         ${Core_SOURCE_DIR}/include
                         ${ParticleSystem_SOURCE_DIR}/include
@@ -64,17 +65,29 @@ set(Gauss_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIR}
                         ${UI_SOURCE_DIR}/include
                         )
 
+if(USE_OPENMP)
+        set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE STRING "C compiler" FORCE)
+        set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang CACHE STRING "C++ compiler" FORCE)
+        set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
+        set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
+        set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
+        set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE})
+        set(GAUSS_LINK_DIR  ${LLVM_LIB})
+        set(GAUSS_LIBS ${LLVM_LIB}/libiomp5.dylib)
+endif(USE_OPENMP)
+
 #define the initUI macro
 include(${UI_SOURCE_DIR}/UISetup.txt)
 
 #Currently for xcode builds 
 #libraries
-set(Gauss_LIB_DIR_DEBUG ${Gauss_ROOT_DIR}/build/lib/Debug)
+set(Gauss_LIB_DIR_DEBUG ${Gauss_ROOT_DIR}/build/lib/Debug ${GAUSS_LIBS})
 set(Gauss_LIB_DIR_RELEASE ${Gauss_ROOT_DIR}/build/lib/Release)
 
 set(Gauss_LIBS  libBase.a
                 libCore.a
-                libFEM.a)
+                libFEM.a
+                libUI.a)
 
 message(WARNING "INCLUDES: " ${Gauss_INCLUDE_DIRS})
 message(WARNING "DEBUG LIBS: " ${Gauss_LIBS})

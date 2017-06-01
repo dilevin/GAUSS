@@ -14,7 +14,7 @@
 
 namespace Gauss {
 
-    void elementsFromGrid(Eigen::RowVector3i res, Eigen::MatrixXi &F);
+    void elementsFromGrid(Eigen::RowVector3i res, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
     
 }
 

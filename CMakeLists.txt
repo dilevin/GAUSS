@@ -5,13 +5,52 @@ project (Gauss)
 
 set(CMAKE_CXX_STANDARD 14)
 
+#this code uses OpenMP which is supported almost everywhere except for OS X clang
+#to get around this you can choose to install clang via homebrew to get access to OpenMP
+
+#expose USE_OPENMP variable for OS X only
+if(APPLE)
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        message(WARNING "Here")
+        set(USE_OPENMP CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
+    endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif(APPLE)
+
+if(APPLE)
+    if(USE_OPENMP)
+        set(LLVM_BIN CACHE STRING "CLANG Binary Directory")
+        set(LLVM_LIB CACHE STRING "CLANG Lib Directory")
+        set(LLVM_INCLUDE CACHE STRING "CLANG Header Directory")
+    endif(USE_OPENMP)
+endif(APPLE)
+
+#find_package(OpenMP REQUIRED)
+#Global variables to configure other projects
+set(GAUSS_INCLUDE_DIR  CACHE INTERNAL "")
+set(GAUSS_LINK_DIR  CACHE INTERNAL "")
+set(GAUSS_LIBS  CACHE INTERNAL "")
+set(GAUSS_BINARY_DIR ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
+
+if(APPLE)
+    if(USE_OPENMP)
+        set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE STRING "C compiler" FORCE)
+        set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang CACHE STRING "C++ compiler" FORCE)
+        set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
+        set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
+        set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
+        set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE} CACHE INTERNAL "")
+        set(GAUSS_LINK_DIR  ${LLVM_LIB} CACHE INTERNAL "")
+        set(GAUSS_LIBS ${LLVM_LIB}/libiomp5.dylib CACHE INTERNAL "")
+    endif(USE_OPENMP)
+else()
+    find_package(OpenMP REQUIRED)
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)    
+endif(APPLE)
+
 #Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
-
-#Global variables to configure other projects
-set(GAUSS_INCLUDE_DIR “” CACHE INTERNAL "" FORCE)
-set(GAUSS_BINARY_DIR ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
 
 #add define for data directory
 add_definitions(-DGAUSS_DATA_DIR=${PROJECT_SOURCE_DIR}/data)
@@ -49,13 +88,19 @@ set_target_properties(libgtest PROPERTIES
                       "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
                       )
 
+
 #Individual feature directories
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})
+#include_directories(/usr/local/opt/llvm/lib/clang/4.0.0/include)
 
 include_directories("${source_dir}/include") #gtest
 include_directories(${PROJECT_SOURCE_DIR}/src/Core/include 
 		    ${PROJECT_SOURCE_DIR}/src/Base/include)
+
+#link_directories(/usr/local/opt/llvm/lib)
+include_directories(${GAUSS_INCLUDE_DIR})
+link_directories(${GAUSS_LINK_DIR})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Base)

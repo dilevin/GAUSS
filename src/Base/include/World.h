@@ -63,6 +63,41 @@ namespace Gauss
         inline unsigned int getNumQDotDOFs() const { return m_numQDotDOFs; }
         inline unsigned int getTotalDOFs() const { return m_numQDOFs + m_numQDotDOFs; }
         
+        //Matrix Storage Stuff
+        inline unsigned int getMassNNZ()  {
+            unsigned int nnz = 0;
+            forEach(m_systems, [&nnz](auto a) {
+                nnz += a->getMassNNZ();
+            });
+            return nnz;
+        }
+        
+        inline unsigned int getStiffnessNNZ()  {
+            unsigned int nnz = 0;
+            forEach(m_systems, [&nnz](auto a) {
+                nnz += a->getStiffnessNNZ();
+            });
+            
+            forEach(m_forces, [&nnz](auto a) {
+                nnz += a->getStiffnessNNZ();
+            });
+            
+            return nnz;
+        }
+        
+        inline unsigned int getConstraintNNZ()  {
+            unsigned int nnz = 0;
+            forEach(m_constraints, [&nnz](auto a) {
+                nnz += a->getNNZ();
+            });
+            return nnz;
+        }
+
+        
+        
+        
+        
+        
         //constraint stuff
         inline unsigned int getNumConstraints() const { return m_numConstraints; }
         

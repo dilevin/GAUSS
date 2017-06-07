@@ -58,7 +58,7 @@ namespace Gauss {
     class forEachClass
     {
     public:
-        forEachClass(T &tuple, Func &f) {
+        inline forEachClass(T &tuple, Func &f) {
         
             forEachClass<T, Func, index-1>(tuple, f);
         
@@ -75,7 +75,7 @@ namespace Gauss {
     class forEachClass<T,Func,0>
     {
     public:
-        forEachClass(T &tuple, Func &f) {
+        inline forEachClass(T &tuple, Func &f) {
             
             for(auto &itr : std::get<0>(tuple))
             {
@@ -87,7 +87,7 @@ namespace Gauss {
     
     //convenience functions
     template<typename ...T, typename Func>
-    void forEach(MultiVector<T...> &mv, Func func) {
+    inline void forEach(MultiVector<T...> &mv, Func func) {
         forEachClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
     }
     
@@ -97,7 +97,7 @@ namespace Gauss {
     class eachVectorClass
     {
     public:
-        eachVectorClass(T &tuple, Func &f) {
+        inline eachVectorClass(T &tuple, Func &f) {
             
             eachVectorClass<T, Func, index-1>(tuple, f);
             f(std::get<index>(tuple));
@@ -108,7 +108,7 @@ namespace Gauss {
     class eachVectorClass<T,Func,0>
     {
     public:
-        eachVectorClass(T &tuple, Func &f) {
+        inline eachVectorClass(T &tuple, Func &f) {
             
                 f(std::get<0>(tuple));
         }
@@ -116,13 +116,13 @@ namespace Gauss {
     
     //convenience functions
     template<typename ...T, typename Func>
-    void eachVector(MultiVector<T...> &mv, Func func) {
+    inline void eachVector(MultiVector<T...> &mv, Func func) {
         eachVectorClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
     }
     
     //member functions that need utility code above
     template<typename ...Types>
-    void MultiVector<Types...>::clear() {
+    inline void MultiVector<Types...>::clear() {
         eachVector(*this, MEMBER_FUNC(clear, )); //empty space for a noparam
     }
     

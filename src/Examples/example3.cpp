@@ -16,12 +16,14 @@ using namespace ParticleSystem; //For Force Spring
 typedef PhysicalSystemFEM<double, LinearHex> FEMLinearHexes;
 
 typedef World<double, std::tuple<FEMLinearHexes *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
-AssemblerEigenVector<double> > MyTimeStepper;
+typedef TimeStepperEulerImplictLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 int main(int argc, char **argv) {
+    
+    Eigen::setNbThreads(1);
     
     std::cout<<"Test Linear FEM \n";
     
@@ -46,10 +48,14 @@ int main(int argc, char **argv) {
     
     F << 0,1,2,3,4,5,6,7;*/
     
-    //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(15, 5,5),  V);
     
-    elementsFromGrid(Eigen::RowVector3i(15, 5,5), V, F);
+    //Testing parallel stuff
+    AssemblerParallel<double, AssemblerEigenVector<double> > parallelAssembler;
+    
+    //Voxel grid from libigl
+    igl::grid(Eigen::RowVector3i(20, 7,7),  V);
+    
+    elementsFromGrid(Eigen::RowVector3i(20, 7,7), V, F);
     
     FEMLinearHexes *test = new FEMLinearHexes(V,F);
     
@@ -59,6 +65,9 @@ int main(int argc, char **argv) {
     
     auto q = mapStateEigen(world);
     q.setZero();
+    
+    AssemblerEigenSparseMatrix<double> massMatrix;
+    AssemblerEigenVector<double> rhs;
     
     MyTimeStepper stepper(0.01);
     MyScene *scene = new MyScene(&world, &stepper);

@@ -52,8 +52,6 @@ message(WARNING ${Gauss_ROOT_DIR})
 #file causes a silent failure which results in no variables being imported
 load_cache(${Gauss_ROOT_DIR}/build/)
 
-message(WARNING "BLAH: " ${Base_BINARY_DIR})
-
 #include files
 set(Gauss_INCLUDE_DIRS  ${LIBIGL_INCLUDE_PATH}
                         ${EIGEN3_INCLUDE_DIR}
@@ -71,9 +69,7 @@ if(USE_OPENMP)
         set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
         set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
         set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
-        set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE})
-        set(GAUSS_LINK_DIR  ${LLVM_LIB})
-        set(GAUSS_LIBS ${LLVM_LIB}/libiomp5.dylib)
+        set(Gauss_INCLUDE_DIRS  ${Gauss_INCLUDE_DIRS} ${LLVM_INCLUDE})
         add_definitions(-DGAUSS_OPENMP)
 endif(USE_OPENMP)
 
@@ -82,13 +78,14 @@ include(${UI_SOURCE_DIR}/UISetup.txt)
 
 #Currently for xcode builds 
 #libraries
-set(Gauss_LIB_DIR_DEBUG ${Gauss_ROOT_DIR}/build/lib/Debug ${GAUSS_LIBS})
+set(Gauss_LIB_DIR_DEBUG ${Gauss_ROOT_DIR}/build/lib/Debug)
 set(Gauss_LIB_DIR_RELEASE ${Gauss_ROOT_DIR}/build/lib/Release)
 
 set(Gauss_LIBS  libBase.a
                 libCore.a
                 libFEM.a
-                libUI.a)
+                libUI.a
+                ${Gauss_EXT_LIBS})
 
 message(WARNING "INCLUDES: " ${Gauss_INCLUDE_DIRS})
 message(WARNING "DEBUG LIBS: " ${Gauss_LIBS})

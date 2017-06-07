@@ -17,6 +17,7 @@
 #include <UtilitiesEigen.h>
 #include <UtilitiesMATLAB.h>
 #include <Eigen/SparseCholesky>
+#include <SolverPardiso.h>
 
 //TODO Solver Interface
 //TODO External Forces
@@ -47,6 +48,10 @@ namespace Gauss {
         MatrixAssembler m_massMatrix;
         MatrixAssembler m_stiffnessMatrix;
         VectorAssembler m_forceVector;
+        
+#ifdef GAUSS_PARDISO
+        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
+#endif
         
     private:
     };
@@ -107,9 +112,18 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     
     //std::cout<<"F: \n"<<(*forceVector)<<"\n";
     
+Eigen::VectorXd x0;
+Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+    
+#ifdef GAUSS_PARDISO
+    m_pardiso.symbolicFactorization(systemMatrix);
+    m_pardiso.numericalFactorization();
+    m_pardiso.solve(*forceVector);
+    x0 = m_pardiso.getX();
+    m_pardiso.cleanup();
+#else
     //solve system (Need interface for solvers but for now just use Eigen LLt)
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
-    Eigen::SparseMatrix<double> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     solver.compute(systemMatrix);
     
     if(solver.info()!=Eigen::Success) {
@@ -119,15 +133,18 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
         exit(1);
     }
     
-    Eigen::VectorXd x0 = solver.solve((*forceVector));
-    qDot = x0.head(world.getNumQDotDOFs());
     if(solver.info()!=Eigen::Success) {
         // solving failed
         assert(1 == 0);
         std::cout<<"Solve Failed \n";
         exit(1);
     }
+
     
+    x0 = solver.solve((*forceVector));
+#endif
+    
+    qDot = x0.head(world.getNumQDotDOFs());
     
     //update state
     q = q + dt*qDot;

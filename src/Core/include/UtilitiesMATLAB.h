@@ -71,7 +71,28 @@ namespace Gauss {
     }
     
     template<>
+    inline void toMatlab<Eigen::MatrixXd>(Eigen::MatrixXd &toWrite, std::string filename) {
+        std::ofstream file(filename);
+        if (file.is_open())
+        {
+            file << toWrite;
+        }
+        file.close();
+    }
+
+    
+    template<>
     inline void toMatlab<Eigen::VectorXd>(Eigen::VectorXd &toWrite, std::string filename) {
+        std::ofstream file(filename);
+        if (file.is_open())
+        {
+            file << toWrite;
+        }
+        file.close();
+    }
+    
+    template<>
+    inline void toMatlab<Eigen::Map<Eigen::VectorXd> >(Eigen::Map<Eigen::VectorXd> &toWrite, std::string filename) {
         std::ofstream file(filename);
         if (file.is_open())
         {

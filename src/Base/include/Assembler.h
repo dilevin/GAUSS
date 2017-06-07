@@ -6,7 +6,7 @@
 #include <World.h>
 
 //useful defines for assembling
-#define ASSEMBLEMAT(world, assembler, nFunc, mFunc, funcName) \
+/*#define ASSEMBLEMAT(world, assembler, nFunc, mFunc, funcName) \
 assembler.init(world.mFunc(), world.nFunc()); \
 forEach(world.getSystemList(), [&world, &assembler](auto a) { \
     a->funcName(assembler, world.getState()); \
@@ -24,7 +24,7 @@ forEach(world.getSystemList(), [&world, &assembler](auto a) { \
 forEach(world.getForceList(), [&world, &assembler](auto a) { \
     a->funcName(assembler, world.getState()); \
 });\
-assembler.finalize();
+assembler.finalize();*/
 
 //Needed for more complex operations
 #define ASSEMBLEMATINIT(assembler, nSize, mSize) \
@@ -88,14 +88,21 @@ namespace Gauss {
     private:
         
     };
+
+    //could looping code live here ?
+    //ITERATE(list)
+    //either a parallel for loop or not
     
     template<typename DataType, typename Impl>
     class Assembler : public AssemblerBase {
     public:
+        
+        using ImplType = Impl;
+        
         Assembler() : m_impl() {  }
         ~Assembler() { }
         
-        inline void init(unsigned int m, unsigned int n=0, unsigned int rowOffset = 0, unsigned int colOffset = 0) {
+        inline void init(unsigned int m, unsigned int n=1, unsigned int rowOffset = 0, unsigned int colOffset = 0) {
             m_impl.setOffset(0,0);
             m_impl.init(m,n);
         }
@@ -144,6 +151,8 @@ namespace Gauss {
         typedef double Precision;
         
     public:
+        
+        using MatrixType = Eigen::SparseMatrix<Precision, Eigen::RowMajor>;
         
         using AssemblerBase::m_rowOffset;
         using AssemblerBase::m_colOffset;
@@ -221,7 +230,10 @@ namespace Gauss {
             }
         };
         
-        AssemblerImplEigenSparseMatrix() : AssemblerBase() { }
+        AssemblerImplEigenSparseMatrix() : AssemblerBase() {
+            std::cout<<"Sparse Assembler Constructure \n";
+            m_assembled.resize(1,1);
+        }
         ~AssemblerImplEigenSparseMatrix() { }
         
         void init(unsigned int m, unsigned int n) {
@@ -270,6 +282,7 @@ namespace Gauss {
         
     public:
         
+        using MatrixType =Eigen::VectorXd;
         using AssemblerBase::m_rowOffset;
         using AssemblerBase::m_colOffset;
         
@@ -299,10 +312,10 @@ namespace Gauss {
         AssemblerImplEigenVector() : AssemblerBase() { }
         ~AssemblerImplEigenVector() { }
         
-        void init(unsigned int m, unsigned int n = 1) {
+        void init(unsigned int m, unsigned int n) {
             
             //need to set the size of the matrix here which means I need world sizes
-            m_assembled.resize(m);
+            m_assembled.resize(m,1);
             m_assembled.setZero();
         }
         
@@ -386,7 +399,6 @@ namespace Gauss {
             f(a) = b;
         });
     }
-
     
 }
 

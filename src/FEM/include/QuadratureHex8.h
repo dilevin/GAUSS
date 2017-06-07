@@ -77,7 +77,8 @@ namespace Gauss {
             
             template<typename Matrix>
             inline void getHessian(Matrix &H, const State<DataType> &state) {
-                DataType w = static_cast<DataType>(1.0);
+                DataType w = static_cast<DataType>(Energy::volume());
+
                 DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
                 
                 Eigen::MatrixXx<DataType> HInt;

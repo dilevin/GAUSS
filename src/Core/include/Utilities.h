@@ -9,6 +9,10 @@
 #ifndef Utilities_h
 #define Utilities_h
 
+#ifdef GAUSS_OPENMP
+#include <omp.h>
+#endif
+
 #include "State.h"
 
 //Eigen Stuff
@@ -50,7 +54,7 @@ namespace Gauss {
     //http://baptiste-wicht.com/posts/2015/07/simulate-static_if-with-c11c14.html
     struct identity {
         template<typename T>
-        T operator()(T&& x) const {
+        inline T operator()(T&& x) const {
             return std::forward<T>(x);
         }
     };
@@ -58,27 +62,27 @@ namespace Gauss {
     template<bool Cond>
     struct statement {
         template<typename F>
-        void then(const F& f){
+        inline void then(const F& f){
             f(identity());
         }
         
         template<typename F>
-        void else_(const F&){}
+        inline void else_(const F&){}
     };
     
     template<>
     struct statement<false> {
         template<typename F>
-        void then(const F&){}
+        inline void then(const F&){}
         
         template<typename F>
-        void else_(const F& f){
+        inline void else_(const F& f){
             f(identity());
         }
     };
     
     template<bool Cond, typename F>
-    statement<Cond> static_if(F const& f){
+    inline statement<Cond> static_if(F const& f){
         statement<Cond> if_;
         if_.then(f);
         return if_;
@@ -103,6 +107,50 @@ namespace Gauss {
     std::string dataDir();
     
     std::string timeStampString(std::string toStamp);
+    
+    //Make handling parallel stuff easier
+    template<bool IsParallel>
+    struct forLoop {
+        template <typename T, typename Assembler, typename Func>
+        inline forLoop(T &iterateOver, Assembler &assembler, Func &&f) {
+            
+            //iterate
+            for(auto &itr : iterateOver)
+            {
+                f(assembler, itr);
+            }
+        }
+    };
+    
+    //is parrallel checker
+    template<typename Obj>
+    struct IsParallel {
+    public:
+        constexpr static bool value = false;
+    };
+    
+#ifdef GAUSS_OPENMP
+    //Parallel version
+    template<>
+    struct forLoop<true> {
+        template <typename Func, typename Assembler, typename T>
+        inline forLoop(T &iterateOver, Assembler &assembler, Func &&f) {
+            
+            #pragma omp parallel
+            {
+                #pragma omp for
+                {
+                    //iterate
+                    for(unsigned int ii=0; ii < iterateOver.size(); ++ii)
+                    {
+                        f(assembler.getImpl()[omp_get_thread_num()], iterateOver[ii]);
+                    }
+                }
+            }
+        }
+        
+    };
+#endif
     
 }
 #endif /* Utilities_h */

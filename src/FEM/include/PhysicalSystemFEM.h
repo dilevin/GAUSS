@@ -60,6 +60,7 @@ namespace Gauss {
                     );
                 }
                 
+                
             }
             
             ~PhysicalSystemFEMImpl() {
@@ -69,24 +70,36 @@ namespace Gauss {
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 //call the assembler on all elements
-                for(auto element : m_elements) {
-                    element->getMassMatrix(assembler, state);
-                }
+                //for(auto element : m_elements) {
+                  //  element->getMassMatrix(assembler, state);
+                //}
+                
+                forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
+                    element->getMassMatrix(assemble,state);
+                });
             }
             
             template<typename Assembler>
             inline void getStiffnessMatrix(Assembler &assembler, const State<DataType> &state) const {
                 
-                for(auto element : m_elements) {
-                    element->getStiffnessMatrix(assembler, state);
-                }
+                //for(auto element : m_elements) {
+                  //  element->getStiffnessMatrix(assembler, state);
+                //}
+                
+                forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
+                    element->getStiffnessMatrix(assemble, state);
+                });
             }
             
             template<typename Assembler>
             inline void getForce(Assembler &assembler, const State<DataType> &state) const {
-                for(auto element : m_elements) {
-                    element->getForce(assembler, state);
-                }
+                //for(auto element : m_elements) {
+                //    element->getForce(assembler, state);
+                //}
+                
+                forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
+                    element->getForce(assemble, state);
+                });
             }
             
             inline unsigned int getNumElements() { return m_elements.size(); }
@@ -126,7 +139,7 @@ namespace Gauss {
             Eigen::MatrixXi m_F;
             long m_numVerts;
             long m_numElements;
-            
+           
             DOFList<DataType, ParticleSystem::DOFParticle, 0> m_q;
             DOFList<DataType, ParticleSystem::DOFParticle, 1> m_qDot;
             std::vector<ElementType *> m_elements;

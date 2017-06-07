@@ -15,7 +15,6 @@
 #include <Energy.h>
 
 //Elements allow the evaluation of functions over the domain.
-//Dim is whether the element is 1D, 2D or 3D
 //maybe need to do this with trait classes
 namespace Gauss {
     namespace FEM {

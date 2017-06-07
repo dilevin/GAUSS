@@ -17,6 +17,15 @@
 #include <Utilities.h>
 #include <UtilitiesEigen.h>
 #include <UtilitiesGeometry.h>
+#include <UtilitiesBase.h>
+#include <UtilitiesMATLAB.h>
 
+#ifdef GAUSS_PARDISO
+#include <SolverPardiso.h>
+#endif
+
+#ifdef GAUSS_OPENMP
+#include <AssemblerParallel.h>
+#endif
 
 #endif /* GaussIncludes_h */

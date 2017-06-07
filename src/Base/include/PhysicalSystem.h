@@ -43,7 +43,6 @@ namespace Gauss {
             m_systemImpl.getForce(f, state);
         }
 
-        
         template<typename Assembler>
         void setDOFGlobalIndex(Assembler &assembler) {
             m_systemImpl.setDOFGlobalIndex(assembler);

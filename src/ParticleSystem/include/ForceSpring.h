@@ -69,8 +69,6 @@ namespace Gauss {
                 
             }
             
-
-            
         protected:
             
             DataType m_l0, m_k; //spring original length and stiffness

@@ -16,6 +16,9 @@ if(APPLE)
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(APPLE)
 
+#do you want to use Pardiso
+set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
+
 if(APPLE)
     if(USE_OPENMP)
         set(LLVM_BIN CACHE STRING "CLANG Binary Directory")
@@ -23,6 +26,11 @@ if(APPLE)
         set(LLVM_INCLUDE CACHE STRING "CLANG Header Directory")
     endif(USE_OPENMP)
 endif(APPLE)
+
+if(USE_PARDISO)
+    set(PARDISO_LIB CACHE STRING "Pardiso Library to use")
+endif(USE_PARDISO)
+
 
 #find_package(OpenMP REQUIRED)
 #Global variables to configure other projects
@@ -49,6 +57,13 @@ else()
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)    
     add_definitions(-DGAUSS_OPENMP)
 endif(APPLE)
+
+if(USE_PARDISO)
+    set(GAUSS_LIBS ${GAUSS_LIBS} ${PARDISO_LIB} CACHE INTERNAL "")
+    get_filename_component(PARDISO_DIR ${PARDISO_LIB} DIRECTORY)
+    set(GAUSS_LINK_DIR ${GAUSS_LINK_DIR} ${PARDISO_DIR} CACHE INTERNAL "")
+    add_definitions(-DGAUSS_PARDISO)
+endif(USE_PARDISO)
 
 #Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
@@ -111,6 +126,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/FEM)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 
 include_directories(${GAUSS_INCLUDE_DIR})
+set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "")
 
 #Init GUI Stuff
 include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)

@@ -1,5 +1,3 @@
-#define DEBUG //Debug mode
-
 #include <GaussIncludes.h>
 #include <Qt3DIncludes.h>
 
@@ -11,8 +9,8 @@
 using namespace Gauss;
 using namespace ParticleSystem;
 
-//1. Final do to, figure out external forces
-//2. Add external spring force between DOF and a point in space
+/* Particle Systems */
+
 typedef World<double,
               std::tuple<PhysicalSystemParticleSingle<double> *>,
               std::tuple<ForceSpring<double> *>,

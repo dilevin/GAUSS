@@ -10,11 +10,12 @@ using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
+/* Tetrahedral finite elements */
+
 //typedef physical entities I need
 
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
-typedef PhysicalSystemFEM<double, LinearHex> FEMLinearHexes;
 
 typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,

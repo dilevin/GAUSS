@@ -10,15 +10,14 @@ using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
-/*Hexahedral finite elements */
-
-//typedef physical entities I need
+/* Showing the use of a parallel assembler  for hexahedral elements */
 
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearHex> FEMLinearHexes;
 
 typedef World<double, std::tuple<FEMLinearHexes *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double> > MyTimeStepper;
+typedef TimeStepperEulerImplictLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -36,19 +35,18 @@ int main(int argc, char **argv) {
     Eigen::MatrixXi F;
     
     /*V.resize(8,3);
-    F.resize(1,8);
-    
-    V <<    0,0,0,
-            1,0,0,
-            1,0,1,
-            0,0,1,
-            0,1,0,
-            1,1,0,
-            1,1,1,
-            0,1,1;
-    
-    F << 0,1,2,3,4,5,6,7;*/
-
+     F.resize(1,8);
+     
+     V <<    0,0,0,
+     1,0,0,
+     1,0,1,
+     0,0,1,
+     0,1,0,
+     1,1,0,
+     1,1,1,
+     0,1,1;
+     
+     F << 0,1,2,3,4,5,6,7;*/
     
     //Voxel grid from libigl
     igl::grid(Eigen::RowVector3i(25, 8, 8),  V);

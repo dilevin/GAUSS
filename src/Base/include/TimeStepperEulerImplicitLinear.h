@@ -30,7 +30,9 @@ namespace Gauss {
     {
     public:
         
-        TimeStepperImplEulerImplicitLinear() {  }
+        TimeStepperImplEulerImplicitLinear() {
+            
+        }
         
         TimeStepperImplEulerImplicitLinear(const TimeStepperImplEulerImplicitLinear &toCopy) {
             
@@ -43,14 +45,21 @@ namespace Gauss {
         template<typename World>
         void step(World &world, double dt);
         
+        inline typename VectorAssembler::MatrixType & getLagrangeMultipliers() { return m_lagrangeMultipliers; }
+        
     protected:
         
         MatrixAssembler m_massMatrix;
         MatrixAssembler m_stiffnessMatrix;
         VectorAssembler m_forceVector;
         
+        //storage for lagrange multipliers
+        typename VectorAssembler::MatrixType m_lagrangeMultipliers;
+        
 #ifdef GAUSS_PARDISO
+        
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
+        
 #endif
         
     private:
@@ -145,6 +154,8 @@ Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- d
 #endif
     
     qDot = x0.head(world.getNumQDotDOFs());
+    
+    m_lagrangeMultipliers = x0.tail(world.getNumConstraints());
     
     //update state
     q = q + dt*qDot;

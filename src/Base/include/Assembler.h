@@ -27,7 +27,7 @@ forEach(world.getForceList(), [&world, &assembler](auto a) { \
 assembler.finalize();*/
 
 //Needed for more complex operations
-#define ASSEMBLEMATINIT(assembler, nSize, mSize) \
+#define ASSEMBLEMATINIT(assembler, mSize, nSize) \
 assembler.init(mSize, nSize);
 
 #define ASSEMBLEVECINIT(assembler, mSize) \
@@ -98,6 +98,7 @@ namespace Gauss {
     public:
         
         using ImplType = Impl;
+        using MatrixType = typename Impl::MatrixType;
         
         Assembler() : m_impl() {  }
         ~Assembler() { }
@@ -231,7 +232,6 @@ namespace Gauss {
         };
         
         AssemblerImplEigenSparseMatrix() : AssemblerBase() {
-            std::cout<<"Sparse Assembler Constructure \n";
             m_assembled.resize(1,1);
         }
         ~AssemblerImplEigenSparseMatrix() { }

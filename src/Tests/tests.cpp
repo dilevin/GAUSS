@@ -1,5 +1,5 @@
 #include <iostream>
-/*#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
 //Gauss Includes
 #include <PhysicalSystem.h>
@@ -7,11 +7,14 @@
 #include <PhysicalSystemParticles.h>
 #include <World.h>
 #include <Assembler.h>
+#include <AssemblerParallel.h>
 #include <Utilities.h>
 #include <UtilitiesEigen.h>
 #include <Assembler.h>
+#include <AssemblerMVP.h>
 #include <TimeStepperEulerImplicitLinear.h>
 #include <ForceSpring.h>
+#include <ConstraintFixedPoint.h>
 
 //FEM Stuff
 #include <Element.h>
@@ -22,13 +25,15 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+//CG Solver
+#include <SolverCG.h>
 
 using namespace Gauss;
 using namespace ParticleSystem;
 
 
 //Single Particle Tests
-TEST (SingleParticleTest, Tests) {
+/*TEST (SingleParticleTest, Tests) {
     World<double, std::tuple<PhysicalSystemParticleSingle<double> *>, std::tuple<ForceSpring<double> *> > world;
     PhysicalSystemParticleSingle<double> *test =
     new PhysicalSystemParticleSingle<double>();
@@ -199,11 +204,228 @@ TEST(FEM, InitLinearFEM) {
     
 }*/
 
+TEST(MVP, TestMVP) {
+    
+    using namespace Gauss;
+    using namespace FEM;
+    
+    typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
+    
+    typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+    
+    
+    //init FEM system
+    //Setup Physics
+    MyWorld world;
+    
+    //new code -- load tetgen files
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    
+    FEMLinearTets *test = new FEMLinearTets(V,F);
+    
+    world.addSystem(test);
+    fixDisplacementMin(world, test);
+    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+    
+    auto q = mapStateEigen(world);
+    q.setZero();
+
+    //test using stiffness matrix
+    //explicit assembly
+    AssemblerEigenSparseMatrix<double> assembler;
+    ASSEMBLEMATINIT(assembler, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(assembler, world.getSystemList(), getStiffnessMatrix);
+    ASSEMBLELIST(assembler, world.getForceList(), getStiffnessMatrix);
+    ASSEMBLEEND(assembler);
+    
+    AssemblerMVPEigen<double> assemblerMVP;
+    Eigen::VectorXd bAssembled;
+    Eigen::VectorXd x;
+    
+    for(unsigned int ii=0; ii<100; ++ii) {
+        x = 10.0*Eigen::MatrixXd::Random(world.getNumQDotDOFs(),1);
+    
+        Eigen::VectorXd bAssembled = (*assembler)*x;
+        
+        //compare mvp evaluated with random vector to assembly free MVP
+        ASSEMBLEMATINIT(assemblerMVP, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+        assemblerMVP.getImpl().setX(x);
+        
+        //multiplying is happening during assembly (neat huh ? )
+        ASSEMBLELIST(assemblerMVP, world.getSystemList(), getStiffnessMatrix);
+        ASSEMBLELIST(assemblerMVP, world.getForceList(), getStiffnessMatrix);
+        ASSEMBLEEND(assemblerMVP);
+        
+        double tol = 1e-8; //we'll consider this close enough
+        
+        ASSERT_LE((bAssembled - *assemblerMVP).norm() / x.norm(), tol);
+    }
+    
+    
+}
+
+TEST(MVP, TestCG) {
+    
+    //Test CG vs. Direct Solve
+    
+    //Form implicit integration matrix solve against some random vectors, check CG vs direct solve
+    using namespace FEM;
+    
+    typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
+    
+    typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+    
+    
+    //init FEM system
+    //Setup Physics
+    MyWorld world;
+    
+    //new code -- load tetgen files
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    
+    FEMLinearTets *test = new FEMLinearTets(V,F);
+    
+    world.addSystem(test);
+    fixDisplacementMin(world, test);
+    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+    
+    auto q = mapStateEigen(world);
+    q.setZero();
+    
+    //test using stiffness matrix
+    //explicit assembly
+    AssemblerEigenSparseMatrix<double> M, K;
+    ASSEMBLEMATINIT(M, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(M, world.getSystemList(), getMassMatrix);
+    ASSEMBLEEND(M);
+    
+    ASSEMBLEMATINIT(K, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(K, world.getSystemList(), getStiffnessMatrix);
+    ASSEMBLELIST(K, world.getForceList(), getStiffnessMatrix);
+    ASSEMBLEEND(K);
+    
+    //random force vector
+    double dt = 0.01;
+    Eigen::VectorXd f;
+    Eigen::VectorXd x;
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A = ((*M) + dt*dt*(*K)).eval();
+    f = 10.0*Eigen::MatrixXd::Random(world.getNumQDotDOFs(),1);
+    x = 0*f;
+    
+    SolverPardiso<Eigen::SparseMatrix<double, Eigen::RowMajor> > direct;
+    direct.solve(A,f);
+    
+    SolverCG<double, Eigen::VectorXd> pcg(1e-8);
+    
+    std::cout<<"CG\n";
+    pcg.solve(x, [&A](auto &y)->auto {return A*y;}, f, 1000000000);
+    
+    double tol=1e-10;
+    
+    ASSERT_LE((x-direct.getX()).norm()/f.norm(), tol);
+}
+
+TEST(MVP, TestCG2) {
+    
+    //Test Assembly free CG vs. Direct Solve
+    using namespace FEM;
+    
+    typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
+    
+    typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+    
+    
+    //init FEM system
+    //Setup Physics
+    MyWorld world;
+    
+    //new code -- load tetgen files
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    
+    FEMLinearTets *test = new FEMLinearTets(V,F);
+    
+    world.addSystem(test);
+    fixDisplacementMin(world, test);
+    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+    
+    auto q = mapStateEigen(world);
+    q.setZero();
+    
+    //test using stiffness matrix
+    //explicit assembly
+    AssemblerEigenSparseMatrix<double> M, K;
+    ASSEMBLEMATINIT(M, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(M, world.getSystemList(), getMassMatrix);
+    ASSEMBLEEND(M);
+    
+    ASSEMBLEMATINIT(K, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(K, world.getSystemList(), getStiffnessMatrix);
+    ASSEMBLELIST(K, world.getForceList(), getStiffnessMatrix);
+    ASSEMBLEEND(K);
+    
+    //random force vector
+    double dt = 0.01;
+    Eigen::VectorXd f;
+    Eigen::VectorXd x;
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A = ((*M) + dt*dt*(*K)).eval();
+    f = 10.0*Eigen::MatrixXd::Random(world.getNumQDotDOFs(),1);
+    x = 0*f;
+    
+    SolverPardiso<Eigen::SparseMatrix<double, Eigen::RowMajor> > direct;
+    direct.solve(A,f);
+    
+    SolverCG<double, Eigen::VectorXd> pcg(1e-8);
+    
+    
+    AssemblerParallel<double, AssemblerMVPEigen<double> > Mv, Kv;
+    //AssemblerMVPEigen<double> Mv, Kv;
+    
+    //assembly-free mvp
+    auto mvp = [&world, &Mv, &Kv, &dt](auto &y) {
+        ASSEMBLEMATINIT(Kv, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+        Kv.getImpl()*=y;
+        
+        //multiplying is happening during assembly (neat huh ? )
+        ASSEMBLELIST(Kv, world.getSystemList(), getStiffnessMatrix);
+        ASSEMBLELIST(Kv, world.getForceList(), getStiffnessMatrix);
+        ASSEMBLEEND(Kv);
+
+        ASSEMBLEMATINIT(Mv, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+        Mv.getImpl()*=y;
+        
+        //multiplying is happening during assembly (neat huh ? )
+        ASSEMBLELIST(Mv, world.getSystemList(), getMassMatrix);
+        ASSEMBLELIST(Mv, world.getForceList(), getMassMatrix);
+        ASSEMBLEEND(Mv);
+        
+        return (*Mv) + dt*dt*(*Kv);
+    };
+    
+    std::cout<<"CG\n";
+    pcg.solve(x, mvp, f, 100000000);
+    
+    double tol=1e-10;
+    
+    std::cout<<f.norm()<<"\n";
+    ASSERT_LE((x-direct.getX()).norm()/f.norm(), tol);
+
+    
+}
+
 int main(int argc, char **argv) {
     std::cout<<"Start Tests ..... \n";
     
-   // ::testing::InitGoogleTest(&argc, argv);
-    //return RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
     
     //return 1;
 }

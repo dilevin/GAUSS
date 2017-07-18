@@ -49,4 +49,5 @@ void getConstraintMatrix(Matrix &constraintMatrix, World &world) {
 }
 
 
+
 #endif /* UtilitiesBase_h */

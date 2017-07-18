@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
     //Setup Physics
     MyWorld world;
     
-    
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
@@ -49,9 +48,9 @@ int main(int argc, char **argv) {
      F << 0,1,2,3,4,5,6,7;*/
     
     //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(25, 8, 8),  V);
+    igl::grid(Eigen::RowVector3i(80, 40, 40),  V);
     
-    elementsFromGrid(Eigen::RowVector3i(25, 8,8), V, F);
+    elementsFromGrid(Eigen::RowVector3i(80, 40,40), V, F);
     
     FEMLinearHexes *test = new FEMLinearHexes(V,F);
     
@@ -61,9 +60,6 @@ int main(int argc, char **argv) {
     
     auto q = mapStateEigen(world);
     q.setZero();
-    
-    AssemblerEigenSparseMatrix<double> massMatrix;
-    AssemblerEigenVector<double> rhs;
     
     MyTimeStepper stepper(0.01);
     MyScene *scene = new MyScene(&world, &stepper);

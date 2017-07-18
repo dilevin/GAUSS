@@ -30,6 +30,7 @@ namespace Gauss {
         void step(World &world) { m_impl.step(world, m_dt); m_t += m_dt; }
         inline DataType getTime() const { return m_t; }
         inline void setDt(DataType dt) { m_dt = dt; }
+        inline auto & getLagrangeMultipliers() { return m_impl.getLagrangeMultipliers(); }
         
     protected:
         

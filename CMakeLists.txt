@@ -120,6 +120,11 @@ include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
+
+#odd ordering is because implicit solver lives in Base currently
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/SolversLinear) 
+
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Base)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/ParticleSystem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/FEM)

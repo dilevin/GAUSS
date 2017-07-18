@@ -26,6 +26,8 @@ namespace Gauss {
     class AssemblerParallelImpl : public AssemblerBase {
     public:
         
+        using MatrixType = typename SerialAssembler::MatrixType;
+        
         AssemblerParallelImpl() {
             
             //Number of available theads
@@ -111,6 +113,23 @@ namespace Gauss {
         SerialAssembler & getAssembler(unsigned int threadId) {
             return m_serialAssemblers[threadId];
         }
+        
+        //handle operators
+        template<typename Params>
+        inline AssemblerParallelImpl & operator*=(Params &x) {
+            #pragma omp parallel
+            {
+                #pragma omp for
+                {
+                    for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
+                        (m_serialAssemblers[ii].getImpl())*=x;
+                    }
+                }
+           }
+            
+            return *this;
+        }
+        
         
     protected:
         

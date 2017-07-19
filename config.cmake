@@ -1,11 +1,12 @@
-# NOTE: This file is in .gitignore so that users may set custom paths without commiting to 
-# the repo. If you would like to make a permanent change to this file, please use the command
-# `git add --force config.cmake`
+# NOTE: This file is marked as assume-unchanged so that users may set custom paths without commiting to 
+# the repo. If you would like to make a permanent change to this file, please use the commands
+# $ git update-index --no-assume-unchanged config.cmake 
+# <Make and commit your changes>
+# $ git update-index --assume-unchanged config.cmake
 
 
 ### libigl
 set(LIBIGL_INCLUDE_PATH "../libigl/include" CACHE FILEPATH "Root include directory for libigl")
-
 
 ### OpenMP config
 set(USE_OPENMP OFF CACHE BOOL "OpenMP requires use of llvm via homebrew on OSX")

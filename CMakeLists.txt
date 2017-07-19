@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 14)
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        message(WARNING "Here")
+        #message(WARNING "Here")
         set(USE_OPENMP CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(APPLE)

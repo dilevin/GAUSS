@@ -8,6 +8,7 @@
 ### libigl
 set(LIBIGL_INCLUDE_PATH "../libigl/include" CACHE FILEPATH "Root include directory for libigl")
 
+
 ### OpenMP config
 set(USE_OPENMP OFF CACHE BOOL "OpenMP requires use of llvm via homebrew on OSX")
 
@@ -15,3 +16,10 @@ set(USE_OPENMP OFF CACHE BOOL "OpenMP requires use of llvm via homebrew on OSX")
 set(LLVM_BIN "/usr/local/opt/llvm/bin" CACHE STRING "CLANG Binary Directory such as /usr/local/opt/llvm/bin")
 set(LLVM_LIB "/usr/local/opt/llvm/lib" CACHE STRING "CLANG Lib Directory such as /usr/local/opt/llvm/lib")
 set(LLVM_INCLUDE "/usr/local/opt/llvm/lib/clang/4.0.1/include" CACHE STRING "CLANG Header Directory such as /usr/local/opt/llvm/include")
+
+
+### Paradiso
+set(USE_PARDISO ON CACHE BOOL "Use Pardiso if it is available to you")
+
+# If USE_PARDISO is ON then we need a path to find it
+set(PARDISO_LIB "/usr/local/lib/libpardiso500-MACOS-X86-64.dylib" CACHE STRING "Pardiso Library to use")

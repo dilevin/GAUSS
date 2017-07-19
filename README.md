@@ -4,7 +4,11 @@
 
 Ensure that Qt version >= 5.8 is installed.
 
-Download and compile? the igl library into the directory above `${GAUSS_DIR}` or choose a custom path in `config.cmake`.
+Download (and compile?) the igl library into the directory above `${GAUSS_DIR}` or choose a custom path in `config.cmake`.
+
+If you are on OSX and you wish to enable OpenMP, install llvm via homebrew and follow the instructions in `config.cmake`
+
+Likewise, if you wish to use the pardiso solver, download the pardiso library from the website and set the path in `config.cmake`. If you get errors referring to libgfortran, you may need to follow [this](http://www.alecjacobson.com/weblog/?p=3946) guide to fix the library for your paths.
 
 #### Build ####
 

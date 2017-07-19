@@ -390,9 +390,11 @@ TEST(MVP, TestCG2) {
     
     SolverCG<double, Eigen::VectorXd> pcg(1e-8);
     
-    
+    #ifdef GAUSS_OPENMP
     AssemblerParallel<double, AssemblerMVPEigen<double> > Mv, Kv;
-    //AssemblerMVPEigen<double> Mv, Kv;
+    #else
+    AssemblerMVPEigen<double> Mv, Kv;
+    #endif
     
     //assembly-free mvp
     auto mvp = [&world, &Mv, &Kv, &dt](auto &y) {

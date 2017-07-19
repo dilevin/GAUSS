@@ -19,7 +19,7 @@ set(LLVM_INCLUDE "/usr/local/opt/llvm/lib/clang/4.0.1/include" CACHE STRING "CLA
 
 
 ### Paradiso
-set(USE_PARDISO ON CACHE BOOL "Use Pardiso if it is available to you")
+set(USE_PARDISO OFF CACHE BOOL "Use Pardiso if it is available to you")
 
 # If USE_PARDISO is ON then we need a path to find it
 set(PARDISO_LIB "/usr/local/lib/libpardiso500-MACOS-X86-64.dylib" CACHE STRING "Pardiso Library to use")

@@ -11,7 +11,7 @@ set(LIBIGL_INCLUDE_PATH "../libigl/include" CACHE FILEPATH "Root include directo
 ### OpenMP config
 set(USE_OPENMP OFF CACHE BOOL "OpenMP requires use of llvm via homebrew on OSX")
 
-# These need only be set if you are trying to use OpenMP on OSX and have installed llvm via homebrew
-set(LLVM_BIN "<path>" CACHE STRING "CLANG Binary Directory such as /usr/local/opt/llvm/bin")
-set(LLVM_LIB "<path>" CACHE STRING "CLANG Lib Directory such as /usr/local/opt/llvm/lib")
-set(LLVM_INCLUDE "<path>" CACHE STRING "CLANG Header Directory such as /usr/local/opt/llvm/include")
+# These need only be set/updated if you are trying to use OpenMP on OSX and have installed llvm via homebrew
+set(LLVM_BIN "/usr/local/opt/llvm/bin" CACHE STRING "CLANG Binary Directory such as /usr/local/opt/llvm/bin")
+set(LLVM_LIB "/usr/local/opt/llvm/lib" CACHE STRING "CLANG Lib Directory such as /usr/local/opt/llvm/lib")
+set(LLVM_INCLUDE "/usr/local/opt/llvm/lib/clang/4.0.1/include" CACHE STRING "CLANG Header Directory such as /usr/local/opt/llvm/include")

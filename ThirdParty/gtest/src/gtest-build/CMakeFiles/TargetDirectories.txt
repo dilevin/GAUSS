@@ -1,4 +1,0 @@
-/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeFiles/gtest_main.dir
-/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeFiles/gtest.dir
-/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeFiles/ALL_BUILD.dir
-/Users/dilevin/Documents/Research/Development/Gauss3/ThirdParty/gtest/src/gtest-build/CMakeFiles/ZERO_CHECK.dir

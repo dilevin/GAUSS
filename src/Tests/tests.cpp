@@ -267,6 +267,8 @@ TEST(MVP, TestMVP) {
     
 }
 
+// TODO(lawson 19/07/17): Implement version without PARDISO?
+#ifdef GAUSS_PARDISO
 TEST(MVP, TestCG) {
     
     //Test CG vs. Direct Solve
@@ -330,7 +332,10 @@ TEST(MVP, TestCG) {
     
     ASSERT_LE((x-direct.getX()).norm()/f.norm(), tol);
 }
+#endif
 
+// TODO(lawson 19/07/17): Implement version without PARDISO?
+#ifdef GAUSS_PARDISO
 TEST(MVP, TestCG2) {
     
     //Test Assembly free CG vs. Direct Solve
@@ -385,9 +390,11 @@ TEST(MVP, TestCG2) {
     
     SolverCG<double, Eigen::VectorXd> pcg(1e-8);
     
-    
+    #ifdef GAUSS_OPENMP
     AssemblerParallel<double, AssemblerMVPEigen<double> > Mv, Kv;
-    //AssemblerMVPEigen<double> Mv, Kv;
+    #else
+    AssemblerMVPEigen<double> Mv, Kv;
+    #endif
     
     //assembly-free mvp
     auto mvp = [&world, &Mv, &Kv, &dt](auto &y) {
@@ -420,6 +427,7 @@ TEST(MVP, TestCG2) {
 
     
 }
+#endif
 
 int main(int argc, char **argv) {
     std::cout<<"Start Tests ..... \n";

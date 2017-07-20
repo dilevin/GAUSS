@@ -9,6 +9,8 @@
 #ifndef SolverCG_h
 #define SolverCG_h
 
+#include <functional>
+
 namespace Gauss {
   
     template<typename DataType, typename VectorType>

@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 14)
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        message(WARNING "Here")
+        #message(WARNING "Here")
         set(USE_OPENMP CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(APPLE)
@@ -45,6 +45,7 @@ if(APPLE)
         set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang CACHE STRING "C++ compiler" FORCE)
         set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
         set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
+        set(CMAKE_EXE_LINKER_FLAGS -lc++)
         set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
         set(GAUSS_INCLUDE_DIR ${LLVM_INCLUDE} CACHE INTERNAL "")
         set(GAUSS_LINK_DIR  ${LLVM_LIB} CACHE INTERNAL "")
@@ -82,28 +83,38 @@ set(LIBIGL_INCLUDE_PATH "path" CACHE FILEPATH "Root include directory for libigl
 find_package(Eigen3 REQUIRED)
 
 #GTest (From Masha Shugrina)
-# Google Test
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download and install
-ExternalProject_Add(
-gtest
-URL https://github.com/google/googletest/archive/release-1.7.0.zip
-PREFIX ${PROJECT_SOURCE_DIR}/ThirdParty/gtest
-CMAKE_ARGS ${CMAKE_ARGS}
-# Disable install step
-INSTALL_COMMAND ""
-                )
+### Google Test setup
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.gtest googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
 
-# Create a libgtest target to be used as a dependency by test programs
-add_library(libgtest IMPORTED STATIC GLOBAL)
-add_dependencies(libgtest gtest)
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-# Set gtest properties
-ExternalProject_Get_Property(gtest source_dir binary_dir)
-set_target_properties(libgtest PROPERTIES
-		      "IMPORTED_LOCATION" ${PROJECT_BINARY_DIR}/lib/libgtest.a
-                      "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
-                      )
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+                 ${CMAKE_BINARY_DIR}/googletest-build)
+
+# The gtest/gtest_main targets carry header search path
+# dependencies automatically when using CMake 2.8.11 or
+# later. Otherwise we have to add them here ourselves.
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+  include_directories("${gtest_SOURCE_DIR}/include")
+endif()
+### End of Google Test setup
 
 
 #Individual feature directories

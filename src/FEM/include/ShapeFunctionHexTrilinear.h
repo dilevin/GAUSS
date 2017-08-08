@@ -304,6 +304,23 @@ namespace Gauss {
             
             constexpr unsigned int getNumVerts() { return 8; }
             
+            inline Eigen::Matrix<DataType, 3,3> F(double *x, const State<DataType> &state) {
+                
+                Eigen::Matrix<DataType,3,3> Ftemp;
+                
+                Ftemp  = mapDOFEigen(*m_qDofs[0], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<0>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[1], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<1>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[2], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<2>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[3], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<3>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[4], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<4>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[5], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<5>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[6], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<6>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[7], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<7>(x).data(),3);
+                
+                return Ftemp;
+
+            }
+            
         protected:
             
             std::array<DOFBase<DataType,0> *, 8> m_qDofs;

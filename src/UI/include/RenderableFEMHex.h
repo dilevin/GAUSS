@@ -14,11 +14,11 @@
 namespace Gauss {
     
     //Renderable for a hexahedral finite element mesh 
-    template<typename DataType, template <typename D, typename E> class QuadratureRule>
+    template<typename DataType, template <typename D, typename E> class QuadratureRule, template <typename F, typename G> class EnergyPotential>
     class Renderable<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
     FEM::Element<DataType, 8, QuadratureRule,
     FEM::EnergyKineticNonLumped,
-    FEM::EnergyLinearElasticity,
+    EnergyPotential,
     FEM::BodyForceGravity,
     FEM::ShapeFunctionHexTrilinear> > > >: public Renderable<DataType>
     {
@@ -27,7 +27,7 @@ namespace Gauss {
         using FEMSystem = PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
         FEM::Element<DataType, 8, QuadratureRule,
         FEM::EnergyKineticNonLumped,
-        FEM::EnergyLinearElasticity,
+        EnergyPotential,
         FEM::BodyForceGravity,
         FEM::ShapeFunctionHexTrilinear> > >;
         

@@ -13,6 +13,7 @@
 #include <PhysicalSystemFEM.h>
 #include <Element.h>
 #include <Energy.h>
+#include <EnergyNeohookean.h>
 
 //Quadrature rules
 #include <Quadrature.h>

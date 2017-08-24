@@ -20,8 +20,6 @@
 #include <SolverPardiso.h>
 
 //TODO Solver Interface
-//TODO External Forces
-//TODO Constraints
 namespace Gauss {
     
     //Given Initial state, step forward in time using linearly implicit Euler Integrator
@@ -43,7 +41,7 @@ namespace Gauss {
         //Methods
         //init() //initial conditions will be set at the begining
         template<typename World>
-        void step(World &world, double dt);
+        void step(World &world, double dt, double t);
         
         inline typename VectorAssembler::MatrixType & getLagrangeMultipliers() { return m_lagrangeMultipliers; }
         
@@ -68,7 +66,7 @@ namespace Gauss {
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
-void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt) {
+void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
 
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
     MatrixAssembler &massMatrix = m_massMatrix;

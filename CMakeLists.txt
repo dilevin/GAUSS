@@ -18,7 +18,7 @@ endif(APPLE)
 
 #do you want to use Pardiso
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
-
+set(USE_SPECTRA CACHE BOOL "Use Spectra to solve eigenvalue problems (if available)")
 if(APPLE)
     if(USE_OPENMP)
         set(LLVM_BIN CACHE STRING "CLANG Binary Directory")
@@ -31,6 +31,9 @@ if(USE_PARDISO)
     set(PARDISO_LIB CACHE STRING "Pardiso Library to use")
 endif(USE_PARDISO)
 
+if(USE_SPECTRA)
+    set(SPECTRA_INCLUDE_DIR CACHE STRING "Spectra Root Directory")
+endif(USE_SPECTRA)
 
 #find_package(OpenMP REQUIRED)
 #Global variables to configure other projects
@@ -64,6 +67,11 @@ if(USE_PARDISO)
     set(GAUSS_LINK_DIR ${GAUSS_LINK_DIR} ${PARDISO_DIR} CACHE INTERNAL "")
     add_definitions(-DGAUSS_PARDISO)
 endif(USE_PARDISO)
+
+if(USE_SPECTRA)
+    set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${SPECTRA_INCLUDE_DIR}/include CACHE INTERNAL "")
+    add_definitions(-DGAUSS_SPECTRA)
+endif(USE_SPECTRA)
 
 #Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )

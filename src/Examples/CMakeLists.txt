@@ -10,6 +10,7 @@ if(USE_OPENMP)
 endif(USE_OPENMP)
 
 add_executable(Example5 example5.cpp)
+add_executable(Example6 example6.cpp)
 
 target_link_libraries(Example1 Core Base UI ${GAUSS_LIBS})
 target_link_libraries(Example2 Core Base FEM UI ${GAUSS_LIBS})
@@ -19,4 +20,6 @@ if(USE_OPENMP)
 endif(USE_OPENMP)
 
 target_link_libraries(Example5 Core Base FEM UI ${GAUSS_LIBS})
+target_link_libraries(Example6 Core Base FEM UI ${GAUSS_LIBS})
+
 

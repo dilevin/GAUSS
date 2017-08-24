@@ -25,4 +25,7 @@
 #include <ElementTypes.h>
 #include <UtilitiesIO.h> // I want to be able to load tetgen files
 
+//Utils
+#include <UtilitiesFEM.h>
+
 #endif /* FEMIncludes_h */

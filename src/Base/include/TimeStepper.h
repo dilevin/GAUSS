@@ -15,7 +15,8 @@ namespace Gauss {
     {
     public:
         
-        TimeStepper(DataType dt) : m_impl() {  m_dt = dt; m_t = 0;}
+        template<typename ...Params>
+        TimeStepper(DataType dt, Params&& ...params ) : m_impl(std::forward<Params>(params)...) {  m_dt = dt; m_t = 0;}
         
         TimeStepper(const TimeStepper &toCopy) {
             m_dt = toCopy.m_dt;
@@ -27,7 +28,7 @@ namespace Gauss {
         
         //Methods
         template<typename World>
-        void step(World &world) { m_impl.step(world, m_dt); m_t += m_dt; }
+        void step(World &world) { m_impl.step(world, m_dt, m_t); m_t += m_dt; }
         inline DataType getTime() const { return m_t; }
         inline void setDt(DataType dt) { m_dt = dt; }
         inline auto & getLagrangeMultipliers() { return m_impl.getLagrangeMultipliers(); }

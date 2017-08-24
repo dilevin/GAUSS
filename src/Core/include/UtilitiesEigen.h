@@ -9,6 +9,7 @@
 #ifndef UtilitiesEigen_h
 #define UtilitiesEigen_h
 
+#include <algorithm>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Utilities.h>
@@ -70,6 +71,56 @@ namespace Gauss {
         return Eigen::Map<Eigen::VectorXd>(qPtr.first, dof.getNumScalarDOF());
         
     }
+    
+    //Modal Analysis using Spectra
+#ifdef GAUSS_SPECTRA
+    //Temp test Spectre
+    #include <GenEigsComplexShiftSolver.h>
+    #include <SymGEigsSolver.h>
+    #include <MatOp/SparseGenMatProd.h>
+    #include <MatOp/SparseCholesky.h>
+    #include <SymGEigsSolver.h>
+    #include <stdexcept>
+
+    //solve sparse generalized eigenvalue problem using spectra
+    //solve the gevp Ax = lambda*Bx
+    template<typename DataType, int Flags, typename Indices>
+    auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
+                                      const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
+                                      unsigned int numVecs) {
+    
+        //Spectra seems to freak out if you use row storage, this copy just ensures everything is setup the way the solver likes
+        Eigen::SparseMatrix<DataType> K = A;
+        Eigen::SparseMatrix<DataType> M = B;
+        
+            
+        Spectra::SparseGenMatProd<DataType> Aop(K);
+        Spectra::SparseCholesky<DataType>   Bop(M);
+        
+        // Construct eigen solver object, requesting the largest three eigenvalues
+        Spectra::SymGEigsSolver<DataType, Spectra::SMALLEST_MAGN, Spectra::SparseGenMatProd<DataType>, Spectra::SparseCholesky<DataType>, Spectra::GEIGS_CHOLESKY > eigs(&Aop, &Bop, numVecs, B.rows()-10);
+        
+        // Initialize and compute
+        eigs.init();
+        int nconv = eigs.compute();
+        
+        // Retrieve results
+        if(eigs.info() == Spectra::SUCCESSFUL) {
+            return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
+        } else {
+            std::cout<<"Failure: "<<eigs.info()<<"\n";
+            exit(1);
+            return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
+        }
+        
+    }
+    
+#else
+    template<class ...Params>
+    void generalizedEigenvalueProblem(Params ...params) {
+        std::cout<<"Spectra not installed\n";
+    }
+#endif
 
 }
 #endif /* UtilitiesEigen_h */

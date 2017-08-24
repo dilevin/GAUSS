@@ -150,8 +150,11 @@ namespace Gauss {
         constexpr static bool value = true;
     };
 }
+#else
+    template<typename DataType, typename SerialAssembler>
+    using AssemblerParallel = SerialAssembler;
 #endif //OPENMP is Available
-//This assembler is thread safe
+
 #endif /* AssemblerParrallel_h */
     
     

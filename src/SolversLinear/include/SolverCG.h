@@ -54,7 +54,7 @@ namespace Gauss {
         unsigned int kp1 = 0;
         for(unsigned int ii=0; ii<maxIter; ++ii) {
             kp1 = 1-k;
-            alpha = m_r[k].dot(m_z[k])/(mvp(m_p[k]).dot(m_p[k]));
+            alpha = m_r[k].dot(m_z[k])/(mvp(m_p[k]).dot(m_p[k])); //bug for 0 right hand side 
             x += alpha*m_p[k];
             m_r[kp1] = m_r[k] - alpha*mvp(m_p[k]);
             

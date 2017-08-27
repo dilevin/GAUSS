@@ -176,8 +176,8 @@ namespace Gauss {
                 }
             }
             
-            template<int ROWS, int COLS>
-            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const Eigen::Matrix<double, ROWS, COLS> &toAssembler) {
+            template<typename Derived>
+            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const Eigen::MatrixBase<Derived> &toAssembler) {
                 
                 unsigned int ii = 0;
                 unsigned int jj = 0;

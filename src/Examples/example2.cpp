@@ -45,11 +45,11 @@ int main(int argc, char **argv) {
     q.setZero();
     
     MyTimeStepper stepper(0.01);
-    MyScene *scene = new MyScene(&world, &stepper);
-    
+   
     //Display
     QGuiApplication app(argc, argv);
-    
+
+	MyScene *scene = new MyScene(&world, &stepper);
     GAUSSVIEW(scene);
     gaussView.startScene();
     

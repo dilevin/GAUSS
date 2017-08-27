@@ -4,7 +4,7 @@
 /**
  * OS specific functions
  */
-
+#include <iostream>
 #include <string>
 #include <vector>
 

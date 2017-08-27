@@ -4,6 +4,7 @@
 #include "GetArrayType.h"
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 
 /**
 * Array - base class for methods that allocate memory on a heap. Array's may be able to dynamically resize themselves, the can be either copied from

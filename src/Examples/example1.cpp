@@ -52,12 +52,14 @@ int main(int argc, char **argv)
     auto q1 = mapDOFEigen(test1->getQ(), world);
     q1[0] = 10.0;
     
-    //Setup Scene
-    MyScene *scene = new MyScene(&world, &stepper);
+   
     
     //Start Display
     QGuiApplication app(argc, argv);
-  
+
+	//Setup Scene
+	MyScene *scene = new MyScene(&world, &stepper);
+
     GAUSSVIEW(scene);
     gaussView.startScene();
     

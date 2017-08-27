@@ -52,7 +52,7 @@ namespace Gauss {
             Eigen::Matrix3d I;
             I.setIdentity();
             
-            assign<Matrix, Eigen::Matrix3d, std::array<ConstraintIndex,1>, std::array<DOFBase<DataType,0>, 1>, Operation>(g, I, std::array<ConstraintIndex,1>{{index}}, std::array<DOFBase<DataType,0>, 1>{{*m_dofFixed}});
+            assign<Matrix, Eigen::Matrix<double,3,3>, std::array<ConstraintIndex,1>, std::array<DOFBase<DataType,0>, 1>, Operation>(g, I, std::array<ConstraintIndex,1>{{index}}, std::array<DOFBase<DataType,0>, 1>{{*m_dofFixed}});
         }
         
         

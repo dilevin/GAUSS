@@ -78,9 +78,9 @@ namespace Gauss {
             m_transform = new Qt3DCore::QTransform();
             m_transform->setScale(m_r);
           
-            std::pair<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
+            std::tuple<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
             
-            m_transform->setTranslation(QVector3D(ptr.first[0], ptr.first[1], ptr.first[2]));
+            m_transform->setTranslation(QVector3D(std::get<0>(ptr)[0], std::get<0>(ptr)[1], std::get<0>(ptr)[2]));
 
             //return entity
             m_entity = new Qt3DCore::QEntity(root);
@@ -94,8 +94,8 @@ namespace Gauss {
 
         
         void update(State<DataType> &state) const {
-            std::pair<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
-            m_transform->setTranslation(QVector3D(ptr.first[0], ptr.first[1], ptr.first[2]));
+            std::tuple<DataType *, unsigned int> ptr = state.template getStatePtr<0>(m_dof->getGlobalId());
+            m_transform->setTranslation(QVector3D(std::get<0>(ptr)[0], std::get<0>(ptr)[1], std::get<0>(ptr)[2]));
             m_sphere->setRadius(m_r);
         }
         

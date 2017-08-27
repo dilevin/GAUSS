@@ -97,6 +97,7 @@ ExternalProject_Add(
 gtest
 URL https://github.com/google/googletest/archive/release-1.7.0.zip
 PREFIX ${PROJECT_SOURCE_DIR}/ThirdParty/gtest
+INSTALL_DIR ${PROJECT_BINARY_DIR}/lib
 CMAKE_ARGS ${CMAKE_ARGS}
 # Disable install step
 INSTALL_COMMAND ""
@@ -111,7 +112,7 @@ ExternalProject_Get_Property(gtest source_dir binary_dir)
 set_target_properties(libgtest PROPERTIES
 		      "IMPORTED_LOCATION" ${PROJECT_BINARY_DIR}/lib/libgtest.a
                       "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
-                      )
+                     )
 
 
 #Individual feature directories
@@ -119,7 +120,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})
 #include_directories(/usr/local/opt/llvm/lib/clang/4.0.0/include)
 
-include_directories("${source_dir}/include") #gtest
+include_directories(${source_dir}/include) #gtest
 include_directories(${PROJECT_SOURCE_DIR}/src/Core/include 
 		    ${PROJECT_SOURCE_DIR}/src/Base/include)
 

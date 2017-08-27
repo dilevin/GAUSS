@@ -159,21 +159,54 @@ namespace Gauss {
         using AssemblerBase::m_rowOffset;
         using AssemblerBase::m_colOffset;
         
-        template<typename I, typename J, typename Input>
+        template<typename I, typename J, typename ...Input>
         struct assembleStruct {
             
-            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I i, J j, Input &toAssembler) {
-                std::cout<<"Input type not accepted by Assembler \n";
-                assert(1==0);
+            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const double &toAssembler) {
+                
+                //add double to system as a diagonal matrix
+                for(unsigned int idof=0;idof < i.size(); ++idof) {
+                    for(unsigned int jdof=0;jdof < j.size(); ++jdof) {
+                        for(unsigned int ii=0; ii<ptr(i[idof])->getNumScalarDOF(); ++ii) {
+                            parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+ptr(i[idof])->getGlobalId()+ii,
+                                                                                      parent->m_colOffset+ptr(j[jdof])->getGlobalId()+ii,
+                                                                                      toAssembler));
+                        }
+                    }
+                }
             }
             
-            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I i, Input &toAssembler) {
-                std::cout<<"Input type not accepted by Assembler \n";
-                assert(1==0);
+            template<int ROWS, int COLS>
+            inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const Eigen::Matrix<double, ROWS, COLS> &toAssembler) {
+                
+                unsigned int ii = 0;
+                unsigned int jj = 0;
+                unsigned int idof = 0;
+                unsigned int jdof = 0;
+                unsigned int ipos, jpos;
+                
+                ipos = 0;
+                for(idof=0, ii=0; idof<i.size(); ++idof) {
+                    for(ii=0; ii<ptr(i[idof])->getNumScalarDOF(); ++ii) {
+                        jpos = 0;
+                        for(jdof = 0, jj=0; jdof<j.size(); ++jdof) {
+                            for(jj = 0; jj<ptr(j[jdof])->getNumScalarDOF(); ++jj) {
+                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(parent->m_rowOffset+ptr(i[idof])->getGlobalId()+ii,
+                                                                                          parent->m_colOffset+ptr(j[jdof])->getGlobalId()+jj,
+                                                                                          toAssembler(ipos+ii, jpos+jj)));
+                            }
+                            
+                            jpos += jj;
+                        }
+                    }
+                    
+                    ipos += ii;
+                }
             }
+            
         };
         
-        template<typename I, typename J>
+        /*template<typename I, typename J>
         struct assembleStruct<I, J, const double> {
             inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const double &toAssembler) {
                 
@@ -188,9 +221,9 @@ namespace Gauss {
                     }
                 }
             }
-        };
+        };*/
         
-        template<typename I, typename J, int ROWS, int COLS>
+        /*template<typename I, typename J, int ROWS, int COLS>
         struct assembleStruct<I, J, Eigen::Matrix<double, ROWS, COLS> > {
             inline assembleStruct(AssemblerImplEigenSparseMatrix *parent, I &i, J &j, const Eigen::Matrix<double, ROWS, COLS> &toAssembler) {
                 
@@ -217,20 +250,8 @@ namespace Gauss {
                     
                     ipos += ii;
                 }
-                //add double to system as a diagonal matrix
-                /*for(unsigned int idof=0;idof < i.size(); ++idof) {
-                    for(unsigned int jdof=0;jdof < j.size(); ++jdof) {
-                        for(unsigned int ii=0; ii<i[idof].getNumScalarDOF(); ++ii) {
-                            for(unsigned int jj=0; jj<j[jdof].getNumScalarDOF(); ++jj) {
-                                parent->m_tripletList.push_back(Eigen::Triplet<Precision>(i[idof].getGlobalId()+ii,
-                                                                                      j[jdof].getGlobalId()+jj,
-                                                                                      toAssembler(ii, jj)));
-                            }
-                        }
-                    }
-                }*/
             }
-        };
+        };*/
         
         AssemblerImplEigenSparseMatrix() : AssemblerBase() {
             m_assembled.resize(1,1);

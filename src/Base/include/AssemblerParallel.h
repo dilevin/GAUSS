@@ -41,7 +41,7 @@ namespace Gauss {
         inline void init(unsigned int m, unsigned int n=1, unsigned int rowOffset = 0, unsigned int colOffset = 0) {
          
             //do everything in parallel
-            m_assembled.resize(m,n);
+            m_assembled.resize(m,n); // TODO need conditional to deal with case where MatrixType is a vector
             m_assembled.setZero();
             
             for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {

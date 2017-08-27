@@ -45,10 +45,10 @@ int main(int argc, char **argv) {
     //generate wiggly animations
     MyTimeStepper stepper(1e-3, modes.first, modes.second, 9);
     
-    MyScene *scene = new MyScene(&world, &stepper);
-    
     //Display
     QGuiApplication app(argc, argv);
+    
+    MyScene *scene = new MyScene(&world, &stepper);
     
     GAUSSVIEW(scene);
     gaussView.startScene();

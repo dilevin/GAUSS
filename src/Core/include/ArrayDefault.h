@@ -58,6 +58,7 @@ namespace Core
 	public:
 
         explicit ArrayDefault(const size_t numElements=0, const size_t bufferSize  = 0);
+        explicit ArrayDefault(const size_t numElements, TYPE *memPtr);
         explicit ArrayDefault(const ArrayDefault &toCopy);
         explicit ArrayDefault(const ArrayDefault *toCopy, const unsigned int index);
 
@@ -107,6 +108,15 @@ namespace Core
         this->m_type = GetArrayType<ArrayDefault<TYPE,DYNAMIC_SIZE_ARRAY> >::ArrayType();
         MEMSET(this->m_memPtr, 0, sizeof(TYPE)*this->m_bufferSize);
 	}
+    
+    template<typename TYPE>
+    ArrayDefault<TYPE, DYNAMIC_SIZE_ARRAY>::ArrayDefault(const size_t numElements, TYPE *memPtr) {
+        this->m_memPtr = memPtr;
+        this->m_resizable = false;
+        this->m_allocated = true;
+        this->m_mapped = true;
+        this->m_type = GetArrayType<ArrayDefault<TYPE,DYNAMIC_SIZE_ARRAY> >::ArrayType();
+    }
 
     template<typename TYPE>
     ArrayDefault<TYPE,DYNAMIC_SIZE_ARRAY>::ArrayDefault(const ArrayDefault &toCopy) : Array<TYPE>(toCopy)

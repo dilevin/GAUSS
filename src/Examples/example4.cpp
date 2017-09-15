@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
      F << 0,1,2,3,4,5,6,7;*/
     
     //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(80, 20, 20),  V);
+    igl::grid(Eigen::RowVector3i(60, 15, 15),  V);
     
-    elementsFromGrid(Eigen::RowVector3i(80, 20,20), V, F);
+    elementsFromGrid(Eigen::RowVector3i(60, 15,15), V, F);
     
     FEMLinearHexes *test = new FEMLinearHexes(V,F);
     

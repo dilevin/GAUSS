@@ -25,13 +25,20 @@ namespace Gauss {
         using StateDataType = DataType;
         
         State(unsigned int offset=0, unsigned int numScalarDOF = 0);
+
         ~State();
         State(const State &toCopy);
+        
+        //Sometimes it is useful to be able to build a new state which describes the same physical system
+        //but references a different memory buffer (useful for computing forces across time etc...).
+        
+        State mappedState(DataType *data);
         
         inline unsigned int stateSize(unsigned int i) const {
             return static_cast<unsigned int>((1-2*i)*static_cast<int>(m_offset) +
                                              static_cast<int>(i*m_backingStore.getSize()));
         }
+        
         
         inline unsigned int getNumScalarDOF() { return m_backingStore.getSize(); }
         
@@ -77,6 +84,9 @@ namespace Gauss {
         Core::ArrayDefault<DataType,DYNAMIC_SIZE_ARRAY> m_backingStore;
         
     private:
+        
+        State(unsigned int offset, unsigned int dataSize, DataType *data);
+        
     };
 
     template<typename DataType>
@@ -84,8 +94,17 @@ namespace Gauss {
         m_offset = offset;
         m_backingStore.resize(numScalarDOF);
     }
+    
+    template<typename DataType>
+    State<DataType>::State(unsigned int offset, unsigned int dataSize, DataType *data) : m_backingStore(dataSize, data) {
+        m_offset = offset;
+    }
 
-
+    template<typename DataType>
+    State<DataType> State<DataType>::mappedState(DataType *data) {
+        return State<DataType>(m_offset,  m_backingStore.getSize(), data);
+    }
+    
     template<typename DataType>
     State<DataType>::~State() {
         

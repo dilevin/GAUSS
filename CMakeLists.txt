@@ -142,6 +142,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 include_directories(${GAUSS_INCLUDE_DIR})
 set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "")
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/MATLAB)
+
 #Init GUI Stuff
 include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)
 initUI()

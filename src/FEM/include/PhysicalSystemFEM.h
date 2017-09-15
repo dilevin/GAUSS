@@ -32,7 +32,7 @@ namespace Gauss {
         public:
             //temporary global indices until I update the state to give these to me
             //automatically
-            PhysicalSystemFEMImpl(Eigen::MatrixXd &V, Eigen::MatrixXi &F) : m_q(V.rows()), m_qDot(V.rows()) {
+            PhysicalSystemFEMImpl(const Eigen::Ref<Eigen::MatrixXd> &V, const Eigen::Ref<Eigen::MatrixXi> &F) : m_q(V.rows()), m_qDot(V.rows()) {
                 
                 m_V = V;
                 m_F = F;

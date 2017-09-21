@@ -35,6 +35,8 @@ namespace Gauss {
         class ShapeFunctionLinearTet {
         public:
             
+            using MatrixJ = Eigen::Matrix<DataType, 3, 12>;
+            
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionLinearTet(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(3,3) {
                 //build up stuff I need for barycentric coordinates
@@ -118,8 +120,10 @@ namespace Gauss {
             
             //Jacobian: derivative with respect to degrees of freedom
             template<typename Matrix>
-            inline void J(Matrix &output, double *x, State<DataType> &state) {
+            inline Matrix J(double *x, State<DataType> &state) {
             
+                 MatrixJ output;
+                
                 //just a 3x12 matrix of shape functions
                 //kind of assuming everything is initialized before we get here
                 double phi0 = phi<0>(x);
@@ -133,6 +137,8 @@ namespace Gauss {
                 output.block(0,3, 3,3) = phi1*Matrix::Identity();
                 output.block(0,6, 3,3) = phi2*Matrix::Identity();
                 output.block(0,9, 3,3) = phi3*Matrix::Identity();
+                
+                return output;
                 
             }
             

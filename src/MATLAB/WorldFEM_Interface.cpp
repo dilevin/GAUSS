@@ -23,8 +23,17 @@ using namespace ParticleSystem; //For Force Spring
 
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
+typedef PhysicalSystemFEM<double, LinearPlaneStrainTri> FEMPlaneStrainTri;
 
-typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > WorldFEM;
+//Generic world object that supports the sim objects I need
+typedef World<  double,
+                std::tuple<
+                    FEMLinearTets *,
+                    FEMPlaneStrainTri *
+                >,
+                std::tuple<ForceSpring<double> *>,
+                std::tuple<ConstraintFixedPoint<double> *>
+        > WorldFEM;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -38,18 +47,29 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
  
     // New
     if (!strcmp("new", cmd)) {
-        if(nrhs < 3)
-            mexErrMsgTxt("Arguments: need Vertex and Face array");
+        if(nrhs < 4)
+            mexErrMsgTxt("Arguments: need FEM Type (string), Vertex (matrix) and Face array (matrix)");
     
         // Check parameters
         if (nlhs != 1)
             mexErrMsgTxt("New: One output expected.");
         
         // Return a handle to a new C++ instance
-        FEMLinearTets *FEM = new FEMLinearTets(matlabToDouble(prhs[1]), matlabToInt32(prhs[2]));
+        
         WorldFEM *world = new WorldFEM();
         
-        world->addSystem(FEM);
+        char * femType = mxArrayToString(prhs[0]);
+        
+        if(strcmp(femType, "elastic_linear_tetrahedra") == 0) {
+            mexPrintf("Initialize Linear Elastic Tetrahedra");
+            FEMLinearTets *FEM = new FEMLinearTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
+            world->addSystem(FEM);
+        } else if(femType, "elastic_linear_plane_strain_tri") {
+            mexPrintf("Initialize Linear Elastic Plane Strain Tri\n");
+            FEMPlaneStrainTri *FEM = new FEMPlaneStrainTri(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
+            world->addSystem(FEM);
+        }
+        
         world->finalize(); //After this all we're ready to go (clean up the interface a bit later)
         auto q = mapStateEigen(*world);
         q.setZero();

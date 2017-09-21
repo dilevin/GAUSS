@@ -19,6 +19,9 @@ namespace Gauss {
 
         template<typename DataType>
         using NeohookeanHex = Element<DataType, 8, QuadratureHex8, EnergyKineticNonLumped, EnergyNeohookean, BodyForceGravity, ShapeFunctionHexTrilinear>;
+        
+        template<typename DataType>
+        using LinearPlaneStrainTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionPlaneLinear>;
 
     }
 }

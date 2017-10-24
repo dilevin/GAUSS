@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     
     Eigen::setNbThreads(1);
     
-    std::cout<<"Test Linear FEM \n";
+    std::cout<<"Test Trilinear FEM \n";
     
     //Setup Physics
     MyWorld world;

@@ -131,7 +131,6 @@ namespace Gauss {
             inline const auto & getV() const { return m_V; }
             inline const auto & getF() const { return m_F; }
             
-            
         protected:
             
             //Mesh

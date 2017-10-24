@@ -57,12 +57,16 @@ namespace Gauss {
         auto & getQDot() { return m_systemImpl.getQDot(); }
         auto & getQDot() const { return m_systemImpl.getQDot(); }
         
-        //Somehow these guys need to build a connectivity list
     protected:
         
         Impl m_systemImpl; //system implementation class.
         
     private:
     };
+    
+    //conveniance function for getting at implementations from pointers
+    template<typename DataType, typename Impl>
+    inline auto & impl(PhysicalSystem<DataType, Impl> *system) { return system->getImpl(); }
+    
 }
 #endif

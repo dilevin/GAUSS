@@ -15,7 +15,6 @@
 #include <Energy.h>
 
 //Elements allow the evaluation of functions over the domain.
-//maybe need to do this with trait classes
 namespace Gauss {
     namespace FEM {
         template<   typename DataType, unsigned int N,
@@ -34,6 +33,8 @@ namespace Gauss {
             using QuadratureU = QuadratureRuleU<DataType, PotentialEnergy<DataType, ShapeFunction<DataType> > >;
             using QuadratureBF = QuadratureRuleU<DataType, BodyForce<DataType, ShapeFunction<DataType> > >;
 
+            using PotentialEnergy<DataType, ShapeFunction<DataType> >::getCauchyStress;
+                             
             template<typename QDOFList, typename QDotDOFList>
             ElementBase(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList qDOFList, QDotDOFList qDotDOFList)  : QuadratureU(V,F, qDOFList, qDotDOFList), QuadratureT(V,F, qDOFList, qDotDOFList), QuadratureBF(V,F, qDOFList, qDotDOFList) {
             

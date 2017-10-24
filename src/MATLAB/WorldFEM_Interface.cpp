@@ -58,13 +58,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         
         WorldFEM *world = new WorldFEM();
         
-        char * femType = mxArrayToString(prhs[0]);
-        
+        char * femType = mxArrayToString(prhs[1]);
+        mexPrintf("%s\n", femType);
         if(strcmp(femType, "elastic_linear_tetrahedra") == 0) {
-            mexPrintf("Initialize Linear Elastic Tetrahedra");
+            mexPrintf("Initialize Linear Elastic Tetrahedra\n");
             FEMLinearTets *FEM = new FEMLinearTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
-        } else if(femType, "elastic_linear_plane_strain_tri") {
+        } else if(strcmp(femType, "elastic_linear_plane_strain_tri")==0) {
             mexPrintf("Initialize Linear Elastic Plane Strain Tri\n");
             FEMPlaneStrainTri *FEM = new FEMPlaneStrainTri(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);

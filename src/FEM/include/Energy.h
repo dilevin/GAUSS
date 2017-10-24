@@ -93,16 +93,7 @@ namespace Gauss {
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
                 
-                /*//returning the force which is really the negative gradient
-                 Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDofs[0], state);
-                 Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDofs[1], state);
-                 Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDofs[2], state);
-                 Eigen::Map<Eigen::VectorXd> v3 = mapDOFEigen(*m_qDofs[3], state);
-                 
-                 Eigen::Matrix<double, 12,1> q;
-                 q << v0, v1, v2, v3;
-                 Eigen::Matrix<double, 12,1> f0 = m_K*q;*/
-                
+                /*//returning the force which is really the negative gradient*/
                 f = -B(this, x, state).transpose()*m_C*B(this, x, state)*ShapeFunction::q(state);
 
             }
@@ -113,6 +104,11 @@ namespace Gauss {
                 
                 H = -B(this, x, state).transpose()*m_C*B(this, x, state);
             
+            }
+            
+            template<typename Matrix>
+            inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
+                S = m_C*B(this,x,state)*ShapeFunction::q(state);
             }
             
             inline const DataType & getE() const { return m_E; }

@@ -67,8 +67,6 @@ mxArray * eigenSparseToMATLAB(const Eigen::SparseMatrix<DataType, Options> &matr
 template<>
 mxArray * eigenSparseToMATLAB<double,  Eigen::ColMajor>(const Eigen::SparseMatrix<double, Eigen::ColMajor> &matrix) {
     
-    mexPrintf("copy eigen  col  major sparse matrix to matlab");
-    
     unsigned int nnz = matrix.nonZeros();
     
     mxArray *sparseArray = mxCreateSparse(matrix.rows(), matrix.cols(), nnz, mxREAL);
@@ -97,8 +95,6 @@ mxArray * eigenSparseToMATLAB<double,  Eigen::ColMajor>(const Eigen::SparseMatri
 template<>
 mxArray * eigenSparseToMATLAB<double,  Eigen::RowMajor>(const Eigen::SparseMatrix<double, Eigen::RowMajor> &matrix) {
     
-    mexPrintf("copy eigen  row major sparse matrix to matlab");
-    
     unsigned int nnz = matrix.nonZeros();
     
     mxArray *sparseArray = mxCreateSparse(matrix.rows(), matrix.cols(), nnz, mxREAL);
@@ -118,7 +114,7 @@ mxArray * eigenSparseToMATLAB<double,  Eigen::RowMajor>(const Eigen::SparseMatri
         w[ii+1] = w[ii]+w[ii+1];
         jc[ii+1] = w[ii+1];
         
-        mexPrintf("%zu \n", w[ii+1]);
+        //mexPrintf("%zu \n", w[ii+1]);
     }
     
     jc[0] = 0;
@@ -142,7 +138,7 @@ mxArray * eigenSparseToMATLAB<double,  Eigen::RowMajor>(const Eigen::SparseMatri
 
 template< int Rows,  int Cols>
 mxArray * eigenDenseToMATLAB(const Eigen::Matrix<double, Rows,Cols> &matrix) {
-    mexPrintf("copy eigen dense matrix to matlab");
+    //mexPrintf("copy eigen dense matrix to matlab\n");
     
     mwSize dims[2];
     dims[0] = matrix.rows();

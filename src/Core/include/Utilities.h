@@ -25,6 +25,10 @@
 
 #define Vert(f, c) V(F(f), c) //Handle raw vertex, face pointers
 
+#define Vec3f(x,y,z) std::array<float,3>({{x,y,z}}).data()
+
+#define Vec3d(x,y,z) std::array<double,3>({{x,y,z}}).data()
+
 //Random utilities and classes that I might need
 namespace Gauss {
     
@@ -151,6 +155,7 @@ namespace Gauss {
         
     };
 #endif
+    
     
 }
 #endif /* Utilities_h */

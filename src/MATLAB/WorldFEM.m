@@ -6,6 +6,7 @@ classdef WorldFEM < handle
     methods
         %% Constructor - Create a new C++ class instance 
         function this = WorldFEM(varargin)
+            varargin{3} = int32(varargin{3});
             this.objectHandle = WorldFEM_Interface('new', varargin{:});
         end
         
@@ -14,20 +15,22 @@ classdef WorldFEM < handle
             WorldFEM_Interface('delete', this.objectHandle);
         end
 
-        %% Train - an example class method call
+        %% State - get the current state of the world
         function varargout = state(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('state', this.objectHandle, varargin{:});
         end
 
-        %% Test - another example class method call
+        %% Mass - get the world mass matrix 
         function varargout = mass(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('M', this.objectHandle, varargin{:});
         end
         
+        %% Stiffness - get the world stiffness matrix
         function varargout = stiffness(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('K', this.objectHandle, varargin{:});
         end
         
+        %% Force - get the world foce 
         function varargout = force(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('f', this.objectHandle, varargin{:});
         end

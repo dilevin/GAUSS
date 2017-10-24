@@ -26,3 +26,11 @@ To see if it worked, run the tests and examples
 	./bin/Example2
 	./bin/Example3
 	./bin/Example4 # If OpenMP was enabled
+
+#### MATLAB Interface ####
+GAUSS Includes a rudimentary MATLAB interface, tested using MATLAB 2015b on OSX. To enable the MATLAB interface, build the project Gauss_MATLAB, then open MATLAB and issue the following commands:
+	addpath('{Gauss_Root_Dir}/src/MATLAB/')
+	addpath('{Gauss_Root_Dir}/build/lib/{Build_Mode_of_Gauss_MATLAB}/')
+	savepath
+
+An example of using the MATLAB interface is given in {Gauss_Root_Dir}/src/Examples/example8.m

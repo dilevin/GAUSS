@@ -152,6 +152,27 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
+    //get cauchy stresses for all elements
+    if(!strcmp("stress",cmd)) {
+        if (nlhs < 0 || nrhs < 3)
+            mexErrMsgTxt("stress: not enough arguments.");
+        // Call the method
+        Eigen::MatrixXd stresses;
+        Eigen::Matrix<double, 6,1> stress;
+        //should find way to avoid this copy
+        State<double> state = dummy_instance->getState().mappedState(mxGetPr(prhs[2]));
+        
+        forEach(dummy_instance->getSystemList(), [&stresses, &stress, &state](auto a) { \
+            stresses.resize(impl(a).getF().rows(), 6);
+            for(unsigned int ii=0; ii<impl(a).getF().rows(); ++ii) {
+                impl(a).getElement(ii)->getCauchyStress(stress, Vec3d(0,0,0), state);
+                stresses.row(ii) = stress.transpose();
+            }
+        });
+
+        plhs[0] = eigenDenseToMATLAB(stresses);
+        return;
+    }
     //need methods for getting mass matrix, stiffness matrix and forces
     
     // Got here, so command not recognized

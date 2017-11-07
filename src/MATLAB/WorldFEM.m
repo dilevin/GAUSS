@@ -34,5 +34,10 @@ classdef WorldFEM < handle
         function varargout = force(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('f', this.objectHandle, varargin{:});
         end
+        
+         %% Stress - get the stress on each element 
+        function varargout = stress(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('stress', this.objectHandle, varargin{:});
+        end
     end
 end

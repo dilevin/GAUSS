@@ -36,6 +36,12 @@ namespace Gauss {
         public:
             
             using MatrixJ = Eigen::Matrix<DataType, 3, 12>;
+            using VectorQ = Eigen::Matrix<DataType, 12,1>;
+            
+            //convenience matrix type
+            template<unsigned int Rows>
+            using MatrixDOF = Eigen::Matrix<DataType, Rows, 12>;
+
             
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionLinearTet(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(3,3) {
@@ -142,7 +148,31 @@ namespace Gauss {
                 
             }
             
-            //add dJ
+            inline VectorQ q(const State<DataType> &state) {
+                
+                VectorQ tmp;
+                
+                tmp<<  mapDOFEigen(*m_qDofs[0], state),
+                mapDOFEigen(*m_qDofs[1], state),
+                mapDOFEigen(*m_qDofs[2], state),
+                mapDOFEigen(*m_qDofs[3], state);
+                return tmp;
+            }
+
+            inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) {
+                
+                MatrixJ tmp;
+                
+                tmp.setZero();
+                tmp.col(component) = Eigen::Map3x<DataType>(dphi<0>(x).data());
+                tmp.col(3+component) = Eigen::Map3x<DataType>(dphi<1>(x).data());
+                tmp.col(6+component) = Eigen::Map3x<DataType>(dphi<2>(x).data());
+                tmp.col(9+component) = Eigen::Map3x<DataType>(dphi<3>(x).data());
+                
+                return tmp;
+                
+            }
+
             
             constexpr unsigned int getNumVerts() { return 4; }
             

@@ -46,9 +46,10 @@ namespace Gauss {
             
             return std::get<systemType>(m_vectorTuple)[index];
         }
-        
+            
     protected:
            std::tuple<std::vector<Types>...> m_vectorTuple;
+        
     private:
     };
     

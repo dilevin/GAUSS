@@ -114,7 +114,7 @@ namespace Gauss {
     State<DataType>::State(const State &toCopy) {
         
         //I'm pretty certain the copy constructor is working
-        toCopy.m_backingStore = m_backingStore;
+        m_backingStore = toCopy.m_backingStore;
     }
 
     //add scalar DOF and get back index into State

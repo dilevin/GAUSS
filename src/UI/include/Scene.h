@@ -78,6 +78,7 @@ namespace Gauss {
         
     protected:
         
+
         World<DataType, SystemTypes...> *m_world;
         std::vector<PhysicalEntity<DataType> *> m_entities;
         TimeStepper *m_stepper;

@@ -208,15 +208,6 @@ namespace Gauss {
                 return deriv;
             }
             
-            
-            //Kinematics stuff (break into new template class then it suits me
-            template<typename Matrix>
-            inline void F(Matrix &output, State<DataType> &state) {
-                
-                std::cout<<"Not implemented yet \n";
-                assert(1 == 0);
-            }
-            
     
             /*inline Eigen::Matrix<DataType, 6, 24> B(double *x, const State<DataType> &state) {
             

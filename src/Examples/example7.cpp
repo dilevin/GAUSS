@@ -2,7 +2,7 @@
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
 
-//Hexahedral FEM Test
+//Plame strain triangular element test
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicitLinear.h>
 
@@ -10,22 +10,17 @@ using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
-/*Hexahedral finite elements */
-
-//typedef physical entities I need
-
 //typedef scene
-typedef PhysicalSystemFEM<double, NeohookeanHex> FEMLinearHexes;
+typedef PhysicalSystemFEM<double, LinearPlaneStrainTri> FEMPlaneStrainTri;
 
-typedef World<double, std::tuple<FEMLinearHexes *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef World<double, std::tuple<FEMPlaneStrainTri *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
-
 int main(int argc, char **argv) {
     std::cout<<"Test neohookean material\n";
-   
+    
     Eigen::setNbThreads(1);
     
     std::cout<<"Test Linear FEM \n";
@@ -37,12 +32,18 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-    //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(20, 6, 6),  V);
+    //simple square subdivided into two triangles
+    V.resize(4,3);
+    V << 0,0,0,
+         1,0,0,
+         1,1,0,
+         0,1,0;
     
-    elementsFromGrid(Eigen::RowVector3i(20, 6,6), V, F);
+    F.resize(2,3);
+    F << 0, 1, 2,
+         0, 2, 3;
     
-    FEMLinearHexes *test = new FEMLinearHexes(V,F);
+    FEMPlaneStrainTri *test = new FEMPlaneStrainTri(V,F);
     
     world.addSystem(test);
     fixDisplacementMin(world, test);
@@ -51,19 +52,14 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
-    AssemblerEigenSparseMatrix<double> massMatrix;
-    AssemblerEigenVector<double> rhs;
-    
     MyTimeStepper stepper(0.01);
     
-    //Display
-    QGuiApplication app(argc, argv);
+    stepper.step(world);
     
-    MyScene *scene = new MyScene(&world, &stepper);
+    std::cout<<q<<"\n";
     
-    GAUSSVIEW(scene);
     
-    return app.exec();
+    return 1;
     
     
     

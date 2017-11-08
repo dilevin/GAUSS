@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
 
 	MyScene *scene = new MyScene(&world, &stepper);
     GAUSSVIEW(scene);
-    gaussView.startScene();
     
     return app.exec();
 }

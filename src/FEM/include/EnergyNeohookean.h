@@ -8,7 +8,7 @@ class EnergyNeohookean : public ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyNeohookean(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
-        setParameters(1e6, 0.45);
+        setParameters(1e5, 0.45);
         
     }
     
@@ -269,6 +269,12 @@ public:
             -gradZ.transpose()*ddw.block(6,6,3,3)*gradZ;
         
         
+    }
+    
+    
+    template<typename Matrix>
+    inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
+        std::cout<<"getCauchyStress not implemented \n";
     }
     
     inline const DataType & getC() const { return m_C; }

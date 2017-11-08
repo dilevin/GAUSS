@@ -13,20 +13,20 @@
 
 namespace Gauss {
     
-    template<typename DataType>
+    template<typename DataType, template <typename D, typename E> class QuadratureRuleT, template <typename H, typename I> class QuadratureRuleU, template <typename F, typename G> class EnergyPotential>
     class Renderable<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
-    FEM::Element<DataType, 4, FEM::QuadratureExact,
+    FEM::ElementBase<DataType, 4, QuadratureRuleT, QuadratureRuleU,
     FEM::EnergyKineticNonLumped,
-    FEM::EnergyLinearElasticity,
+    EnergyPotential,
     FEM::BodyForceGravity,
     FEM::ShapeFunctionLinearTet> > > >: public Renderable<DataType>
     {
     public:
         
         using FEMSystem = PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
-        FEM::Element<DataType, 4, FEM::QuadratureExact,
+        FEM::ElementBase<DataType, 4, QuadratureRuleT, QuadratureRuleU,
         FEM::EnergyKineticNonLumped,
-        FEM::EnergyLinearElasticity,
+        EnergyPotential,
         FEM::BodyForceGravity,
         FEM::ShapeFunctionLinearTet> > >;
         

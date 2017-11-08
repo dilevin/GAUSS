@@ -18,6 +18,7 @@
 //Quadrature rules
 #include <Quadrature.h>
 #include <QuadratureExact.h>
+#include <QuadratureTetConstant.h>
 #include <QuadratureHex8.h>
 #include <QuadraturePlaneTri1.h>
 

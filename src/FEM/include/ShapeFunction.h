@@ -109,24 +109,20 @@ namespace Gauss {
             }
             
         
-            //Kinematics stuff (break into new template class then it suits me
-            template<typename Matrix>
-            inline void F(Matrix &output, State<DataType> &state) {
+            inline Eigen::Matrix<DataType, 3,3> F(double *x, const State<DataType> &state) {
                 
-                Eigen::Map<Eigen::VectorXd> m_q0(mapDOFEigen(*m_qDofs[0], state));
-                Eigen::Map<Eigen::VectorXd> m_q1(mapDOFEigen(*m_qDofs[1], state));
-                Eigen::Map<Eigen::VectorXd> m_q2(mapDOFEigen(*m_qDofs[2], state));
-                Eigen::Map<Eigen::VectorXd> m_q3(mapDOFEigen(*m_qDofs[3], state));
-                output = m_q0*Eigen::Map<Eigen::VectorXd>(dphi<0>).transpose()+
-                         m_q1*Eigen::Map<Eigen::VectorXd>(dphi<1>).transpose()+
-                         m_q2*Eigen::Map<Eigen::VectorXd>(dphi<2>).transpose()+
-                         m_q3*Eigen::Map<Eigen::VectorXd>(dphi<3>).transpose();
+                Eigen::Matrix<DataType,3,3> Ftemp;
+                
+                Ftemp  = mapDOFEigen(*m_qDofs[0], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<0>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[1], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<1>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[2], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<2>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[3], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<3>(x).data(),3);
+                return Ftemp;
                 
             }
-            
+
             //Jacobian: derivative with respect to degrees of freedom
-            template<typename Matrix>
-            inline Matrix J(double *x, State<DataType> &state) {
+            inline MatrixJ J(double *x, const State<DataType> &state) {
             
                  MatrixJ output;
                 
@@ -139,14 +135,15 @@ namespace Gauss {
                 
                 output.resize(3,12);
                 output.setZero();
-                output.block(0,0, 3,3) = phi0*Matrix::Identity();
-                output.block(0,3, 3,3) = phi1*Matrix::Identity();
-                output.block(0,6, 3,3) = phi2*Matrix::Identity();
-                output.block(0,9, 3,3) = phi3*Matrix::Identity();
+                output.block(0,0, 3,3) = phi0*Eigen::Matrix3d::Identity();
+                output.block(0,3, 3,3) = phi1*Eigen::Matrix3d::Identity();
+                output.block(0,6, 3,3) = phi2*Eigen::Matrix3d::Identity();
+                output.block(0,9, 3,3) = phi3*Eigen::Matrix3d::Identity();
                 
                 return output;
                 
             }
+            
             
             inline VectorQ q(const State<DataType> &state) {
                 
@@ -173,6 +170,12 @@ namespace Gauss {
                 
             }
 
+            inline Eigen::Vector3x<DataType> x(double alphaX, double alphaY, double alphaZ) const {
+                return m_x3; //not implemented properly, should convert from barycentric coords to position in tri
+            }
+            
+            
+            inline double volume() { return (1.0/6.0)*m_T.determinant(); }
             
             constexpr unsigned int getNumVerts() { return 4; }
             

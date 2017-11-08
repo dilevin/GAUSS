@@ -2,7 +2,7 @@
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
 
-//Hexahedral FEM Test
+//Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicitLinear.h>
 
@@ -10,39 +10,32 @@ using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
-/*Hexahedral finite elements */
+/* Tetrahedral finite elements */
 
 //typedef physical entities I need
 
 //typedef scene
-typedef PhysicalSystemFEM<double, NeohookeanHex> FEMLinearHexes;
+typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearHexes *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double> > MyTimeStepper;
+typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
+AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
-
 int main(int argc, char **argv) {
-    std::cout<<"Test neohookean material\n";
-   
-    Eigen::setNbThreads(1);
-    
-    std::cout<<"Test Linear FEM \n";
+    std::cout<<"Test Neohookean FEM \n";
     
     //Setup Physics
     MyWorld world;
     
-    
+    //new code -- load tetgen files
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-    //Voxel grid from libigl
-    igl::grid(Eigen::RowVector3i(20, 6, 6),  V);
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
-    elementsFromGrid(Eigen::RowVector3i(20, 6,6), V, F);
-    
-    FEMLinearHexes *test = new FEMLinearHexes(V,F);
+    FEMLinearTets *test = new FEMLinearTets(V,F);
     
     world.addSystem(test);
     fixDisplacementMin(world, test);
@@ -51,20 +44,13 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
-    AssemblerEigenSparseMatrix<double> massMatrix;
-    AssemblerEigenVector<double> rhs;
-    
     MyTimeStepper stepper(0.01);
     
     //Display
     QGuiApplication app(argc, argv);
     
     MyScene *scene = new MyScene(&world, &stepper);
-    
     GAUSSVIEW(scene);
     
     return app.exec();
-    
-    
-    
 }

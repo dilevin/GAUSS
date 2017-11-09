@@ -3,7 +3,7 @@
 
 
 #include <State.h>
-#include <Qt3DCore/QEntity.h>
+#include <Qt3DCore/qentity.h>
 #include <Update.h>
 #include <RenderableFEM.h>
 #include <RenderableFEMHex.h>

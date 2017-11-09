@@ -19,6 +19,8 @@ endif(APPLE)
 #do you want to use Pardiso
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
 set(USE_SPECTRA CACHE BOOL "Use Spectra to solve eigenvalue problems (if available)")
+set(USE_MATLAB CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
+
 if(APPLE)
     if(USE_OPENMP)
         set(LLVM_BIN CACHE STRING "CLANG Binary Directory")
@@ -142,7 +144,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 include_directories(${GAUSS_INCLUDE_DIR})
 set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "")
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/MATLAB)
+if(USE_MATLAB)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/MATLAB)
+endif(USE_MATLAB)
 
 #Init GUI Stuff
 include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)

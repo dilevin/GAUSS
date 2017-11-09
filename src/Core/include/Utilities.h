@@ -143,12 +143,10 @@ namespace Gauss {
             #pragma omp parallel
             {
                 #pragma omp for
+                //iterate
+                for(unsigned int ii=0; ii < iterateOver.size(); ++ii)
                 {
-                    //iterate
-                    for(unsigned int ii=0; ii < iterateOver.size(); ++ii)
-                    {
-                        f(assembler.getImpl()[omp_get_thread_num()], iterateOver[ii]);
-                    }
+                    f(assembler.getImpl()[omp_get_thread_num()], iterateOver[ii]);
                 }
             }
         }

@@ -154,5 +154,5 @@ initUI()
 
 #Example codes
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/tests)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)
 

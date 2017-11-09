@@ -14,7 +14,7 @@
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QBuffer>
-#include <Qt3DCore/QEntity.h>
+#include <Qt3DCore/qentity.h>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QPhongMaterial>
@@ -22,7 +22,7 @@
 #include <Qt3DCore/QTransform>
 #include <UtilitiesEigen.h>
 #include <FEMIncludes.h>
-#include <QMaterial.h>
+#include <qmaterial.h>
 #include <qeffect.h>
 #include <Qt3DRender/QRenderPass>
 #include <Qt3DRender/QTechnique>

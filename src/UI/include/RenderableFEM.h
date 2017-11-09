@@ -72,7 +72,7 @@ namespace Gauss {
             //setup technique
             wfGL3Technique->addFilterKey(filterKey);
             wfGL3Technique->addRenderPass(wfGL3RenderPass);
-            wfGL3Technique->graphicsApiFilter()->setMajorVersion(3);
+            wfGL3Technique->graphicsApiFilter()->setMajorVersion(2);
             wfGL3Technique->graphicsApiFilter()->setMinorVersion(0);
             wfGL3Technique->graphicsApiFilter()->setProfile(Qt3DRender::QGraphicsApiFilter::CoreProfile);
             

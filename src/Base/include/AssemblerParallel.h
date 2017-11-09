@@ -57,10 +57,8 @@ namespace Gauss {
             #pragma omp parallel
             {
                 #pragma omp for
-                {
-                    for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
-                        m_serialAssemblers[ii].finalize();
-                    }
+                for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
+                    m_serialAssemblers[ii].finalize();
                 }
             }
     
@@ -98,11 +96,10 @@ namespace Gauss {
             #pragma omp parallel
             {
                 #pragma omp for
-                {
-                    for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
-                        m_serialAssemblers[ii].setOffset(rowOffset, colOffset);
-                    }
+                for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
+                    m_serialAssemblers[ii].setOffset(rowOffset, colOffset);
                 }
+                
             }
         }
     
@@ -120,10 +117,8 @@ namespace Gauss {
             #pragma omp parallel
             {
                 #pragma omp for
-                {
-                    for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
-                        (m_serialAssemblers[ii].getImpl())*=x;
-                    }
+                for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
+                    (m_serialAssemblers[ii].getImpl())*=x;
                 }
            }
             

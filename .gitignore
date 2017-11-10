@@ -44,6 +44,6 @@ build
 *.out
 *.app
 
-
+./ThirdParty 
 ### Misc
 .DS_Store

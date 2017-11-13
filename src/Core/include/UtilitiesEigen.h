@@ -116,8 +116,9 @@ namespace Gauss {
     
 #else
     template<class ...Params>
-    void generalizedEigenvalueProblem(Params ...params) {
+    double generalizedEigenvalueProblem(Params ...params) {
         std::cout<<"Spectra not installed\n";
+        return 0.0;
     }
 #endif
 

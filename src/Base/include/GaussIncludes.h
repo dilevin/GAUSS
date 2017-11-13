@@ -24,8 +24,7 @@
 #include <SolverPardiso.h>
 #endif
 
-#ifdef GAUSS_OPENMP
 #include <AssemblerParallel.h>
-#endif
+
 
 #endif /* GaussIncludes_h */

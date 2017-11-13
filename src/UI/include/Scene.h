@@ -11,6 +11,8 @@
 
 #include <World.h>
 
+#include <functional>
+
 #include "PhysicsEntity.h"
 #include "Update.h"
 
@@ -61,6 +63,10 @@ namespace Gauss {
             m_rootEntity = NULL;
             initScene();
         }
+        
+        Scene(World<DataType,SystemTypes...> *world, TimeStepper *stepper, std::function<void(World<DataType,SystemTypes...>&)> preStepCallback) : Scene(world, stepper) {
+            m_preStepCallback = preStepCallback;
+        }
 
         void initScene();
         
@@ -69,6 +75,10 @@ namespace Gauss {
         }
         
         void step() {
+            if(m_preStepCallback) {
+                m_preStepCallback(*m_world);
+            }
+
             m_stepper->step(*m_world);
             
             for(auto &obj : m_entities) {
@@ -80,6 +90,7 @@ namespace Gauss {
         
 
         World<DataType, SystemTypes...> *m_world;
+        std::function<void(World<DataType,SystemTypes...>&)> m_preStepCallback;
         std::vector<PhysicalEntity<DataType> *> m_entities;
         TimeStepper *m_stepper;
         Qt3DCore::QEntity *m_rootEntity;

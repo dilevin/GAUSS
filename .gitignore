@@ -44,6 +44,9 @@ build
 *.out
 *.app
 
-./ThirdParty 
+
 ### Misc
 .DS_Store
+*.sublime-project
+*.sublime-workspace
+ThirdParty 

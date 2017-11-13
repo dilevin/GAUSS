@@ -116,12 +116,12 @@ namespace Gauss {
     
 #else
     template<class ...Params>
-    double generalizedEigenvalueProblem(Params ...params) {
+    auto generalizedEigenvalueProblem(Params ...params) {
         std::cout<<"Spectra not installed\n";
         Eigen::MatrixXd eV, ev;
         eV.resize(0,0);
         ev.resize(0,0);
-        return std::make_par(eV, ev);
+        return std::make_pair(eV, ev);
     }
 #endif
 

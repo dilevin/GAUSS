@@ -1,3 +1,5 @@
+#include <functional>
+
 #include <Qt3DIncludes.h>
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
@@ -17,11 +19,18 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef World<double, std::tuple<FEMLinearTets *>,
+                      std::tuple<ForceSpring<double> *>,
+                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
+
+
+void preStepCallback(MyWorld &world) {
+    // This is an example callback
+}
 
 int main(int argc, char **argv) {
     std::cout<<"Test Neohookean FEM \n";
@@ -34,7 +43,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXi F;
     
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
-    
+
     FEMLinearTets *test = new FEMLinearTets(V,F);
     
     world.addSystem(test);
@@ -49,7 +58,7 @@ int main(int argc, char **argv) {
     //Display
     QGuiApplication app(argc, argv);
     
-    MyScene *scene = new MyScene(&world, &stepper);
+    MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
     GAUSSVIEW(scene);
     
     return app.exec();

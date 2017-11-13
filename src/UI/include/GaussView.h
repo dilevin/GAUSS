@@ -72,7 +72,7 @@ namespace Gauss {
                 // Camera
                 m_camera = m_view.camera();
                 m_camera->lens()->setPerspectiveProjection(10.0f, 16.0f/9.0f, 0.1, 1000.0f);
-                m_camera->setPosition(QVector3D(0, 0, 5.0f));
+                m_camera->setPosition(QVector3D(0, 0, 100.0f));
                 m_camera->setViewCenter(QVector3D(0, 0, 0));
                 
                 // For camera controls

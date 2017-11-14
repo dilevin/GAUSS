@@ -18,6 +18,7 @@ matrix:
         apt:
           source:
             - ubuntu-toolchain-r-test
+            - george-edison55-precise-backports
           packages:
             - build-essential
             - xorg-dev

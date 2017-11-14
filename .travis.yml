@@ -1,6 +1,7 @@
 language: cpp
 sudo: false
 dist: trusty
+compiler: g++-5
 matrix:
   include:
     - os: linux
@@ -11,7 +12,7 @@ matrix:
         - git clone --recursive https://github.com/libigl/libigl.git
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=~/libigl/include/ -DEigen3_DIR=/usr/include/eigen3/
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=~/libigl/include/ -DEigen3_DIR=/usr/include/eigen3/ -DCMAKE_C_COMPILER=/usr/bin/gcc-5 -DCMAKE_CXX_COMPILER=/usr/bin/g++-5
         - make all 
       addons:
         apt:
@@ -20,6 +21,7 @@ matrix:
             - george-edison55-precise-backports
           packages:
             - build-essential
+            - gcc-5
             - g++-5
             - xorg-dev
             - cmake

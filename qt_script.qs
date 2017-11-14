@@ -64,4 +64,3 @@ if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
 }
     gui.clickButton(buttons.FinishButton);
 }
-~           

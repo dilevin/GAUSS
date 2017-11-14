@@ -12,7 +12,7 @@ matrix:
         - git clone --recursive https://github.com/libigl/libigl.git
         - mkdir build
         - cd build
-        - ccmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=./libigl/include/ -DEigen3_DIR=/usr/include/eigen3/
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=./libigl/include/ -DEigen3_DIR=/usr/include/eigen3/
         - make -j 2 all 
       addons:
         apt:

@@ -155,5 +155,6 @@ initUI()
 
 #Example codes
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)
+#Disable tests for now because I'm not using them and they only build on one machine 
+#add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)
 

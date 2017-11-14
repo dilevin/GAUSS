@@ -1,11 +1,12 @@
 language: cpp
-sudo: false
+sudo: required
 dist: trusty
 compiler: g++-5
 matrix:
   include:
     - os: linux
       script: 
+        - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-linux-x64-5.9.0.run
         - chmod +x qt-opensource-linux-x64-5.9.0.run
         - ./qt-opensource-linux-x64-5.9.0.run --platform minimal --script qt_script.qs

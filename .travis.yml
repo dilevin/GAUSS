@@ -4,7 +4,6 @@ dist: trusty
 matrix:
   include:
     - os: linux
-      compiler: gcc-5.4.0
       script: 
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-linux-x64-5.9.0.run
         - chmod +x qt-opensource-linux-x64-5.9.0.run
@@ -21,6 +20,7 @@ matrix:
             - george-edison55-precise-backports
           packages:
             - build-essential
+            - g++-5
             - xorg-dev
             - cmake
             - cmake-data
@@ -30,3 +30,5 @@ matrix:
             - libglu1-mesa-dev -y
             - libfontconfig1
             - libeigen3-dev
+      env:
+         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"      

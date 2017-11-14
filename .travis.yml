@@ -16,7 +16,7 @@ matrix:
         - make -j 2 all 
       addons:
         apt:
-          source:
+          sources:
             - ubuntu-toolchain-r-test
             - george-edison55-precise-backports
           packages:

@@ -1,6 +1,6 @@
 language: cpp
 sudo: false
-dist: precise
+dist: trusty
 matrix:
   include:
     - os: linux
@@ -12,8 +12,8 @@ matrix:
         - git clone --recursive https://github.com/libigl/libigl.git
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=./libigl/include/ -DEigen3_DIR=/usr/include/eigen3/
-        - make -j 2 all 
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake/ -DLIBIGL_INCLUDE_PATH=~/libigl/include/ -DEigen3_DIR=/usr/include/eigen3/
+        - make all 
       addons:
         apt:
           sources:

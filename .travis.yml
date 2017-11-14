@@ -1,0 +1,26 @@
+language: cpp
+sudo: false
+dist: precise
+matrix:
+  include:
+    - os: linux
+      compiler: gcc-5.4.0
+      script: 
+        - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-linux-x64-5.7.0.run
+        - chmod +x qt-opensource-linux-x64-5.9.0.run
+        - ./qt-opensource-linux-x64-5.7.0.run --platform minimal --script qt_script.qs
+      addons:
+        apt:
+          source:
+            - ubuntu-toolchain-r-test
+          packages:
+            - build-essential
+            - xorg-dev
+            - cmake
+            - cmake-data
+            - libblas-dev
+            - liblapack-dev
+            - mesa-common-dev
+            - libglu1-mesa-dev -y
+            - libfontconfig1
+            - libeigen3-dev

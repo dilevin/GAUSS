@@ -13,11 +13,11 @@ matrix:
         - brew install eigen
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-mac-x64-5.9.0.dmg
         - sudo hdiutil attach -noverify ./qt-opensource-mac-x64-5.9.0.dmg 
-        - /Volumes/qt-opensource-mac-x64-5.9.0/qt-opensource-mac-x64-5.9.0.app/Contents/MacOS/qt-opensource-mac-x64-5.9.0/qt-opensource-mac-x64-5.9.0 --platform minimal --script qt_script.qs
+        - /Volumes/qt-opensource-mac-x64-5.9.0/qt-opensource-mac-x64-5.9.0.app/Contents/MacOS/qt-opensource-mac-x64-5.9.0 --platform minimal --script qt_script_osx.qs
         - git clone --recursive https://github.com/libigl/libigl.git
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DLIBIGL_INCLUDE_PATH=/home/travis/build/dilevin/GAUSS/libigl/include -DEigen3_DIR=/usr/include/eigen3
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DLIBIGL_INCLUDE_PATH=/Users/travis/build/dilevin/GAUSS/libigl/include -DEigen3_DIR=/usr/local/Cellar/eigen/3.3.4/include/eigen3
         - make all 
     - os: linux
       script: 

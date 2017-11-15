@@ -36,7 +36,7 @@ matrix:
             - libeigen3-dev
       env:
          - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"      
-    -os: osx 
+    - os: osx 
       sudo: required
       compiler: clang
       script:

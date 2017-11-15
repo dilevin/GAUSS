@@ -26,7 +26,7 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
     var widget = gui.currentPageWidget();
 
     widget.deselectAll();
-    widget.selectComponent("qt.59.macos");
+    widget.selectComponent("qt.59.clang_64");
     widget.selectComponent("qt.tools.doc");
     widget.selectComponent("qt.59.qt3d");
     // widget.deselectComponent("qt.tools.qtcreator");

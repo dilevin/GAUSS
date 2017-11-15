@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS)
+
 ### Generic Build Instructions ###
 
 #### Setup ####

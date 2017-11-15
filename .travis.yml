@@ -11,9 +11,8 @@ matrix:
         - brew update
         - brew upgrade cmake
         - brew install eigen
-        - brew install wget
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-mac-x64-5.9.0.dmg
-        - sudo hdiutil attach ./qt-opensource-mac-x64-5.9.0.dmg 
+        - sudo hdiutil attach -noverify ./qt-opensource-mac-x64-5.9.0.dmg 
         - cp /Volumes/qt-opensource-mac-x64-5.9.0/qt-opensource-mac-x64-5.9.0.app/Contents/MacOS/qt-opensource-mac-x64-5.9.0 ./
         - ./qt-opensource-mac-x64-5.9.0 --platform minimal --script qt_script.qs
         - git clone --recursive https://github.com/libigl/libigl.git

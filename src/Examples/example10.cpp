@@ -2,6 +2,7 @@
 
 #include <Qt3DIncludes.h>
 #include <GaussIncludes.h>
+#include <ParticleSystemIncludes.h>
 #include <FEMIncludes.h>
 
 //Any extra things I need such as constraints
@@ -20,7 +21,7 @@ using namespace ParticleSystem; //For Force Spring
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
-std::tuple<ForceSpringFEMParticle<double> *>,
+std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
@@ -47,7 +48,6 @@ int main(int argc, char **argv) {
     FEMLinearTets *test = new FEMLinearTets(V,F);
     PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
     test1->getImpl().setMass(10000000);
-    //ForceSpring<double> *forceSpring = new ForceSpring<double>(&test->getQ()[0], &test1->getQ(), 12.08, 2.0);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
                                                                                      2, 40000000.0);

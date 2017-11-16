@@ -77,20 +77,21 @@ namespace Gauss {
     };
 
     
-    template<typename DataType>
-    class PhysicalEntity<ParticleSystem::ForceSpring<DataType> >:
+    template<typename DataType, typename Position1, typename Position2>
+    class PhysicalEntity<ParticleSystem::ForceSpring<DataType, Position1, Position2> >:
     public PhysicalEntity<DataType>
     
     {
     public:
-        PhysicalEntity(ParticleSystem::ForceSpring<DataType> *system) :
+        PhysicalEntity(ParticleSystem::ForceSpring<DataType, Position1, Position2> *system) :
         PhysicalEntity<DataType>()
         {
             //render connection between dofs
-            using DofType = typename std::remove_reference<decltype(system->getDOF(0))>::type;
+            //using Pos0 = typename std::remove_reference<decltype(system->getImpl())>::Position0Type;
+            //using Pos1 = typename std::remove_reference<decltype(system->getImpl())>::Position1Type;
             
             PhysicalEntity<DataType>::m_renderableObjects.push_back(
-               new Renderable<DofType, DofType>(system->getDOF(0), system->getDOF(1))
+               new RenderableLine<DataType, Position1, Position2>(system->getImpl().getPosition0(), system->getImpl().getPosition1())
             );
         }
         

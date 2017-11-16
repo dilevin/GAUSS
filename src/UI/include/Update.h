@@ -110,23 +110,22 @@ namespace Gauss {
     private:
     };
     
-    //Renderable line between two dofs
-    template<typename DataType, unsigned int PropertyIndex>
-    class Renderable<ParticleSystem::DOFParticle<DataType, PropertyIndex>,
-    ParticleSystem::DOFParticle<DataType, PropertyIndex> > : public Renderable<DataType>
+    //Renderable line between two positions
+    template<typename DataType, typename Position1, typename Position2>
+    class RenderableLine : public Renderable<DataType>
     {
     public:
-        Renderable(ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof0,
-                   ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof1) : Renderable<DataType>() {
+        RenderableLine(Position1 &dof0,
+                   Position2 &dof1) : Renderable<DataType>() {
             m_r = 0.1;
-            m_dof0 = &dof0;
-            m_dof1 = &dof1;
+            m_dof0 = dof0;
+            m_dof1 = dof1;
         }
 
         Qt3DCore::QEntity * getEntity(Qt3DCore::QEntity *root, State<DataType> &state) {
             
-            Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_dof0, state);
-            Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_dof1, state);
+            Eigen::Vector3d q0 = m_dof0(state);
+            Eigen::Vector3d q1 = m_dof1(state);
             Eigen::Vector3d dq = q1 - q0;
             
             //geometry
@@ -155,15 +154,15 @@ namespace Gauss {
         }
 
         void update(State<DataType> &state) const {
-            Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_dof0, state);
-            Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_dof1, state);
+            Eigen::Vector3d q0 = m_dof0(state);
+            Eigen::Vector3d q1 = m_dof1(state);
             Eigen::Vector3d dq = q1 + q0;
-            Eigen::Vector3d difq = q1 - q0;
+            Eigen::Vector3d difq = (q1 - q0).normalized();
             Eigen::Vector3d axis = difq.cross(Eigen::Vector3d(0.0, 1.0, 0.0));
             
             m_transform->setScale3D(QVector3D(m_r, (q1-q0).norm(), m_r));
             m_transform->setTranslation(QVector3D(0.5*dq[0], 0.5*dq[1], 0.5*dq[2]));
-            m_transform->setRotation(QQuaternion::fromAxisAndAngle(axis[0], axis[1], axis[2], 57.7*acos((q1-q0)[1])));
+            m_transform->setRotation(QQuaternion::fromAxisAndAngle(-axis[0], -axis[1], -axis[2], 57.7*acos(difq[1])));
             
             
         }
@@ -173,7 +172,8 @@ namespace Gauss {
         Qt3DCore::QEntity *m_entity;
         Qt3DCore::QTransform *m_transform;
         Qt3DExtras::QCylinderMesh *m_cylinder;
-        ParticleSystem::DOFParticle<DataType, PropertyIndex> *m_dof0, *m_dof1;
+        Position1 m_dof0;
+        Position2 m_dof1;
         
     private:
     };

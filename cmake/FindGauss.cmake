@@ -63,17 +63,17 @@ set(Gauss_INCLUDE_DIRS  ${LIBIGL_INCLUDE_PATH}
                         ${Core_SOURCE_DIR}/include
                         ${UI_SOURCE_DIR}/include
                         )
-
-if(USE_OPENMP)
-        set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE STRING "C compiler" FORCE)
-        set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang CACHE STRING "C++ compiler" FORCE)
-        set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
-        set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
-        set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
-        set(Gauss_INCLUDE_DIRS  ${Gauss_INCLUDE_DIRS} ${LLVM_INCLUDE})
-        add_definitions(-DGAUSS_OPENMP)
-endif(USE_OPENMP)
-
+if(APPLE)
+  if(USE_OPENMP)
+          set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE STRING "C compiler" FORCE)
+          set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang CACHE STRING "C++ compiler" FORCE)
+          set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
+          set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
+          set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)
+          set(Gauss_INCLUDE_DIRS  ${Gauss_INCLUDE_DIRS} ${LLVM_INCLUDE})
+          add_definitions(-DGAUSS_OPENMP)
+  endif(USE_OPENMP)
+endif(APPLE)
 #define the initUI macro
 include(${UI_SOURCE_DIR}/UISetup.txt)
 

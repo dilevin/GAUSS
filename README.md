@@ -5,6 +5,8 @@
 #### Setup ####
 
 Ensure that Qt version >= 5.8 is installed.
+On Ubuntu 16.04 you may have to change the paths to be consistent in ccmake. Something like the following.
+    /home/<user>/Qt/5.9.2/gcc_64/lib/cmake/
 
 Download (and compile?) the igl library into the directory above `${GAUSS_DIR}` or choose a custom path in `config.cmake`.
 

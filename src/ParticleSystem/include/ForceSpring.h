@@ -58,6 +58,12 @@ namespace Gauss {
             
             inline unsigned int getNumDOF() { return 2; }
             
+            const DataType & getStiffness() const { return m_k; }
+            void setStiffness(const DataType &k) { m_k = k; }
+
+            const DataType & getRestLength() const { return m_l0; }
+            void setRestLength(const DataType &l0) { m_l0 = l0; }
+
             template <typename Vector>
             inline void getForce(Vector &f, State<DataType> &state) {
                 

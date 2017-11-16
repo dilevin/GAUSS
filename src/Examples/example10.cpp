@@ -46,11 +46,11 @@ int main(int argc, char **argv) {
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
-    test1->getImpl().setMass(100);
+    test1->getImpl().setMass(10000000);
     //ForceSpring<double> *forceSpring = new ForceSpring<double>(&test->getQ()[0], &test1->getQ(), 12.08, 2.0);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
-                                                                                     2, 100000.0);
+                                                                                     2, 40000000.0);
     
     world.addSystem(test);
     world.addSystem(test1);
@@ -62,7 +62,8 @@ int main(int argc, char **argv) {
     q.setZero();
     
     auto q1 = mapDOFEigen(test1->getQ(), world);
-    q1[0] = -5.0;
+    q1[0] = 5.0;
+    q1[1] = 7.0;
     
     
     MyTimeStepper stepper(0.01);

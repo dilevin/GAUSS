@@ -93,7 +93,21 @@ namespace Gauss {
                 
                 
                 double strain = 1.0 - l/m_l0;
-
+                double b = (m_k/(m_l0*m_l0*l));
+                double a = b*strain;
+                double c = b/l;
+                
+                Eigen::Matrix<double, 6,3> B;
+                B << -1,  0,  0,
+                      0, -1,  0,
+                      0,  0, -1,
+                      1,  0,  0,
+                      0,  1,  0,
+                      0,  0,  1;
+                
+                Eigen::Matrix<double, 6,6> Hspring;
+                Hspring = -a*B*B.transpose() + c*B*(q1-q0)*((B*(q1-q0)).transpose());
+                assign(H, Hspring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}}, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 
             }
             

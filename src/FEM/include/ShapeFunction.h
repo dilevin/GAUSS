@@ -75,7 +75,7 @@ namespace Gauss {
             //drop my gets for this just because my hands get tired of typing it all the time
             template<unsigned int Vertex>
             inline double phi(double *x) {
-                assert(Vertex > 0);
+                assert(Vertex >= 0);
                 assert(Vertex < 4);
                 
                 DataType phiOut;

@@ -11,6 +11,7 @@
 
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
+#include <ForceSpring.h>
 #include <UtilitiesEigen.h>
 #include <complex>
 
@@ -40,6 +41,33 @@ namespace Gauss {
             
             return eigs;
         }
+        
+        //functor for getting position of a DOF
+        template <typename DataType, typename DOF>
+        class PositionFEMEigen {
+        public:
+            inline PositionFEMEigen(DOF *dof = nullptr, unsigned int vId = 0, Eigen::MatrixXd *V = 0) {
+                m_dof = dof;
+                m_V  = V;
+                m_vId = vId;
+            }
+            inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const {
+                return mapDOFEigen(*m_dof, state) + m_V->row(m_vId).transpose();
+            }
+            
+            inline DOF * getDOF() { return m_dof; }
+        protected:
+            DOF *m_dof;
+            Eigen::MatrixXd *m_V;
+            unsigned int m_vId;
+        };
+        
+        //FEM-PARTICLE SPRING
+        template<typename DataType>
+        using PosFEM = PositionFEMEigen<DataType, ParticleSystem::DOFParticle<DataType> >;
+        
+        template<typename DataType>
+        using ForceSpringFEMParticle = Force<DataType, ParticleSystem::ForceSpringImpl<DataType, PosFEM<DataType>, ParticleSystem::PosParticle<DataType> > >;
     }
 }
 

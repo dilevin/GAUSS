@@ -71,6 +71,17 @@ namespace Gauss {
         return Eigen::Map<Eigen::VectorXd>(std::get<0>(qPtr), dof.getNumScalarDOF());
     }
     
+    //functor for getting position of a DOF
+    template <typename DataType, typename DOF>
+    class PositionEigen {
+        public:
+            inline PositionEigen(DOF *dof=nullptr) { m_dof = dof; }
+            inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const { return mapDOFEigen(*m_dof, state); }
+            inline DOF * getDOF() { return m_dof; }
+        protected:
+            DOF *m_dof;
+    };
+    
     //Modal Analysis using Spectra
 #ifdef GAUSS_SPECTRA
     //Temp test Spectre

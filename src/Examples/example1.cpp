@@ -13,7 +13,7 @@ using namespace ParticleSystem;
 
 typedef World<double,
               std::tuple<PhysicalSystemParticleSingle<double> *>,
-              std::tuple<ForceSpring<double> *>,
+              std::tuple<ForceSpringParticles<double> *>,
               std::tuple<ConstraintFixedPoint<double> *> >  MyWorld;
 
 typedef TimeStepperEulerImplictLinear<double,
@@ -36,7 +36,9 @@ int main(int argc, char **argv)
     new PhysicalSystemParticleSingle<double>();
     
     
-    ForceSpring<double> *forceSpring = new ForceSpring<double>(&test->getQ(), &test1->getQ(), 5.0, 2.0);
+    ForceSpringParticles<double> *forceSpring = new ForceSpringParticles<double>(PosParticle<double>(&test->getQ()),
+                                                                                 PosParticle<double>(&test1->getQ()),
+                                                                                 5.0, 2.0);
     
     world.addSystem(test);
     world.addSystem(test1);

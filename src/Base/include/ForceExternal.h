@@ -37,6 +37,8 @@ namespace Gauss {
             m_impl.getStiffnessMatrix(H, state);
         }
         
+        inline auto & getImpl() { return m_impl; }
+        
         //dummy method which makes forces fit into the standard interface for the assembler
         template<typename Matrix>
         inline void getMassMatrix(Matrix &H,  State<DataType> &state) {

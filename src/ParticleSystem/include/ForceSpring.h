@@ -17,14 +17,14 @@
 namespace Gauss {
     namespace ParticleSystem {
         
-        template<typename DataType> 
+        template<typename DataType, typename Position1, typename Position2>
         class ForceSpringImpl
         {
         public:
             
-            ForceSpringImpl(DOFParticle<DataType> *q0, DOFParticle<DataType> *q1, double l0, double k) {
-                m_q[0] = q0;
-                m_q[1] = q1;
+            ForceSpringImpl(Position1 q0, Position2 q1, double l0, double k) : m_q0(0), m_q1(0) {
+                m_q0 = q0;
+                m_q1 = q1;
                 m_l0 = l0;
                 m_k = k;
             }
@@ -32,18 +32,28 @@ namespace Gauss {
             //forces can give you the energy stored, the force itself and the hessian
             template<typename Scalar>
             inline void getEnergy(Scalar &e,  State<DataType> &state) {
-                Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_q[0], state);
-                Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_q[1], state);
                 
                 //spring energy = k*(1.0 - l/l0).^2]
-                DataType l = (1.0-(q1-q0).norm());
+                DataType l = (1.0-(m_q1(state)-m_q0(state)).norm());
                 e = 0.5*m_k*l*l;
             }
             
             //forces always act on at least one DOF of the system this function returns which DOF the are acting on.
             inline auto & getDOF(unsigned int index) {
                 
-                return *(m_q[index]);
+                if(index == 0) {
+                    return *m_q0.getDOF();
+                } else {
+                    return *m_q1.getDOF();
+                }
+            }
+            
+            inline auto & getPosition0() {
+                    return m_q0;
+            }
+            
+            inline auto & getPosition1() {
+                return m_q1;
             }
             
             inline unsigned int getNumDOF() { return 2; }
@@ -51,34 +61,50 @@ namespace Gauss {
             template <typename Vector>
             inline void getForce(Vector &f, State<DataType> &state) {
                 
-                Eigen::Map<Eigen::VectorXd> q0 = mapDOFEigen(*m_q[0], state);
-                Eigen::Map<Eigen::VectorXd> q1 = mapDOFEigen(*m_q[1], state);
-                
+                auto q0 = m_q0(state);
+                auto q1 = m_q1(state);
+           
                 double l = (q1-q0).norm();
-                double strain = 1.0 - l;
+                
+                if(fabs(l) < 1e-8) {
+                    l = 1e-8;
+                }
+                
+                
+                double strain = 1.0 - l/m_l0;
                 Eigen::Vector3d fSpring = (m_k/m_l0)*strain*(q1-q0)/l;
-                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q[1]}});
+                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 fSpring = -fSpring;
-                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q[0]}});
+                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}});
     
             }
             
             
             template <typename Matrix>
             inline void getStiffnessMatrix(Matrix &H, State<DataType> &state) {
+                //explicit integration
                 
             }
             
         protected:
             
             DataType m_l0, m_k; //spring original length and stiffness
-            DOFParticle<DataType> *m_q[2]; //spring end points
+            Position1 m_q0; //spring end points
+            Position2 m_q1;
             
         private:
         };
         
+        template<typename DataType, typename Position1, typename Position2>
+        using ForceSpring = Force<DataType, ForceSpringImpl<DataType, Position1, Position2> >;
+        
         template<typename DataType>
-        using ForceSpring = Force<DataType, ForceSpringImpl<DataType> >;
+        using PosParticle = PositionEigen<DataType, DOFParticle<DataType> >;
+        
+        template<typename DataType>
+        using ForceSpringParticles = Force<DataType, ForceSpringImpl<DataType,
+                                                           PosParticle<DataType>,
+                                                           PosParticle<DataType> > >;
     }
 }
 

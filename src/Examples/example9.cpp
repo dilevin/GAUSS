@@ -19,8 +19,8 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearTets *>,
-                      std::tuple<ForceSpring<double> *>,
+typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
+                      std::tuple<ForceSpringFEMParticle<double> *>,
                       std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
@@ -45,13 +45,25 @@ int main(int argc, char **argv) {
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
+    PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
+    test1->getImpl().setMass(1);
+    //ForceSpring<double> *forceSpring = new ForceSpring<double>(&test->getQ()[0], &test1->getQ(), 12.08, 2.0);
+    ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
+                                                               PosParticle<double>(&test1->getQ()),
+                                                               2, 100000.0);
     
     world.addSystem(test);
+    world.addSystem(test1);
+    world.addForce(forceSpring);
     fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
     auto q = mapStateEigen(world);
     q.setZero();
+    
+    auto q1 = mapDOFEigen(test1->getQ(), world);
+    q1[0] = -5.0;
+    
     
     MyTimeStepper stepper(0.01);
     

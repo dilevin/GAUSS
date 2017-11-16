@@ -17,7 +17,7 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpring<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpringFEMParticle<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperLinearModes<double> MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;

@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
     PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
-    test1->getImpl().setMass(1);
+    test1->getImpl().setMass(100);
     //ForceSpring<double> *forceSpring = new ForceSpring<double>(&test->getQ()[0], &test1->getQ(), 12.08, 2.0);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                PosParticle<double>(&test1->getQ()),

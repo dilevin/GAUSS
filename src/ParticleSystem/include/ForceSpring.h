@@ -72,7 +72,7 @@ namespace Gauss {
                 
                 
                 double strain = 1.0 - l/m_l0;
-                Eigen::Vector3d fSpring = (m_k/m_l0)*strain*(q1-q0)/l;
+                Eigen::Vector3d fSpring = (m_k/(m_l0*m_l0))*strain*(q1-q0)/l;
                 assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 fSpring = -fSpring;
                 assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}});
@@ -82,7 +82,18 @@ namespace Gauss {
             
             template <typename Matrix>
             inline void getStiffnessMatrix(Matrix &H, State<DataType> &state) {
-                //explicit integration
+                auto q0 = m_q0(state);
+                auto q1 = m_q1(state);
+                
+                double l = (q1-q0).norm();
+                
+                if(fabs(l) < 1e-8) {
+                    l = 1e-8;
+                }
+                
+                
+                double strain = 1.0 - l/m_l0;
+
                 
             }
             

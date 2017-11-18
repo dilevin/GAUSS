@@ -1,4 +1,4 @@
-OSX/Ubuntu[![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
+OSX/Ubuntu: [![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows: [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
 
 ### Generic Build Instructions ###

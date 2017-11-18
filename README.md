@@ -1,5 +1,27 @@
 OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
+### "Easy" Install Scripts ###
+#### Install Instructions OS X (Basic install, no bells or whistles) ####
+1. Install Homebrew (https://brew.sh)
+2. At command line: chmod a+x ./InstallGAUSS_OSX.sh
+3. Run InstallGAUSS_OSX.sh which does the following:
+	- downloads and installs Qt 5.9 in ~/Qt
+	- installs CMake using homebrew (upgrades currently installed version)
+	- installs Eigen 3 using home brew (upgrades currently installed version)
+	- installs libigl in ./build/libigl
+	- installs Gauss in ./build
+
+#### Install Instructions Ubuntu (Basic install, no bells or whistles) ####
+1. This install procedure requires gcc and g++ version 5 or greater setup as the default c/c++ compilers
+2. At command prompt: chmod a+x ./InstallGAUSS_Ubuntu.sh
+3. Run InstallGAUSS_Ubuntu.sh which does the following
+	- downloads and installs Qt 5.9 in ~/Qt
+	- install libigl into ./build/libigl
+	- installs CMake using apt-get
+	- installs Eigen 3 using apt-get
+	- installs Gauss in ./build
+
+#### Warning: #### These scripts are hand maintained to make GAUSS Easy to build on certain platforms. If they fail please resort to custom install using cmake below. 
 
 ### Generic Build Instructions ###
 

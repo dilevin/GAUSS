@@ -21,7 +21,8 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.com/dilevin/
 	- installs Eigen 3 using apt-get
 	- installs Gauss in ./build
 
-#### Warning: #### These scripts are hand maintained to make GAUSS Easy to build on certain platforms. If they fail please resort to custom install using cmake below. 
+#### Warning ####
+These scripts are hand maintained to make GAUSS Easy to build on certain platforms. If they fail please resort to custom install using cmake below. 
 
 ### Generic Build Instructions ###
 

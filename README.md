@@ -1,4 +1,4 @@
-OSX/Ubuntu: [![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows: [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
+OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
 
 ### Generic Build Instructions ###

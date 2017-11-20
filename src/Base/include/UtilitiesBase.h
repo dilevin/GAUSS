@@ -48,6 +48,37 @@ void getConstraintMatrix(Matrix &constraintMatrix, World &world) {
     ASSEMBLEEND(constraintMatrix);
 }
 
+//given a a function templated on system type, run it on a system given a system index
+struct SystemIndex {
+    
+    inline SystemIndex() { m_systemType = 0; m_systemIndex = 0; }
+    
+    inline unsigned int type() const { return m_systemType; }
+    inline unsigned int index() const { return m_systemIndex; }
+    
+    inline unsigned int & index() { return m_systemIndex; }
+    inline unsigned int & type() { return m_systemType; }
+    
+    unsigned int m_systemType;
+    unsigned int m_systemIndex;
+};
+
+
+
+class PassSystem {
+    
+public: 
+    template<typename Func, typename TupleParam, typename ...Params>
+    inline auto operator()(TupleParam &tuple, Func &func, SystemIndex &index, Params ...params) {
+        return func(tuple[index.index()], params...);
+    }
+    
+};
+template<typename SystemList, typename Func, typename ...Params>
+inline auto apply(SystemList &list, SystemIndex index, Func &func, Params ...params) {
+    PassSystem A;
+    apply(list.getStorage(), index.type(), A, func, index, params...);
+}
 
 
 #endif /* UtilitiesBase_h */

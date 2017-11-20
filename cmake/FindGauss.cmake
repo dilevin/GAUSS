@@ -61,6 +61,7 @@ set(Gauss_INCLUDE_DIRS  ${LIBIGL_INCLUDE_PATH}
                         ${ParticleSystem_SOURCE_DIR}/include
                         ${FEM_SOURCE_DIR}/include
                         ${Core_SOURCE_DIR}/include
+                        ${Collisions_SOURCE_DIR}/include
                         ${UI_SOURCE_DIR}/include
                         )
 if(APPLE)
@@ -74,6 +75,7 @@ if(APPLE)
           add_definitions(-DGAUSS_OPENMP)
   endif(USE_OPENMP)
 endif(APPLE)
+
 #define the initUI macro
 include(${UI_SOURCE_DIR}/UISetup.txt)
 
@@ -86,6 +88,7 @@ set(Gauss_LIBS  libBase.a
                 libCore.a
                 libFEM.a
                 libUI.a
+                libCollisions.a
                 ${Gauss_EXT_LIBS})
 
 message(WARNING "INCLUDES: " ${Gauss_INCLUDE_DIRS})

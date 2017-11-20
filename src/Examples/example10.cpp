@@ -4,11 +4,11 @@
 #include <GaussIncludes.h>
 #include <ParticleSystemIncludes.h>
 #include <FEMIncludes.h>
-
+#include <tuple>
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicitLinear.h>
-
+#include <type_traits>
 using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
     world.addSystem(test);
     world.addSystem(test1);
     world.addForce(forceSpring);
+    
     fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
@@ -75,4 +76,5 @@ int main(int argc, char **argv) {
     GAUSSVIEW(scene);
     
     return app.exec();
-}
+    
+   }

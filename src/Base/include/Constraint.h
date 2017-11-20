@@ -16,6 +16,8 @@ namespace Gauss {
             m_numRows = numRows;
         }
         
+        inline void setNumRows(unsigned int numRows) { m_numRows = numRows; }
+        
         inline unsigned int getNumScalarDOF() {
             return m_numRows;
         }
@@ -63,6 +65,8 @@ namespace Gauss {
         
         inline ConstraintIndex & getIndex() { return m_index; }
         
+        inline unsigned int getNumRows() { m_index.setNumRows(m_impl.getNumRows()); return m_impl.getNumRows(); }
+            
         //get DOFs that this constraint is acting on
         auto & getDOF(unsigned int index) {
             return m_impl.getDOF(index);

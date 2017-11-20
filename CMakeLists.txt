@@ -140,6 +140,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/SolversLinear)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Base)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/ParticleSystem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/FEM)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 
 include_directories(${GAUSS_INCLUDE_DIR})

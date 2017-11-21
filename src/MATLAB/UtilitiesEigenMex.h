@@ -136,9 +136,12 @@ mxArray * eigenSparseToMATLAB<double,  Eigen::RowMajor>(const Eigen::SparseMatri
     
 }
 
-template< int Rows,  int Cols>
-mxArray * eigenDenseToMATLAB(const Eigen::Matrix<double, Rows,Cols> &matrix) {
+template <typename Derived>
+mxArray * eigenDenseToMATLAB(const Eigen::DenseBase<Derived> &matrixIn) {
     //mexPrintf("copy eigen dense matrix to matlab\n");
+    
+    typedef Eigen::Ref<const Eigen::Matrix<typename Derived::Scalar,  Derived::RowsAtCompileTime, Derived::ColsAtCompileTime> > RefB;
+    RefB matrix(matrixIn);
     
     mwSize dims[2];
     dims[0] = matrix.rows();

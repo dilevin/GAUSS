@@ -4,14 +4,12 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 project (Gauss)
 
 set(CMAKE_CXX_STANDARD 14)
-
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        message(WARNING "Here")
         set(USE_OPENMP CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(APPLE)

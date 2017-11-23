@@ -10,7 +10,7 @@ namespace Gauss {
         //Gradient: returns the gradient of the energy as  function of a Gauss state
         //Hessian: returns the hessian of the energy as a function of a Gauss state
         //Solve: takes a matrix,A, and a vector,b, as a parameter and returns the solution to Ax = b
-        //tol1 is the first order optimality tolerance
+        //tol1 terminate when relative change in function vale falls below this tolerance
         //Note: State is updated inline, so answer is returned in x0.
         //Everything should work with Eigen for now
         template <typename Energy, typename Gradient, typename Hessian, typename Solve, typename PostStepCallback, typename Vector>
@@ -23,14 +23,14 @@ namespace Gauss {
             
             //back tracking line search
             double alpha =1;
-            double c = 1;
-            double rho = 0.5;
+            double c = 1e-4; //from Nocedal and Wright pg 31
+            double rho = 0.6;
             
             while(true) {
                 
                 pscallback(x0+alpha*p);
                 
-                if(f(x0+alpha*p) <  E0) {
+                if(f(x0+alpha*p) <  E0 + c*alpha*gStep) {
                     break;
                 }
                 

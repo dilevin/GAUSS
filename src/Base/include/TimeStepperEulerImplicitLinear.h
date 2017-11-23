@@ -69,7 +69,7 @@ template<typename World>
 void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
 
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
-    /*MatrixAssembler &massMatrix = m_massMatrix;
+    MatrixAssembler &massMatrix = m_massMatrix;
     MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
     VectorAssembler &forceVector = m_forceVector;
     
@@ -158,7 +158,7 @@ Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- d
     //update state
     q = q + dt*qDot;
     
-    //std::cout<<"Q: "<<q<<"\n";*/
+    //std::cout<<"Q: "<<q<<"\n";
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

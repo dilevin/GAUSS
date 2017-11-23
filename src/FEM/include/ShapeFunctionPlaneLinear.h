@@ -169,6 +169,17 @@ namespace Gauss {
                 
                 return tmp;
             }
+            
+            inline VectorQ qDot(const State<DataType> &state) {
+                
+                VectorQ tmp;
+                
+                tmp<<  mapDOFEigen(*m_qDotDofs[0], state),
+                mapDOFEigen(*m_qDotDofs[1], state),
+                mapDOFEigen(*m_qDotDofs[2], state);
+                
+                return tmp;
+            }
 
             inline double volume() { return 0.5*m_T.determinant()*m_thickness; }
             

@@ -18,6 +18,13 @@ public:
         
     }
     
+    inline DataType getValue(double *x, const State<DataType> &state) {
+    
+        Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
+        double detF = F.determinant();
+        return m_C*std::pow(detF,-2.0/3.0)*((F.transpose()*F).trace() - 3) + m_D*(detF - 1)*(detF - 1);
+    }
+    
     template<typename Vector>
     inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
         

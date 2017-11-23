@@ -20,6 +20,9 @@ namespace Gauss {
                 m_mass = 1.5; //temporary set mass to avoid weird failures
             }
             
+            inline double getEnergy(const State<DataType> &state) const {
+                return 0.0;
+            }
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 assign(assembler, m_mass, std::array<DOFBase<DataType,1>, 1>{{m_xDot}}, std::array<DOFBase<DataType,1>, 1>{{m_xDot}});

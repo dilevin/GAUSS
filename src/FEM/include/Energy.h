@@ -31,6 +31,11 @@ namespace Gauss {
             
             inline double getDensity() { return m_rho; }
             
+            inline DataType getValue(double *x, const State<DataType> &state) {
+                auto v = ShapeFunction::J(x, state)*ShapeFunction::qDot();
+                return 0.5*v.transpose()*v;
+            }
+            
             //infinitessimal gradients and hessians
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
@@ -90,6 +95,13 @@ namespace Gauss {
                 m_C *= (m_E/((1.0+m_mu)*(1.0-2.0*m_mu)));
             }
             
+            inline DataType getValue(double *x, const State<DataType> &state) {
+                
+                auto q = ShapeFunction::q();
+                
+                return -0.5*q.transpose()*B(this, x, state).transpose()*m_C*B(this, x, state)*q;
+            }
+            
             template<typename Vector>
             inline void getGradient(Vector &f, double *x, const State<DataType> &state) {
                 
@@ -143,6 +155,11 @@ namespace Gauss {
             void setParams(double rho, double gx, double gy, double gz) {
                 m_rho = rho;
                 m_g << gx,gy,gz;
+            }
+            
+            inline  double getValue(double *x, const State<DataType> &state) {
+            
+                return  -ShapeFunction::q(state).transpose()*ShapeFunction::J(x,state).transpose()*m_rho*m_g;
             }
             
             template<typename Vector>

@@ -11,6 +11,17 @@
 #include <Assembler.h>
 #include <PhysicalSystem.h>
 
+template<typename World>
+double getEnergy(World &world) {
+    
+    double energy = 0.0;
+    forEach(world.getSystemList(), [&energy, &world](auto a) {
+        energy += a->getEnergy(world.getState());
+    });
+    
+    return energy;
+}
+
 template<typename Matrix, typename World>
 void getMassMatrix(Matrix &massMatrix, World &world) {
 

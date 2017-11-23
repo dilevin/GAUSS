@@ -77,11 +77,17 @@ namespace Gauss {
                                         
             inline ~QuadratureExact() { }
             
-            //integral rules for things that I want
-            template<typename DOFList>
-            inline void getValue(DataType &f, const State<DataType> &state) {
+            //integral rules for things that I wan
+            inline double getValue(const State<DataType> &state) {
             
-                    
+                Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDotDofs[0], state);
+                Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDotDofs[1], state);
+                Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDotDofs[2], state);
+                Eigen::Map<Eigen::VectorXd> v3 = mapDOFEigen(*m_qDotDofs[3], state);
+                Eigen::Matrix<DataType, 12,1> qDot;
+                qDot << v0, v1, v2, v3;
+                
+                return 0.5*qDot.transpose()*m_massMatrix*qDot;
             }
             
             template<typename Vector>
@@ -209,9 +215,21 @@ namespace Gauss {
             
             //integral rules for things that I want
             template<typename DOFList>
-            inline void getValue(DataType &f, const State<DataType> &state) {
+            inline double getValue(const State<DataType> &state) {
                 
                 //Do nothing for now
+                //returning the force which is really the negative gradient
+                Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDofs[0], state);
+                Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDofs[1], state);
+                Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDofs[2], state);
+                Eigen::Map<Eigen::VectorXd> v3 = mapDOFEigen(*m_qDofs[3], state);
+                
+                Eigen::Matrix<double, 12,1> q;
+                q << v0, v1, v2, v3;
+
+                
+                return 0.5*q.transpose()*m_K*q;
+                
             }
             
             template<typename Vector>
@@ -281,8 +299,19 @@ namespace Gauss {
             
             //integral rules for things that I want
             template<typename DOFList>
-            inline void getValue(DataType &f, const State<DataType> &state) {
+            inline DataType getValue(const State<DataType> &state) {
+                Eigen::Matrix<double, 12,1> f;
+                getGradient(f, state);
                 
+                Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDofs[0], state);
+                Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDofs[1], state);
+                Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDofs[2], state);
+                Eigen::Map<Eigen::VectorXd> v3 = mapDOFEigen(*m_qDofs[3], state);
+                
+                Eigen::Matrix<double, 12,1> q;
+                q << v0, v1, v2, v3;
+                
+                return -q.transpose()*f;
             }
             
             template<typename Vector>

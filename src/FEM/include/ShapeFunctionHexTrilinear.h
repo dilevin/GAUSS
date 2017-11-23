@@ -239,6 +239,24 @@ namespace Gauss {
                 
                 return tmp;
             }
+
+            inline VectorQ qDot(const State<DataType> &state) {
+                
+                VectorQ tmp;
+                
+                
+                tmp<<  mapDOFEigen(*m_qDotDofs[0], state),
+                mapDOFEigen(*m_qDotDofs[1], state),
+                mapDOFEigen(*m_qDotDofs[2], state),
+                mapDOFEigen(*m_qDotDofs[3], state),
+                mapDOFEigen(*m_qDotDofs[4], state),
+                mapDOFEigen(*m_qDotDofs[5], state),
+                mapDOFEigen(*m_qDotDofs[6], state),
+                mapDOFEigen(*m_qDotDofs[7], state);
+                
+                return tmp;
+            }
+
             
             //Jacobian: derivative with respect to degrees of freedom
             inline MatrixJ J(double *x, const State<DataType> &state) {

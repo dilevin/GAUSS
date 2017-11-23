@@ -43,31 +43,39 @@ namespace Gauss {
             
             static constexpr unsigned int numDOFs() { return N; }
                              
-            void getKineticEnergy(DataType &scalar, State<DataType> &state) {
-                QuadratureT::getValue(scalar, state);
+            inline double getKineticEnergy(const State<DataType> &state) {
+                return QuadratureT::getValue(state);
             }
             
                              
-            void getPotentialEnergy(DataType &scalar, State<DataType> &state) {
-                QuadratureU::getValue(scalar, state);
+            inline double getPotentialEnergy(const State<DataType> &state) {
+                return QuadratureU::getValue(state);
             }
             
+            inline double getEnergy(const State<DataType> &state) {
+                return getKineticEnergy(state)+getPotentialEnergy(state)+getBodyForceWork(state);
+            }
+                             
             template<typename Vector>
-            void getForce(Vector &f, const State<DataType> &state) {
+            inline void getForce(Vector &f, const State<DataType> &state) {
                 QuadratureU::getGradient(f, state);
                 getBodyForce(f, state);
             }
             
             template<typename Matrix>
-            void getMassMatrix(Matrix &M, const State<DataType> &state) {
+            inline void getMassMatrix(Matrix &M, const State<DataType> &state) {
                 QuadratureT::getHessian(M, state);
             }
                              
             template<typename Matrix>
-            void getStiffnessMatrix(Matrix &H, const State<DataType> &state) {
+            inline void getStiffnessMatrix(Matrix &H, const State<DataType> &state) {
                   QuadratureU::getHessian(H, state);
             }
             
+            inline double getBodyForceWork(const State<DataType> &state) {
+                return QuadratureBF::getValue(state);
+            }
+                             
             template<typename Vector>
             inline void getBodyForce(Vector &f, const State<DataType> &state) {
                  //Integrate Body Force (send it density function)

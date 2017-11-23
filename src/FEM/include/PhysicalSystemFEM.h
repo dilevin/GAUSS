@@ -67,6 +67,16 @@ namespace Gauss {
                 
             }
             
+            DataType getEnergy(const State<DataType> &state) const {
+                
+                double energy = 0.0;
+                for(auto &element : m_elements) {
+                    energy += element->getEnergy(state);
+                }
+                
+                return energy;
+            }
+            
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 //call the assembler on all elements

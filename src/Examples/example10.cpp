@@ -8,6 +8,7 @@
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicitLinear.h>
+#include <TimeStepperEulerImplicit.h>
 #include <type_traits>
 using namespace Gauss;
 using namespace FEM;
@@ -50,7 +51,7 @@ int main(int argc, char **argv) {
     test1->getImpl().setMass(10000000);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
-                                                                                     2, 40000000.0);
+                                                                                     2.0, 40000000.0);
     
     world.addSystem(test);
     world.addSystem(test1);

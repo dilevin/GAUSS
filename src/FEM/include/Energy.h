@@ -33,7 +33,7 @@ namespace Gauss {
             
             inline DataType getValue(double *x, const State<DataType> &state) {
                 auto v = ShapeFunction::J(x, state)*ShapeFunction::qDot();
-                return 0.5*v.transpose()*v;
+                return 0.5*m_rho*v.transpose()*v;
             }
             
             //infinitessimal gradients and hessians

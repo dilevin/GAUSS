@@ -9,6 +9,8 @@
 #ifndef TimeStepperEulerImplicit_h
 #define TimeStepperEulerImplicit_h
 
+#ifdef GAUSS_PARDISO
+
 #include <World.h>
 #include <Assembler.h>
 #include <TimeStepper.h>
@@ -150,5 +152,5 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 using TimeStepperEulerImplict = TimeStepper<DataType, TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler> >;
 
-
+#endif
 #endif /* TimeStepperEulerImplicit_h */

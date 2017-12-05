@@ -129,17 +129,66 @@ namespace Gauss {
                 
             }
             
-            auto & getQ() { return m_q; }
-            const auto & getQ() const { return m_q; }
+            inline auto & getQ() { return m_q; }
+            inline const auto & getQ() const { return m_q; }
             
-            auto & getQDot() { return m_qDot; }
-            const auto & getQDot() const { return m_qDot; }
+            inline auto & getQDot() { return m_qDot; }
+            inline const auto & getQDot() const { return m_qDot; }
+
+            //get function supporting a vertex (these return arrays in order to slot directly into assemblers)
+            inline auto getQ(unsigned int vertexId) {
+                std::array<DOFBase<DataType,0> *, 1> toReturn = {&m_q[vertexId]};
+                return toReturn;
+            }
+                
+            inline const auto getQ(unsigned int vertexId) const {
+                std::array<DOFBase<DataType,0> *,1> toReturn = {&m_q[vertexId]};
+                return toReturn;
+            }
+            
+            inline auto getQDot(unsigned int vertexId) {
+                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[vertexId]}};
+                return toReturn;
+            }
+            
+            inline const auto getQDot(unsigned int vertexId) const {
+                std::array<DOFBase<DataType,1> *,1> toReturn = {&m_qDot[vertexId]};
+                return toReturn;
+            }
             
             inline auto & getV() { return m_V; }
             inline auto & getF() { return m_F; }
             
             inline const auto & getV() const { return m_V; }
             inline const auto & getF() const { return m_F; }
+            
+            
+            //methods for getting current positions and position Jacobians for this system
+            template<typename ...Params, typename  Vector>
+            inline auto getPosition(Vector &pos, Vector &x, unsigned int vertexId) {
+                return getV().rows(vertexId).transpose() + mapDOFEigen(m_q[vertexId]);
+            }
+            
+            template<typename  Vector, typename ...Params>
+            inline auto getDPDQ(Vector &x, unsigned int vertexId) {
+                //return index for a particular vertex
+                
+                //I'm assuming that these finite element systems use nodal degrees of freedom which
+                //store the displacement, that makes dPdQ = I for any vertex
+                return Eigen::Matrix33x<DataType>::Identity();
+            }
+            
+            template<typename ...Params, typename  Vector>
+            inline auto getVelocity(Vector &pos, Vector &x, unsigned int vertexId) {
+                return mapDOFEigen(m_qDot[vertexId]);
+            }
+            
+            template<typename  Vector>
+            inline auto getDVDQ(Vector &x, unsigned int vertexId) {
+                return getDPDQ(x, vertexId);
+            }
+            
+            inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             
         protected:
             

@@ -49,6 +49,22 @@ namespace Gauss {
             DOFParticle<DataType,1> & getQDot() { return m_xDot; }
             const DOFParticle<DataType,1> & getQDot() const { return m_xDot; }
             
+            inline const auto getQDot(unsigned int vertexId)  {
+                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_xDot}};
+                return toReturn;
+            }
+            
+            template<typename  Vector>
+            inline auto getDVDQ(Vector &x, unsigned int vertexId) {
+                std::cout<<"DVDQ Particle System not implemented yet\n";
+                exit(0);
+                return 0;
+            }
+
+            
+            //do nothing for now, fix later
+            inline auto getGeometry() { assert(1==0); return nullptr; }
+            
         protected:
             
             DataType m_mass; //mass of particle

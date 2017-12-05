@@ -1,5 +1,12 @@
 OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
+### Dependencies ###
+1. Eigen >= 3.2
+2. Libigl https://github.com/libigl/libigl
+3. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
+4. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
+5. OPTIONAL: Spectra Eigenproblem Solver (https://spectralib.org)
+
 ### "Easy" Install Scripts ###
 #### Install Instructions OS X (Basic install, no bells or whistles) ####
 1. Install Homebrew (https://brew.sh)

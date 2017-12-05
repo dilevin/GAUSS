@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     AssemblerEigenSparseMatrix<double> collisions;
     //get mass matrix
     ASSEMBLEMATINIT(collisions, cd.getNumCollisions(), world.getNumQDotDOFs());
-    cd.getGradient<decltype(collisions), 0>(collisions, world.getState());
+    cd.getGradient<AssemblerEigenSparseMatrix<double>, 0>(collisions, world.getState());
     ASSEMBLEEND(collisions);
     
 }

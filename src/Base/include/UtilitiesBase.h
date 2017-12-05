@@ -62,23 +62,33 @@ void getConstraintMatrix(Matrix &constraintMatrix, World &world) {
 //given a a function templated on system type, run it on a system given a system index
 struct SystemIndex {
     
-    inline SystemIndex() { m_systemType = 0; m_systemIndex = 0; }
+    inline SystemIndex() {
+        m_type = -1;
+        m_index = 0;
+    }
     
-    inline unsigned int type() const { return m_systemType; }
-    inline unsigned int index() const { return m_systemIndex; }
+    inline SystemIndex(unsigned int type, unsigned int index) {
+        m_type = type;
+        m_index = index;
+    }
     
-    inline unsigned int & index() { return m_systemIndex; }
-    inline unsigned int & type() { return m_systemType; }
+    inline int & type()  { return m_type; }
+    inline int & index() { return m_index; }
     
-    unsigned int m_systemType;
-    unsigned int m_systemIndex;
+    inline const int & type() const { return m_type; }
+    inline const int & index() const { return m_index; }
+    
+    int m_type; //-1 is fixed object, doesn't need collision response
+    int m_index; //index of object in respective systems list
+    
+    
 };
 
 
 
 class PassSystem {
     
-public: 
+public:
     template<typename Func, typename TupleParam, typename ...Params>
     inline auto operator()(TupleParam &tuple, Func &func, SystemIndex &index, Params ...params) {
         return func(tuple[index.index()], params...);
@@ -90,6 +100,13 @@ inline auto apply(SystemList &list, SystemIndex index, Func &func, Params ...par
     PassSystem A;
     apply(list.getStorage(), index.type(), A, func, index, params...);
 }
+
+template<typename SystemList, typename Func, typename ...Params>
+inline auto apply(SystemList &list, SystemIndex index, Func func, Params ...params) {
+    PassSystem A;
+    apply(list.getStorage(), index.type(), A, func, index, params...);
+}
+
 
 
 #endif /* UtilitiesBase_h */

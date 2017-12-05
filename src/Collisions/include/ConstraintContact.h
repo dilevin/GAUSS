@@ -12,6 +12,7 @@ c//
 #include <Constraint.h>
 #include <DOFParticle.h>
 #include <UtilitiesEigen.h>
+#include <UtilitiesContact.h>
 
 namespace Gauss {
     namespace Collisions {

@@ -13,6 +13,7 @@ add_executable(Example5 example5.cpp)
 add_executable(Example7 example7.cpp)
 add_executable(Example9 example9.cpp)
 add_executable(Example10 example10.cpp)
+add_executable(Example12 example12.cpp)
 
 if(USE_PARDISO)
 	add_executable(Example11 example11.cpp)
@@ -35,5 +36,6 @@ target_link_libraries(Example5 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example7 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example9 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example10 Core Base FEM UI ${GAUSS_LIBS})
+target_link_libraries(Example12 Core Base Collisions FEM UI ${GAUSS_LIBS})
 
 

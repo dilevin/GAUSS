@@ -48,10 +48,10 @@ int main(int argc, char **argv) {
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
-    test1->getImpl().setMass(10000000);
+    test1->getImpl().setMass(1000);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
-                                                                                     2.0, 40000000.0);
+                                                                                     4.0, 400000.0);
     test->getImpl().getElement(0)->setDensity(20);
     world.addSystem(test);
     world.addSystem(test1);

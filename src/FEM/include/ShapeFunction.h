@@ -186,7 +186,7 @@ namespace Gauss {
             }
             
             
-            inline double volume() { return (1.0/6.0)*m_T.determinant(); }
+            inline double volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
             
             constexpr unsigned int getNumVerts() { return 4; }
             

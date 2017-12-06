@@ -13,7 +13,10 @@ add_executable(Example5 example5.cpp)
 add_executable(Example7 example7.cpp)
 add_executable(Example9 example9.cpp)
 add_executable(Example10 example10.cpp)
-add_executable(Example12 example12.cpp)
+
+if(NOT WIN32)
+	add_executable(Example12 example12.cpp)
+endif()
 
 if(USE_PARDISO)
 	add_executable(Example11 example11.cpp)

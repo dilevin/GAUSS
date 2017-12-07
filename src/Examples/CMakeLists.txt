@@ -14,10 +14,8 @@ add_executable(Example7 example7.cpp)
 add_executable(Example9 example9.cpp)
 add_executable(Example10 example10.cpp)
 
-if(NOT WIN32)
-	add_executable(Example12 example12.cpp)
-	target_link_libraries(Example12 Core Base Collisions FEM UI ${GAUSS_LIBS})
-endif()
+add_executable(Example12 example12.cpp)
+target_link_libraries(Example12 Core Base Collisions FEM UI ${GAUSS_LIBS})
 
 if(USE_PARDISO)
 	add_executable(Example11 example11.cpp)

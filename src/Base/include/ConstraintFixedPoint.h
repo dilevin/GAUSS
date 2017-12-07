@@ -47,8 +47,8 @@ namespace Gauss {
         //how many DOFs are involved in this constraint
         constexpr unsigned int getNumDOF() const { return 1; }
         
-        template <typename Matrix, unsigned int Operation>
-        inline void getGradient(Matrix &g,  const State<DataType> &state, const ConstraintIndex &index) {
+        template <typename World, typename Matrix, unsigned int Operation>
+        inline void getGradient(Matrix &g,  const World &world, const State<DataType> &state, const ConstraintIndex &index) {
             Eigen::Matrix3d I;
             I.setIdentity();
             

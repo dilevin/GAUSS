@@ -3,6 +3,15 @@
 
 namespace Gauss {
     
+    //check for update method
+    template <typename T, typename World>
+    inline auto callUpdate (T &t, World &world, int i) -> decltype( t.update(world) )
+    { t.update(world); }
+    
+    template <typename T, typename World>
+    inline auto callUpdate (T &t, World &world, long i)
+    {  }
+    
     class ConstraintIndex {
     public:
         
@@ -32,6 +41,10 @@ namespace Gauss {
         
         inline unsigned int getGlobalId() const {
             return m_globalId;
+        }
+        
+        inline void setGlobalId(unsigned int globalId) {
+            m_globalId = globalId;
         }
         
         virtual inline void offsetGlobalId(unsigned int offset) {
@@ -75,11 +88,15 @@ namespace Gauss {
         //how many DOFs are involved in this constraint
         unsigned int getNumDOF() { return m_impl.getNumDOF(); }
         
-        template <typename Matrix, unsigned int Operation=0>
-        inline void getGradient(Matrix &g,  const State<DataType> &state) {
-            m_impl.template getGradient<Matrix,Operation>(g, state, m_index);
+        template <typename World, typename Matrix, unsigned int Operation=0>
+        inline void getGradient(Matrix &g,  World &world, const State<DataType> &state) {
+            m_impl.template getGradient<World, Matrix,Operation>(g, world, state, m_index);
         }
         
+        template<typename World>
+        inline void update(World &world) {
+            callUpdate(m_impl, world, 0);
+        }
     protected:
         
         Impl m_impl;

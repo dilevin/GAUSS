@@ -133,54 +133,97 @@ namespace Gauss {
         constexpr static bool value = false;
     };
    
-    //get return type of function
-    template <typename T>
-    struct FunctionProperties  {
-        using ReturnType = void;
-    };
+    //Direct access into a tuple to run a designated function
+    #ifdef _WIN32
+        //Slow version that doesn't break Visual Studio Compiler
+        template<unsigned int CheckIndex>
+        class ApplyTuple {
+        public:
+            template<typename Tuple, typename Func, typename ...Params>
+            inline static decltype(auto) apply(Tuple &tuple, unsigned int index, Func &func, Params ...params) {
+                if(index == CheckIndex) {
+                    return func(std::get<CheckIndex>(tuple), params...);
+                }
+                
+                return ApplyTuple<CheckIndex-1>::apply(tuple,index, func, params...);
+            }
+            
+        };
+        
+        template<>
+        class ApplyTuple<0> {
+        public:
+            template<typename Tuple, typename Func, typename ...Params>
+            inline static decltype(auto) apply(Tuple &tuple, unsigned int index, Func &func, Params ...params) {
+                if(index == 0) {
+                    return func(std::get<0>(tuple), params...);
+                }
+                
+                std::cout<<"Error in ApplyTuple, no index found \n";
+                exit(0);
+                
+            }
+            
+        };
+        
+        template<typename Tuple, typename Func, typename ...Params>
+        inline decltype(auto) apply(Tuple &tuple, unsigned int index, Func &func, Params ...params){
+            
+            return ApplyTuple<std::tuple_size<Tuple>::value -1>::apply(tuple, index, func, params...);
+        }
+    #else
+        //O(1) version for gcc and clang
+        template <typename T>
+        struct FunctionProperties  {
+            using ReturnType = void;
+        };
+        
+        template <typename CT, typename RT, typename... Args>
+        struct FunctionProperties<RT(CT::*)(Args...) const > {
+            using ReturnType = RT;
+        };
+        
+        template <typename CT, typename RT, typename... Args>
+        struct FunctionProperties<RT(CT::*)(Args...)> {
+            using ReturnType = RT;
+        };
+        
+        // for function pointers
+        template <typename RT, typename... Args>
+        struct FunctionProperties<RT (*)(Args...)>  {
+            using ReturnType = RT;
+        };
+        
+        //virutal function-like behaviour for tuples
+        template<int N, class Tuple, class FunctionWrapper, typename ...Params>
+        inline auto apply_one(Tuple & p, FunctionWrapper &func, Params ...params)
+        {
+            return func(std::get<N>(p), params...);
+        }
+        
+        //define function table
+        template<typename A, typename B, typename C,typename D, typename ...E>
+        class FunctionTable { };
+        
+        template<std::size_t... Is, typename Tuple, typename FunctionWrapper, typename ReturnType, typename ...Params>
+        class FunctionTable<std::index_sequence<Is...>, Tuple, FunctionWrapper, ReturnType, Params...> {
+        public:
+            static ReturnType (*lookup_table[std::tuple_size<Tuple>::value])(Tuple&, FunctionWrapper &, Params ...);
+        };
+        
+        template<std::size_t... Is, typename Tuple, typename FunctionWrapper, typename ReturnType, typename ...Params>
+        ReturnType (*FunctionTable<std::index_sequence<Is...>, Tuple, FunctionWrapper, ReturnType, Params...>::lookup_table[std::tuple_size<Tuple>::value])(Tuple&, FunctionWrapper &, Params ... )  = {  &apply_one<Is, Tuple, FunctionWrapper, Params...>... };
+        
+        
+        template<typename Tuple, typename Func, typename ...Params>
+        inline decltype(auto) apply(Tuple &tuple, unsigned int index, Func &func, Params ...params) {
+            using ReturnType = decltype(func(std::get<0>(tuple), params...));
+            return FunctionTable<std::make_index_sequence<std::tuple_size<typename std::remove_reference<decltype(tuple)>::type>::value>, typename std::remove_reference<decltype(tuple)>::type, Func, ReturnType, Params... >::lookup_table[index](tuple, func, params...);
+        }
+    #endif
     
-    template <typename CT, typename RT, typename... Args>
-    struct FunctionProperties<RT(CT::*)(Args...) const > {
-        using ReturnType = RT;
-    };
-    
-    template <typename CT, typename RT, typename... Args>
-    struct FunctionProperties<RT(CT::*)(Args...)> {
-        using ReturnType = RT;
-    };
-    
-    // for function pointers
-    template <typename RT, typename... Args>
-    struct FunctionProperties<RT (*)(Args...)>  {
-        using ReturnType = RT;
-    };
-    
-    //virutal function-like behaviour for tuples
-    template<int N, class Tuple, class FunctionWrapper, typename ...Params>
-    inline auto apply_one(Tuple & p, FunctionWrapper &func, Params ...params)
-    {
-        return func(std::get<N>(p), params...);
-    }
-    
-    //define function table
-    template<typename A, typename B, typename C,typename D, typename ...E>
-    class FunctionTable { };
-    
-    template<std::size_t... Is, typename Tuple, typename FunctionWrapper, typename ReturnType, typename ...Params>
-    class FunctionTable<std::index_sequence<Is...>, Tuple, FunctionWrapper, ReturnType, Params...> {
-    public:
-        static ReturnType (*lookup_table[std::tuple_size<Tuple>::value])(Tuple&, FunctionWrapper &, Params ...);
-    };
-    
-    template<std::size_t... Is, typename Tuple, typename FunctionWrapper, typename ReturnType, typename ...Params>
-    ReturnType (*FunctionTable<std::index_sequence<Is...>, Tuple, FunctionWrapper, ReturnType, Params...>::lookup_table[std::tuple_size<Tuple>::value])(Tuple&, FunctionWrapper &, Params ... )  = {  &apply_one<Is, Tuple, FunctionWrapper, Params...>... };
-    
-    template<typename Tuple, typename Func, typename ...Params>
-    inline auto apply(Tuple &tuple, unsigned int index, Func &func, Params ...params) {
-         using ReturnType = decltype(func(std::get<0>(tuple), params...));
-         return FunctionTable<std::make_index_sequence<std::tuple_size<typename std::remove_reference<decltype(tuple)>::type>::value>, typename std::remove_reference<decltype(tuple)>::type, Func, ReturnType, Params... >::lookup_table[index](tuple, func, params...);
-    }
-    //end virtual function-like behavior for tuples
+   
+
     
 #ifdef GAUSS_OPENMP
     //Parallel version

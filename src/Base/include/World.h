@@ -52,7 +52,6 @@ namespace Gauss
         inline const MultiVector<ConstraintTypes...> & getInequalityConstraintList() const { return m_inequalityConstraints; }
         inline MultiVector<ConstraintTypes...> & getInequalityConstraintList() { return m_inequalityConstraints; }
         
-        
         //Add items to the world
         template<typename Impl>
         int addSystem(PhysicalSystem<DataType, Impl> *system);
@@ -200,6 +199,14 @@ int World<DataType,std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::t
 }
 
 template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
+template<typename Impl>
+int World<DataType,std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::addInequalityConstraint(Constraint<DataType, Impl> *constraint)
+{
+    m_inequalityConstraints.add(constraint);
+    return 1;
+}
+
+template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
 int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::finalize()
 {
     //start
@@ -254,7 +261,7 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     //update inequality constraints
     unsigned int totalConstraints = 0;
     forEach(m_inequalityConstraints, [&totalConstraints](auto a) {
-        a->getIndex().offsetGlobalId(totalConstraints);
+        a->getIndex().setGlobalId(totalConstraints);
         totalConstraints += a->getNumRows();
     });
 

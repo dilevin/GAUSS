@@ -90,19 +90,19 @@ class PassSystem {
     
 public:
     template<typename Func, typename TupleParam, typename ...Params>
-    inline auto operator()(TupleParam &tuple, Func &func, SystemIndex &index, Params ...params) {
+    inline decltype(auto) operator()(TupleParam &tuple, Func &func, SystemIndex &index, Params ...params) {
         return func(tuple[index.index()], params...);
     }
     
 };
 template<typename SystemList, typename Func, typename ...Params>
-inline auto apply(SystemList &list, SystemIndex index, Func &func, Params ...params) {
+inline decltype(auto) apply(SystemList &list, SystemIndex index, Func &func, Params ...params) {
     PassSystem A;
     apply(list.getStorage(), index.type(), A, func, index, params...);
 }
 
 template<typename SystemList, typename Func, typename ...Params>
-inline auto apply(SystemList &list, SystemIndex index, Func func, Params ...params) {
+inline decltype(auto) apply(SystemList &list, SystemIndex index, Func func, Params ...params) {
     PassSystem A;
     apply(list.getStorage(), index.type(), A, func, index, params...);
 }

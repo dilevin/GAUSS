@@ -13,24 +13,40 @@
 #include <UtilitiesEigen.h>
 #include <GaussIncludes.h>
 
-//Big thing to figure out next is how to distinguish between getting DOFS supporting an vertex or those supporting an element
+//This should become a constraint (just makes everything easier)
 namespace Gauss {
     namespace Collisions {
-        template<typename DataType, typename World, typename CollisionDetectorImpl>
+        template<typename DataType, typename CollisionDetectorImpl>
         class CollisionDetector
         {
         public:
             
-            template <typename ...Params>
-            CollisionDetector(World &world, Params ...params) : m_impl(world, params...), m_world(world) {
+            template <typename World, typename ...Params>
+            CollisionDetector(World &world, Params ...params) : m_impl(world, params...) {
             
             }
             
             ~CollisionDetector() { }
             
             //run this to get ready
-            inline void detectCollisions() {
-                m_impl.detectCollisions(m_world);
+            //if this is a constraint how do I call detect collisions
+            //send extra reference to any thing that needs access to the collision detector
+            //collision detectors are in constraint list and collision detection list
+            //
+            template<typename World>
+            inline void update(World &world) {
+                detectCollisions(world);
+            }
+            
+            template<typename World>
+            inline void detectCollisions(World &world) {
+                m_impl.detectCollisions(world);
+                
+                //update the constraint numberings in the world here
+            }
+            
+            inline unsigned int getNumRows() {
+                return getNumCollisions();
             }
             
             inline unsigned int getNumCollisions() {
@@ -38,26 +54,25 @@ namespace Gauss {
             }
             
             //get Gradients
-            template<typename Assembler, unsigned int Operation>
-            inline void getGradient(Assembler &assembler, const State<DataType> &state) {
+            template<typename World, typename Assembler, unsigned int Operation>
+            inline void getGradient(Assembler &assembler, World &world, const State<DataType> &state, const ConstraintIndex &index) {
                 
-                ConstraintIndex index(0,0,1);
+                ConstraintIndex indexInc = index;
+                indexInc.setNumRows(1);
                 
                 auto &objAList = m_impl.getCollisionsObjectA();
                 auto &objBList = m_impl.getCollisionsObjectB();
                 auto &sharedInfo = m_impl.getSharedInfo();
                 
-                World &world =  m_world;
-                
                 //forEach loop for multivector
-                forEach(objAList, [&assembler, &sharedInfo, &index,&world](auto &collisionInfo) {
+                forEach(objAList, [&assembler, &sharedInfo, &indexInc,&world](auto &collisionInfo) {
                     std::cout<<"\n"<<sharedInfo[collisionInfo.getShared()].getNormal()<<"\n";
-                    apply(world.getSystemList(), collisionInfo.getObject(), [&assembler, &collisionInfo, &index, &world, &sharedInfo](auto &a) {
+                    apply(world.getSystemList(), collisionInfo.getObject(), [&assembler, &collisionInfo, &indexInc, &world, &sharedInfo](auto &a) {
                         auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDVDQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
-                        assign(assembler, J, std::array<ConstraintIndex,1>{{index}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
+                        assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
                         });
                         
-                        index.offsetGlobalId(1);
+                        indexInc.offsetGlobalId(1);
                 
                 });
                 
@@ -88,11 +103,13 @@ namespace Gauss {
         protected:
             
             CollisionDetectorImpl m_impl;
-            World &m_world;
-            
+        
             
         private:
         };
+        
+        template<typename DataType, template<typename A> class DetectorImpl>
+        using ConstraintCollisionDetector = Constraint<DataType, CollisionDetector<DataType, DetectorImpl<DataType> > >;
     }
 }
 

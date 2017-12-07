@@ -59,6 +59,17 @@ namespace Gauss {
         
         
     }
+
+    template<>
+    inline void toMatlab<Eigen::SparseMatrix<double, Eigen::RowMajor> >(Eigen::SparseMatrix<double,Eigen::RowMajor> &toWrite, std::string filename) {
+        std::cout<<"Writing Eigen Sparse Matrix to MATLAB \n";
+        
+        Eigen::saveMarket(toWrite, filename);
+        
+        
+        
+    }
+
     
     template<>
     inline void toMatlab<Eigen::Matrix<double, 12, 12> >(Eigen::Matrix<double, 12,12> &toWrite, std::string filename) {

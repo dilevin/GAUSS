@@ -21,6 +21,8 @@
 #include <Eigen/SparseCholesky>
 #include <SolverPardiso.h>
 
+//solver
+#include <igl/active_set.h>
 
 namespace Gauss {
     namespace Collisions {
@@ -34,7 +36,7 @@ namespace Gauss {
                 
             }
             
-            TimeStepperImplEulerImplicitLinearCollisions(const TimeStepperImplEulerImplicitLinear &toCopy) {
+            TimeStepperImplEulerImplicitLinearCollisions(const TimeStepperImplEulerImplicitLinearCollisions &toCopy) {
                 
             }
             
@@ -65,14 +67,14 @@ namespace Gauss {
             
         private:
         };
-    }
     
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-    template<typename CollisionDetector>
+    template<typename World>
     void TimeStepperImplEulerImplicitLinearCollisions<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
         
         //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
         MatrixAssembler &massMatrix = m_massMatrix;
+        MatrixAssembler &collisions = m_collisionConstraints;
         MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
         VectorAssembler &forceVector = m_forceVector;
         
@@ -93,19 +95,60 @@ namespace Gauss {
         ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
         ASSEMBLEEND(forceVector);
         
+        //collision constraints
+        
+        //make sure collisions have been detected by running the constraint update function
+        world.updateInequalityConstraints();
+        ASSEMBLEMATINIT(collisions, world.getNumInequalityConstraints(), world.getNumQDotDOFs());
+        ASSEMBLELISTCONSTRAINT(collisions, world.getInequalityConstraintList(), getGradient);
+        ASSEMBLEEND(collisions);
+    
+        
         //Grab the state
         Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
         Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
         
         //setup RHS
-        (*forceVector).head(world.getNumQDotDOFs()) = (*massMatrix)*qDot + dt*(*forceVector);
+        (*forceVector) = -((*massMatrix)*qDot + dt*(*forceVector));
         
         Eigen::VectorXd x0;
-        Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+        Eigen::SparseMatrix<DataType> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
         
         
-        //run the collision detector and add build the collision matrix
+        //solve using libigl active set solver
+        Eigen::VectorXi known(0);
+        Eigen::VectorXd bKnown(0);
+        Eigen::SparseMatrix<DataType> Aeq;
+        Eigen::VectorXd beq;
+        Eigen::VectorXd b;
+        Eigen::SparseMatrix<DataType> Aineq = -(*collisions);
+        b.resize((*collisions).rows(),1);
+        b.setZero();
+        Eigen::VectorXd lx;
+        Eigen::VectorXd ux;
+        igl::active_set_params params;
         
+        Eigen::VectorXd qDotTmp = qDot;
+        active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
+        qDot = qDotTmp;
+        q = q + dt*qDot;
+        
+        /*active_set(
+                   const Eigen::SparseMatrix<AT>& A,
+                   const Eigen::PlainObjectBase<DerivedB> & B,
+                   const Eigen::PlainObjectBase<Derivedknown> & known,
+                   const Eigen::PlainObjectBase<DerivedY> & Y,
+                   const Eigen::SparseMatrix<AeqT>& Aeq,
+                   const Eigen::PlainObjectBase<DerivedBeq> & Beq,
+                   const Eigen::SparseMatrix<AieqT>& Aieq,
+                   const Eigen::PlainObjectBase<DerivedBieq> & Bieq,
+                   const Eigen::PlainObjectBase<Derivedlx> & lx,
+                   const Eigen::PlainObjectBase<Derivedux> & ux,
+                   const igl::active_set_params & params,
+                   Eigen::PlainObjectBase<DerivedZ> & Z
+                   );*.
+        
+         
 #ifdef GAUSS_PARDISO
         m_pardiso.symbolicFactorization(systemMatrix);
         m_pardiso.numericalFactorization();
@@ -143,6 +186,7 @@ namespace Gauss {
         q = q + dt*qDot;
         
         //std::cout<<"Q: "<<q<<"\n";
+    }*/
     }
     
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

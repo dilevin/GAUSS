@@ -260,7 +260,10 @@ template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typ
 int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::updateInequalityConstraints() {
     //update inequality constraints
     unsigned int totalConstraints = 0;
-    forEach(m_inequalityConstraints, [&totalConstraints](auto a) {
+    World &world = *this;
+    
+    forEach(m_inequalityConstraints, [&totalConstraints, &world](auto a) {
+        a->update(world); //makes sure everything is current
         a->getIndex().setGlobalId(totalConstraints);
         totalConstraints += a->getNumRows();
     });

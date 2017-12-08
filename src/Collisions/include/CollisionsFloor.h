@@ -37,7 +37,7 @@ namespace Gauss {
         class DetectCollisions {
         public:
             template<typename DataType, typename Object, typename ...Types>
-            inline static void planeContact(int type, int index, const Object *obj,
+            inline static void planeContact(int type, int index, const Object *obj, const State<DataType> &state,
                                        MultiVector<Types...> &listA, MultiVector<Types...> &listB,
                                        std::vector<SharedCollisionInfo<DataType> > &info,
                                        Eigen::Vector3x<DataType> &normal,
@@ -55,7 +55,7 @@ namespace Gauss {
         class DetectCollisions<std::pair<Eigen::MatrixXd &, Eigen::MatrixXi &> >{
         public:
             template<typename DataType, typename Object, typename ...Types>
-            inline static void planeContact(int type, int index, const Object *obj,
+            inline static void planeContact(int type, int index, const Object *obj, const State<DataType> &state,
                                        MultiVector<Types...> &listA, MultiVector<Types...> &listB,
                                        std::vector<SharedCollisionInfo<DataType> > &info,
                                        Eigen::Vector3x<DataType> &normal,
@@ -63,11 +63,11 @@ namespace Gauss {
                 
                 for(unsigned int iv =0; iv < obj->getImpl().getV().rows(); ++iv) {
                     //if the object is on the wrong side of the floor, mark the collision
-                    double proj = (obj->getImpl().getV().row(iv).transpose() - pos).dot(normal);
+                    double proj = (obj->getPosition(state, iv) - pos).dot(normal);
                     
                     if(proj < 0){
                         //store collision
-                        info.push_back(SharedCollisionInfo<DataType>(normal,obj->getImpl().getV().row(iv).transpose()));
+                        info.push_back(SharedCollisionInfo<DataType>(normal,obj->getPosition(state, iv)));
                         listA.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(type,index), iv));
                         listB.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(-1,0), 0));
                         
@@ -197,8 +197,8 @@ void Gauss::Collisions::CollisionFloorImpl<DataType>::detectCollisions(World &wo
     
     //Loop through every object, check if any points are on the wrong side of the floor, if so
     //record collision
-    forEachIndex(world.getSystemList(), [&objAList, &objBList, &sharedList, &floorNormal, &floorPosition](auto type, auto index, auto &a) {
-        DetectCollisions<decltype(a->getGeometry())>::planeContact(type, index, a, objAList, objBList, sharedList, floorNormal, floorPosition);
+    forEachIndex(world.getSystemList(), [&objAList, &objBList, &sharedList, &floorNormal, &floorPosition, &world](auto type, auto index, auto &a) {
+        DetectCollisions<decltype(a->getGeometry())>::planeContact(type, index, a, world.getState(), objAList, objBList, sharedList, floorNormal, floorPosition);
     });
     
 

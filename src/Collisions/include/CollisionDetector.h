@@ -55,7 +55,7 @@ namespace Gauss {
             
             //get Gradients
             template<typename World, typename Assembler, unsigned int Operation>
-            inline void getGradient(Assembler &assembler, World &world, const State<DataType> &state, const ConstraintIndex &index) {
+            void getGradient(Assembler &assembler, World &world, const State<DataType> &state, const ConstraintIndex &index) {
                 
                 ConstraintIndex indexInc = index;
                 indexInc.setNumRows(1);
@@ -66,7 +66,6 @@ namespace Gauss {
                 
                 //forEach loop for multivector
                 forEach(objAList, [&assembler, &sharedInfo, &indexInc,&world](auto &collisionInfo) {
-                    std::cout<<"\n"<<sharedInfo[collisionInfo.getShared()].getNormal()<<"\n";
                     apply(world.getSystemList(), collisionInfo.getObject(), [&assembler, &collisionInfo, &indexInc, &world, &sharedInfo](auto &a) {
                         auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDVDQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
                         assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));

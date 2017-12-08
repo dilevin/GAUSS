@@ -50,9 +50,9 @@ namespace Gauss {
             m_systemImpl.setDOFGlobalIndex(assembler);
         }
         
-        template<typename ...Params, typename  Vector>
-        inline auto getPosition(Vector &pos, Vector &x, Params &...params) {
-            return m_systemImpl->getPosition(pos, x, params...);
+        template<typename ...Params>
+        inline decltype(auto) getPosition(const State<DataType> &state, Params &...params) const {
+            return m_systemImpl.getPosition(state, params...);
         }
         
         template<typename Vector, typename ...Params>

@@ -116,8 +116,8 @@ namespace Gauss {
         
         
         //solve using libigl active set solver
-        Eigen::VectorXi known(0);
-        Eigen::VectorXd bKnown(0);
+        Eigen::VectorXi known;
+        Eigen::VectorXd bKnown;
         Eigen::SparseMatrix<DataType> Aeq;
         Eigen::VectorXd beq;
         Eigen::VectorXd b;

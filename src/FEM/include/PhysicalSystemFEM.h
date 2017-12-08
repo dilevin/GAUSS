@@ -164,9 +164,8 @@ namespace Gauss {
             
             
             //methods for getting current positions and position Jacobians for this system
-            template<typename ...Params, typename  Vector>
-            inline auto getPosition(Vector &pos, Vector &x, unsigned int vertexId) {
-                return getV().rows(vertexId).transpose() + mapDOFEigen(m_q[vertexId]);
+            inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
+                return getV().row(vertexId).transpose() + mapDOFEigen(m_q[vertexId], state);
             }
             
             template<typename  Vector, typename ...Params>

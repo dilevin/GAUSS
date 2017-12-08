@@ -9,8 +9,7 @@
 #include <tuple>
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitLinear.h>
-#include <TimeStepperEulerImplicit.h>
+#include <TimeStepperEulerImplicitLinearCollisions.h>
 #include <type_traits>
 using namespace Gauss;
 using namespace Collisions;
@@ -24,10 +23,14 @@ typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<do
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *, MyCollisionDetector *> > MyWorld;
 
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
+typedef TimeStepperEulerImplictLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
+
+void preStepCallback(MyWorld &world) {
+    // This is an example callback
+}
 
 int main(int argc, char **argv) {
     std::cout<<"Collisions Test \n";
@@ -41,7 +44,7 @@ int main(int argc, char **argv) {
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
-    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(0.0,1.0,0.0), Eigen::Vector3d(0.0,0.0,0.0));
+    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(-0.2,1.0,0.0), Eigen::Vector3d(0.0,-5.0,0.0));
     world.addSystem(test);
     world.addInequalityConstraint(&cd);
     world.finalize();
@@ -49,18 +52,15 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
+    MyTimeStepper stepper(0.01);
     
+    //Display
+    QGuiApplication app(argc, argv);
     
-    cd.update(world);
-    world.updateInequalityConstraints();
+    MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
+    GAUSSVIEW(scene);
     
-    //print out list of collisions
-    AssemblerEigenSparseMatrix<double> collisions;
-    //get mass matrix
-    ASSEMBLEMATINIT(collisions, cd.getNumRows(), world.getNumQDotDOFs());
-    cd.getGradient<MyWorld,AssemblerEigenSparseMatrix<double>, 0>(collisions, world, world.getState());
-    ASSEMBLEEND(collisions);
-    
-    toMatlab(*collisions, "./constraintJacobian.txt");
+    return app.exec();
+
     
 }

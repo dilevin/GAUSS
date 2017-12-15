@@ -1,4 +1,36 @@
-[![Build Status](https://travis-ci.com/dilevin/GAUSS.svg?token=poS417w5DgfGAsnmYggm&branch=master)](https://travis-ci.com/dilevin/GAUSS)
+<img src="GaussLogo.png" height="150"></img> <br>
+OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/GAUSS.svg?branch=master)](https://travis-ci.org/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
+
+### Dependencies ###
+1. Eigen >= 3.2
+2. Libigl https://github.com/libigl/libigl
+3. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
+4. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
+5. OPTIONAL: Spectra Eigenproblem Solver (https://spectralib.org)
+
+### "Easy" Install Scripts ###
+#### Install Instructions OS X (Basic install, no bells or whistles) ####
+1. Install Homebrew (https://brew.sh)
+2. At command line: chmod a+x ./InstallGAUSS_OSX.sh
+3. Run InstallGAUSS_OSX.sh which does the following:
+	- downloads and installs Qt 5.9 in ~/Qt
+	- installs CMake using homebrew (upgrades currently installed version)
+	- installs Eigen 3 using home brew (upgrades currently installed version)
+	- installs libigl in ./build/libigl
+	- installs Gauss in ./build
+
+#### Install Instructions Ubuntu (Basic install, no bells or whistles) ####
+1. This install procedure requires gcc and g++ version 5 or greater setup as the default c/c++ compilers
+2. At command prompt: chmod a+x ./InstallGAUSS_Ubuntu.sh
+3. Run InstallGAUSS_Ubuntu.sh which does the following
+	- downloads and installs Qt 5.9 in ~/Qt
+	- install libigl into ./build/libigl
+	- installs CMake using apt-get
+	- installs Eigen 3 using apt-get
+	- installs Gauss in ./build
+
+#### Warning ####
+These scripts are hand maintained to make GAUSS Easy to build on certain platforms. If they fail please resort to custom install using cmake below. 
 
 ### Generic Build Instructions ###
 
@@ -38,3 +70,7 @@ GAUSS Includes a rudimentary MATLAB interface, tested using MATLAB 2015b on OSX.
 	savepath
 
 An example of using the MATLAB interface is given in {Gauss_Root_Dir}/src/Examples/example8.m
+
+#### Notes for Visual Studio ####
+To build the MATLAB interface using Visual Studio, currnetly you have to manually modify a couple of linker inputs. After building the VS solution using CMake, open it in VS, and go to the linker input for the Gauss_MATLAB project. That is, Gauss_MATLAB (Solution Explorer) > Properties > Linker > Input > Additional Dependencies.
+Change `libmx.dylib` to `libmx.lib`, and remove the input `libiomp5.lib`. Now you should be able to build hte MATLAB interface on Windows.

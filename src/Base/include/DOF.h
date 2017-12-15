@@ -48,6 +48,10 @@ namespace Gauss {
             return state. template getStatePtr<Property>(m_globalId);
         }
         
+        inline std::tuple<DataType *, unsigned int> getPtr(const State<DataType> &state) const {
+            return state. template getStatePtr<Property>(m_globalId);
+        }
+        
         virtual inline void offsetGlobalId(unsigned int offset) {
             m_globalId += offset;
         }

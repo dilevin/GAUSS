@@ -5,6 +5,7 @@
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
 #include <ForceSpring.h>
+#include <ForceParticleGravity.h>
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
@@ -31,7 +32,7 @@ typedef World<  double,
                     FEMLinearTets *,
                     FEMPlaneStrainTri *
                 >,
-                std::tuple<ForceSpring<double> *>,
+                std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
                 std::tuple<ConstraintFixedPoint<double> *>
         > WorldFEM;
 

@@ -31,6 +31,12 @@ namespace Gauss {
             
             inline void getValue(DataType &f, State<DataType> &state) {
                 
+                DataType w = static_cast<DataType>(Energy::volume());
+            
+                Eigen::Vector3x<DataType> x;
+            
+                return w*Energy::getValue(Energy::x(0.5,0.5,0.5).data(), state);
+                
             }
             
             template<typename Vector>
@@ -158,8 +164,18 @@ namespace Gauss {
             inline QuadraturePlaneTri1 (Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             BodyForceGravity<DataType, ShapeFunctionPlaneLinear<DataType> > (V,F,qDOFList, qDotDOFList) { }
             
-            inline void getValue(DataType &f, State<DataType> &state) {
+            inline DataType getValue(State<DataType> &state) {
                 
+                Eigen::Matrix<double, 9,1> elementF;
+                Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDofs[0], state);
+                Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDofs[1], state);
+                Eigen::Map<Eigen::VectorXd> v2 = mapDOFEigen(*m_qDofs[2], state);
+                Eigen::Matrix<DataType, 12,1> q;
+                q << v0, v1, v2;
+                
+                getGradient(elementF, state);
+                return -q.transpose()*elementF;
+
             }
             
             template<typename Vector>

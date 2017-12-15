@@ -155,6 +155,17 @@ namespace Gauss {
                 mapDOFEigen(*m_qDofs[3], state);
                 return tmp;
             }
+            
+            inline VectorQ qDot(const State<DataType> &state) {
+                
+                VectorQ tmp;
+                
+                tmp<<  mapDOFEigen(*m_qDotDofs[0], state),
+                mapDOFEigen(*m_qDotDofs[1], state),
+                mapDOFEigen(*m_qDotDofs[2], state),
+                mapDOFEigen(*m_qDotDofs[3], state);
+                return tmp;
+            }
 
             inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) {
                 
@@ -175,7 +186,7 @@ namespace Gauss {
             }
             
             
-            inline double volume() { return (1.0/6.0)*m_T.determinant(); }
+            inline double volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
             
             constexpr unsigned int getNumVerts() { return 4; }
             

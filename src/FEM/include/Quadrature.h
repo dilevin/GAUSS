@@ -21,7 +21,7 @@ namespace Gauss {
             inline QuadratureNone(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
                 Energy(V,F,qDOFList, qDotDOFList){ }
             
-            inline void getValue(DataType &f, State<DataType> &state) { }
+            inline DataType getValue(State<DataType> &state) { }
 
             template<typename Vector, typename DOFList>
             inline void getGradient(Vector &f, State<DataType> &state) { }

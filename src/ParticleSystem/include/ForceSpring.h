@@ -50,9 +50,17 @@ namespace Gauss {
             inline auto & getPosition0() {
                     return m_q0;
             }
+
+            inline void setPosition0(Position1 q0) {
+                    m_q0 = q0;
+            }
             
             inline auto & getPosition1() {
                 return m_q1;
+            }
+
+            inline void setPosition1(Position2 q1) {
+                    m_q1 = q1;
             }
             
             inline unsigned int getNumDOF() { return 2; }

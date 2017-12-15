@@ -27,6 +27,8 @@ namespace Gauss {
             
         }
         
+        inline DataType getEnergy(const State<DataType> &state) { return m_systemImpl.getEnergy(state); }
+        
         template<typename Assembler>
         void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
             m_systemImpl.getMassMatrix(assembler, state);
@@ -48,14 +50,45 @@ namespace Gauss {
             m_systemImpl.setDOFGlobalIndex(assembler);
         }
         
-        const auto & getImpl() const { return m_systemImpl; }
-        auto & getImpl() { return m_systemImpl; }
+        template<typename ...Params>
+        inline decltype(auto) getPosition(const State<DataType> &state, Params &...params) const {
+            return m_systemImpl.getPosition(state, params...);
+        }
         
-        auto & getQ() { return m_systemImpl.getQ(); }
-        auto & getQ() const { return m_systemImpl.getQ(); }
+        template<typename Vector, typename ...Params>
+        inline auto getDPDQ(Vector &x, Params &... params) {
+            return m_systemImpl.getDPDQ(x, params...);
+        }
         
-        auto & getQDot() { return m_systemImpl.getQDot(); }
-        auto & getQDot() const { return m_systemImpl.getQDot(); }
+        template<typename  Vector, typename ...Params>
+        inline auto getVelocity(Vector &x, Params &...params) {
+            return m_systemImpl.getVelocity(x, params...);
+        }
+        
+        template<typename  Vector, typename ...Params>
+        inline auto getDVDQ(Vector &x, Params &...params) {
+            return m_systemImpl.getDVDQ(x, params...);
+        }
+        
+        inline const auto & getImpl() const { return m_systemImpl; }
+        inline auto & getImpl() { return m_systemImpl; }
+        
+        //need more of these so i can get the Q's that support a spatial point
+        template<typename ...Params>
+        inline decltype(auto) getQ(Params &...params) { return m_systemImpl.getQ(params...); }
+        
+        template<typename ...Params>
+        inline decltype(auto) getQ(Params &...params) const { return m_systemImpl.getQ(params...); }
+        
+        template<typename ...Params>
+        inline decltype(auto) getQDot(Params &...params) { return m_systemImpl.getQDot(params...); }
+        
+        template<typename ...Params>
+        inline decltype(auto) getQDot(Params &...params) const { return m_systemImpl.getQDot(params...); }
+        
+        
+        //get geometry (had to add this for collision detection code)
+        inline auto getGeometry() { return m_systemImpl.getGeometry(); }
         
     protected:
         

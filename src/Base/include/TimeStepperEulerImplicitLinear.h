@@ -110,8 +110,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
 
     //std::cout<<"F: "<<(*forceVector)<<"\n";
     //setup RHS
-    (*forceVector).head(world.getNumQDotDOFs()) = (*massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot +
-                                                  dt*(*forceVector).head(world.getNumQDotDOFs());
+    (*forceVector).head(world.getNumQDotDOFs()) = (*massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot + dt*(*forceVector).head(world.getNumQDotDOFs());
     
     //toMatlab(*massMatrix, "./testMHex.txt");
     //toMatlab(*stiffnessMatrix, "./testKHex.txt");
@@ -119,8 +118,8 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     
     //std::cout<<"F: \n"<<(*forceVector)<<"\n";
     
-Eigen::VectorXd x0;
-Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+    Eigen::VectorXd x0;
+    Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
 #ifdef GAUSS_PARDISO
     m_pardiso.symbolicFactorization(systemMatrix);

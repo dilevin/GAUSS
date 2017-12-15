@@ -37,6 +37,7 @@ namespace Gauss {
         //access
         std::tuple<std::vector<Types>...> & getStorage() { return m_vectorTuple; }
         
+        
         constexpr unsigned int numTypes() { return std::tuple_size<std::tuple<std::vector<Types>...> >::value; }
         
         template<unsigned int systemType>
@@ -46,7 +47,7 @@ namespace Gauss {
             
             return std::get<systemType>(m_vectorTuple)[index];
         }
-            
+        
     protected:
            std::tuple<std::vector<Types>...> m_vectorTuple;
         
@@ -71,7 +72,7 @@ namespace Gauss {
         }
     };
     
-    //terminate recursuction
+    //terminate recursion
     template<typename T, typename Func>
     class forEachClass<T,Func,0>
     {
@@ -85,11 +86,47 @@ namespace Gauss {
             
         }
     };
+
+    //these loops give me the tuple and vector index of the paricular item
+    template<typename T, typename Func,unsigned int index>
+    class forEachIndexClass
+    {
+    public:
+        inline forEachIndexClass(T &tuple, Func &f) {
+            
+            forEachIndexClass<T, Func, index-1>(tuple, f);
+            
+            for(unsigned int ii=0; ii<std::get<index>(tuple).size(); ++ii)
+            {
+                f(index, ii, std::get<index>(tuple)[ii]);
+            }
+            
+        }
+    };
     
+    //terminate recursion
+    template<typename T, typename Func>
+    class forEachIndexClass<T,Func,0>
+    {
+    public:
+        inline forEachIndexClass(const T &tuple, Func &f) {
+            
+            for(unsigned int ii=0; ii<std::get<0>(tuple).size(); ++ii)
+            {
+                f(0, ii, std::get<0>(tuple)[ii]);
+            }
+        }
+    };
+
     //convenience functions
     template<typename ...T, typename Func>
     inline void forEach(MultiVector<T...> &mv, Func func) {
         forEachClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
+    }
+    
+    template<typename ...T, typename Func>
+    inline void forEachIndex(MultiVector<T...> &mv, Func func) {
+        forEachIndexClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
     }
     
     //recursively touch each vector in the multivector (could probably build all these functions out of

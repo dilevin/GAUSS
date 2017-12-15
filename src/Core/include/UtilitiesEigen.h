@@ -26,7 +26,10 @@ namespace Eigen {
     
     template<typename DataType>
     using MatrixXx = Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>;
-    
+
+    template<typename DataType>
+    using Matrix33x = Eigen::Matrix<DataType, 3, 3>;
+
     //Comes up a lot in constitutive models
     template<typename DataType>
     using Matrix66x = Eigen::Matrix<DataType, 6,6>;

@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     
     ForceSpringParticles<double> *forceSpring = new ForceSpringParticles<double>(PosParticle<double>(&test->getQ()),
                                                                                  PosParticle<double>(&test1->getQ()),
-                                                                                 5.0, 2.0);
+                                                                                 5.0, 200.0);
     
     world.addSystem(test);
     world.addSystem(test1);

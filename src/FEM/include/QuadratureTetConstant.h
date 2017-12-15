@@ -23,7 +23,12 @@ namespace Gauss {
             inline QuadratureTetConstant(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             Energy(V,F,qDOFList, qDotDOFList){ }
             
-            inline void getValue(DataType &f, State<DataType> &state) {
+            inline double getValue(const State<DataType> &state) {
+                DataType w = static_cast<DataType>(Energy::volume());
+                
+                Eigen::Vector3x<DataType> x;
+                
+                return w*Energy::getValue(Energy::x(0.0,0.0,0.0).data(), state);
                 
             }
             

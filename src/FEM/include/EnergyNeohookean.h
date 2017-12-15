@@ -8,7 +8,7 @@ class EnergyNeohookean : public ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyNeohookean(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
-        setParameters(1e5, 0.45);
+        setParameters(5e5, 0.45);
         
     }
     
@@ -16,6 +16,13 @@ public:
         m_C = (youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
         m_D = youngsModulus/(2.0*(1.0+poissonsRatio));
         
+    }
+    
+    inline DataType getValue(double *x, const State<DataType> &state) {
+    
+        Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
+        double detF = F.determinant();
+        return m_C*std::pow(detF,-2.0/3.0)*((F.transpose()*F).trace() - 3) + m_D*(detF - 1)*(detF - 1);
     }
     
     template<typename Vector>

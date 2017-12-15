@@ -33,6 +33,13 @@ namespace Gauss {
                 return m_dofList[index];
             }
             
+            
+            inline const DOF<DataType, PropertyIndex> & operator[](unsigned int index) const {
+                assert(index < m_dofList.size());
+                return m_dofList[index];
+            }
+
+            
             constexpr unsigned int getIndex() { return PropertyIndex; }
             
             

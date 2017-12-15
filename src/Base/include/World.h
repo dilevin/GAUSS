@@ -15,6 +15,8 @@
  */
 namespace Gauss
 {
+    
+    //Systems Index for accessing things in the world
     template<typename DataType, typename Impl> class PhysicalSystem;
     template<typename Datatype, typename Impl > class Force;
     template<typename Datatype, typename Impl > class Constraint;
@@ -47,6 +49,8 @@ namespace Gauss
         inline const MultiVector<ConstraintTypes...> & getConstraintList() const { return m_constraints; }
         inline MultiVector<ConstraintTypes...> & getConstraintList() { return m_constraints; }
         
+        inline const MultiVector<ConstraintTypes...> & getInequalityConstraintList() const { return m_inequalityConstraints; }
+        inline MultiVector<ConstraintTypes...> & getInequalityConstraintList() { return m_inequalityConstraints; }
         
         //Add items to the world
         template<typename Impl>
@@ -57,6 +61,10 @@ namespace Gauss
         
         template<typename Impl>
         int addConstraint(Constraint<DataType, Impl> *constraint);
+        
+        template<typename Impl>
+        int addInequalityConstraint(Constraint<DataType, Impl> *constraint);
+        
         
         //Get globaal properties of the worls
         inline unsigned int getNumQDOFs() const { return m_numQDOFs; }
@@ -93,16 +101,26 @@ namespace Gauss
             return nnz;
         }
 
-        
-        
-        
-        
+        inline unsigned int getInequalityConstraintNNZ()  {
+            unsigned int nnz = 0;
+            forEach(m_inequalityConstraints, [&nnz](auto a) {
+                nnz += a->getNNZ();
+            });
+            return nnz;
+        }
+
         
         //constraint stuff
         inline unsigned int getNumConstraints() const { return m_numConstraints; }
         
+        inline unsigned int getNumInequalityConstraints() const { return m_numInequalityConstraints; }
+        
+        
         //Check memory make sure everything is cool before kicking off calcultions
         int finalize();
+        
+        //Update methods to fix up various numbers and global ids if the state of the world changes
+        int updateInequalityConstraints();
         
     protected:
         
@@ -113,10 +131,12 @@ namespace Gauss
         MultiVector<SystemTypes...> m_systems;
         MultiVector<ForceTypes...> m_forces;
         MultiVector<ConstraintTypes...> m_constraints;
+        MultiVector<ConstraintTypes...> m_inequalityConstraints;
         
         unsigned int m_numQDOFs;
         unsigned int m_numQDotDOFs;
         unsigned int m_numConstraints;
+        unsigned int m_numInequalityConstraints;
         
         State<DataType> m_state;
         
@@ -179,6 +199,14 @@ int World<DataType,std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::t
 }
 
 template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
+template<typename Impl>
+int World<DataType,std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::addInequalityConstraint(Constraint<DataType, Impl> *constraint)
+{
+    m_inequalityConstraints.add(constraint);
+    return 1;
+}
+
+template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
 int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::finalize()
 {
     //start
@@ -210,12 +238,39 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     unsigned int totalConstraints = 0;
     forEach(m_constraints, [&totalConstraints](auto a) {
         a->getIndex().offsetGlobalId(totalConstraints);
-        totalConstraints += a->getIndex().getNumScalarDOF();
+        totalConstraints += a->getNumRows();
     });
     
     m_numConstraints = totalConstraints;
     
+    //update inequality constraints
+    totalConstraints = 0;
+    forEach(m_inequalityConstraints, [&totalConstraints](auto a) {
+        a->getIndex().offsetGlobalId(totalConstraints);
+        totalConstraints += a->getNumRows();
+    });
+    
+    
+    m_numInequalityConstraints = totalConstraints;
+    
     return 1;
+}
+
+template<typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
+int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::tuple<ConstraintTypes...> >::updateInequalityConstraints() {
+    //update inequality constraints
+    unsigned int totalConstraints = 0;
+    World &world = *this;
+    
+    forEach(m_inequalityConstraints, [&totalConstraints, &world](auto a) {
+        a->update(world); //makes sure everything is current
+        a->getIndex().setGlobalId(totalConstraints);
+        totalConstraints += a->getNumRows();
+    });
+
+    m_numInequalityConstraints = totalConstraints;
+    
+    return 1; 
 }
 
 #endif // WORLD_H

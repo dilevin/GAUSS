@@ -25,8 +25,30 @@ namespace Gauss {
             inline QuadratureHex8(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             Energy(V,F,qDOFList, qDotDOFList){ }
             
-            inline void getValue(DataType &f, State<DataType> &state) {
+            inline double getValue(State<DataType> &state) {
+                DataType w = static_cast<DataType>(Energy::volume())/8.0;
+                DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
                 
+                double energy = 0.0;
+                Eigen::Vector3x<DataType> x;
+                
+                energy += w*Energy::getValue(Energy::x(-alpha,-alpha,-alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(alpha,-alpha,-alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(alpha,alpha,-alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(-alpha,alpha,-alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(-alpha,-alpha,alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(alpha,-alpha,alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(alpha,alpha,alpha).data(), state);
+                
+                energy += w*Energy::getValue(Energy::x(-alpha,alpha,alpha).data(), state);
+                
+                return energy; 
             }
             
             template<typename Vector>

@@ -59,7 +59,6 @@ namespace Gauss {
             template<typename Vector>
             inline void getInternalForce(Vector &f, const State<DataType> &state) {
                 QuadratureU::getGradient(f, state);
-
             }
                              
             template<typename Vector>
@@ -85,7 +84,7 @@ namespace Gauss {
             template<typename Vector>
             inline void getBodyForce(Vector &f, const State<DataType> &state) {
                  //Integrate Body Force (send it density function)
-                QuadratureBF::setParams(QuadratureT::getDensity(), 0.0, -9.8, 0.0); //temporary, make more efficient later
+                QuadratureBF::setDensity(QuadratureT::getDensity());
                 QuadratureBF::getGradient(f, state);
             }
                              

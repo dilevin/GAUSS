@@ -13,8 +13,8 @@ public:
     }
     
     inline void setParameters(double youngsModulus, double poissonsRatio) {
-        m_C = (youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
-        m_D = youngsModulus/(2.0*(1.0+poissonsRatio));
+        m_C = 0.5*(youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
+        m_D = 0.5*youngsModulus/(2.0*(1.0+poissonsRatio));
         
     }
     
@@ -22,7 +22,8 @@ public:
     
         Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
         double detF = F.determinant();
-        return m_C*std::pow(detF,-2.0/3.0)*((F.transpose()*F).trace() - 3) + m_D*(detF - 1)*(detF - 1);
+        double J23 = std::pow(detF,-2.0/3.0);
+        return m_C*(((J23*F).transpose()*(J23*F)).trace() - 3) + m_D*(detF - 1)*(detF - 1); //this is wrong and so are the gradient and stiffness matrix should be trace(F*J^-2/3^T blah ...)
     }
     
     template<typename Vector>

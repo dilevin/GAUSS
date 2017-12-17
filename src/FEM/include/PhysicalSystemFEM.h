@@ -112,6 +112,17 @@ namespace Gauss {
                 });
             }
             
+            template<typename Assembler>
+            inline void getInternalForce(Assembler &assembler, const State<DataType> &state) const {
+                //for(auto element : m_elements) {
+                //    element->getForce(assembler, state);
+                //}
+                
+                forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
+                    element->getInternalForce(assemble, state);
+                });
+            }
+            
             inline unsigned int getNumElements() { return m_elements.size(); }
             
             inline ElementType * getElement(unsigned int i) {

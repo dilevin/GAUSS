@@ -149,12 +149,15 @@ namespace Gauss {
             BodyForceGravity(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V,F, qDOFList, qDotDOFList)
             {
                 m_rho = 1;
-                m_g << 0.0,0.0,0.0;
+                m_g << 0.0,-9.8,0.0;
             }
             
-            void setParams(double rho, double gx, double gy, double gz) {
+            inline void setDensity(double rho) {
                 m_rho = rho;
-                m_g << gx,gy,gz;
+            }
+            
+            void setGravity(Eigen::Vector3x<DataType> &g) {
+                m_g = g;
             }
             
             inline  double getValue(double *x, const State<DataType> &state) {

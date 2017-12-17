@@ -133,60 +133,7 @@ namespace Gauss {
         qDot = qDotTmp;
         q = q + dt*qDot;
         
-        /*active_set(
-                   const Eigen::SparseMatrix<AT>& A,
-                   const Eigen::PlainObjectBase<DerivedB> & B,
-                   const Eigen::PlainObjectBase<Derivedknown> & known,
-                   const Eigen::PlainObjectBase<DerivedY> & Y,
-                   const Eigen::SparseMatrix<AeqT>& Aeq,
-                   const Eigen::PlainObjectBase<DerivedBeq> & Beq,
-                   const Eigen::SparseMatrix<AieqT>& Aieq,
-                   const Eigen::PlainObjectBase<DerivedBieq> & Bieq,
-                   const Eigen::PlainObjectBase<Derivedlx> & lx,
-                   const Eigen::PlainObjectBase<Derivedux> & ux,
-                   const igl::active_set_params & params,
-                   Eigen::PlainObjectBase<DerivedZ> & Z
-                   );*.
         
-         
-#ifdef GAUSS_PARDISO
-        m_pardiso.symbolicFactorization(systemMatrix);
-        m_pardiso.numericalFactorization();
-        m_pardiso.solve(*forceVector);
-        x0 = m_pardiso.getX();
-        m_pardiso.cleanup();
-#else
-        //solve system (Need interface for solvers but for now just use Eigen LLt)
-        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
-        solver.compute(systemMatrix);
-        
-        if(solver.info()!=Eigen::Success) {
-            // decomposition failed
-            assert(1 == 0);
-            std::cout<<"Decomposition Failed \n";
-            exit(1);
-        }
-        
-        if(solver.info()!=Eigen::Success) {
-            // solving failed
-            assert(1 == 0);
-            std::cout<<"Solve Failed \n";
-            exit(1);
-        }
-        
-        
-        x0 = solver.solve((*forceVector));
-#endif
-        
-        qDot = x0.head(world.getNumQDotDOFs());
-        
-        m_lagrangeMultipliers = x0.tail(world.getNumConstraints());
-        
-        //update state
-        q = q + dt*qDot;
-        
-        //std::cout<<"Q: "<<q<<"\n";
-    }*/
     }
     
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

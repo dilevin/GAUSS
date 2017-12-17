@@ -51,9 +51,6 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
-    AssemblerEigenSparseMatrix<double> massMatrix;
-    AssemblerEigenVector<double> rhs;
-    
     MyTimeStepper stepper(0.01);
     
     //Display

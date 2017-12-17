@@ -91,30 +91,30 @@ set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/../libigl/include CACHE FILEPATH "
 find_package(Eigen3 REQUIRED)
 
 #GTest (From Masha Shugrina)
-# Google Test
+# Google Test (Not using this right now and its causing build problems so comment out)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download and install
-ExternalProject_Add(
-gtest
-URL https://github.com/google/googletest/archive/release-1.7.0.zip
-PREFIX ${PROJECT_SOURCE_DIR}/ThirdParty/gtest
-INSTALL_DIR ${PROJECT_BINARY_DIR}/lib
-CMAKE_ARGS ${CMAKE_ARGS}
+# Download and instalxl
+#ExternalProject_Add(
+#gtest
+#URL https://github.com/google/googletest/archive/release-1.7.0.zip
+#PREFIX ${PROJECT_SOURCE_DIR}/ThirdParty/gtest
+#INSTALL_DIR ${PROJECT_BINARY_DIR}/lib
+#CMAKE_ARGS ${CMAKE_ARGS}
 # Disable install step
-INSTALL_COMMAND ""
-                )
+#INSTALL_COMMAND ""
+#                )
 
 # Create a libgtest target to be used as a dependency by test programs
-add_library(libgtest IMPORTED STATIC GLOBAL)
-add_dependencies(libgtest gtest)
+#add_library(libgtest IMPORTED STATIC GLOBAL)
+#add_dependencies(libgtest gtest)
 
 # Set gtest properties
-ExternalProject_Get_Property(gtest source_dir binary_dir)
-set_target_properties(libgtest PROPERTIES
-		      "IMPORTED_LOCATION" ${PROJECT_BINARY_DIR}/lib/libgtest.a
-                      "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
-                     )
-
+#ExternalProject_Get_Property(gtest source_dir binary_dir)
+#set_target_properties(libgtest PROPERTIES
+#		      "IMPORTED_LOCATION" ${PROJECT_BINARY_DIR}/lib/libgtest.a
+#                      "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
+#                     )
+#Google test ends here
 
 #Individual feature directories
 include_directories(${EIGEN3_INCLUDE_DIR})

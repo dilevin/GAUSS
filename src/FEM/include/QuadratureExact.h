@@ -274,7 +274,7 @@ namespace Gauss {
             
             using BodyForceGravity<DataType, ShapeFunction>::m_rho;
             using BodyForceGravity<DataType, ShapeFunction>::m_g;
-            using BodyForceGravity<DataType, ShapeFunction>::setParams;
+            using BodyForceGravity<DataType, ShapeFunction>::setBodyForceDensity;
             using ShapeFunction::m_qDofs;
             using ShapeFunction::m_qDotDofs;
             

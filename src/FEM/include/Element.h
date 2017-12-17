@@ -84,7 +84,7 @@ namespace Gauss {
             template<typename Vector>
             inline void getBodyForce(Vector &f, const State<DataType> &state) {
                  //Integrate Body Force (send it density function)
-                QuadratureBF::setDensity(QuadratureT::getDensity());
+                QuadratureBF::setBodyForceDensity(QuadratureT::getDensity());
                 QuadratureBF::getGradient(f, state);
             }
                              

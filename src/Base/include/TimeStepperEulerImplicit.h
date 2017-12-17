@@ -115,7 +115,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     };
     
     auto g = [&world, &massMatrix, &forceVector, &dt, &qDot](auto &a) -> auto & {
-                ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
+        ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
         ASSEMBLELIST(forceVector, world.getForceList(), getForce);
         ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
         ASSEMBLEEND(forceVector);

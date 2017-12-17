@@ -55,6 +55,12 @@ namespace Gauss {
             inline double getEnergy(const State<DataType> &state) {
                 return getKineticEnergy(state)+getPotentialEnergy(state)+getBodyForceWork(state);
             }
+            
+            template<typename Vector>
+            inline void getInternalForce(Vector &f, const State<DataType> &state) {
+                QuadratureU::getGradient(f, state);
+
+            }
                              
             template<typename Vector>
             inline void getForce(Vector &f, const State<DataType> &state) {

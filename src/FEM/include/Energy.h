@@ -152,7 +152,7 @@ namespace Gauss {
                 m_g << 0.0,-9.8,0.0;
             }
             
-            inline void setDensity(double rho) {
+            inline void setBodyForceDensity(double rho) {
                 m_rho = rho;
             }
             

@@ -42,8 +42,12 @@ namespace Gauss {
         
         template <typename Vector>
         inline void getForce(Vector &f, const State<DataType> &state) {
-            
             m_systemImpl.getForce(f, state);
+        }
+
+        template <typename Vector>
+        inline void getInternalForce(Vector &f, const State<DataType> &state) {
+            m_systemImpl.getInternalForce(f, state);
         }
 
         template<typename Assembler>

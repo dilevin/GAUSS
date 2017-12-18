@@ -9,7 +9,7 @@
 #include <tuple>
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitLinear.h>
+#include <TimeStepperEulerImplicit.h>
 #include <type_traits>
 using namespace Gauss;
 using namespace FEM;
@@ -24,7 +24,7 @@ typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
+typedef TimeStepperEulerImplict<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
-    MyTimeStepper stepper(0.01);
+    MyTimeStepper stepper(0.1);
     
     //static solve minimizing the potential energy of an object
     
@@ -102,9 +102,9 @@ int main(int argc, char **argv) {
     };
     
     //solve this using newton's method
-    auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
-    x0.head(world.getNumQDotDOFs()) = mapStateEigen<0>(world);
-    Optimization::newton(E, g, H, solve, x0, update, 1e-5, 1000);
+    //auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
+    //x0.head(world.getNumQDotDOFs()) = mapStateEigen<0>(world);
+    //Optimization::newton(E, g, H, solve, x0, update, 1e-5, 1000);
     
     //Display
     QGuiApplication app(argc, argv);

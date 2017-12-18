@@ -99,7 +99,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     //Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
     //we're going to build equality constraints into our gradient and hessian calcuations
-    auto E = [&world](auto &a) { return getEnergy(world); }; //Not used by Newtons solver currently
+    auto E = [&world](auto &a) { return getEnergy(world); };
     
     auto H = [&world, &massMatrix, &stiffnessMatrix, &dt, &qDot](auto &a)->auto & {
         //get stiffness matrix
@@ -122,7 +122,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         
         (*forceVector).head(world.getNumQDotDOFs()) *= -dt;
         (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*(mapStateEigen<1>(world)-qDot);
-        //(*forceVector) *= -1;
+        
         return (*forceVector);
     };
     
@@ -143,7 +143,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     x0.setZero();
     mapStateEigen<1>(world).setZero();
     //x0.head(world.getNumQDotDOFs()) = mapStateEigen<1>(world);
-    Optimization::newton(E, g, H, solve, x0, update, 10000000, 5);
+    Optimization::newton(E, g, H, solve, x0, update, 1e-8, 100000);
     //std::cout<<mapStateEigen<1>(world)<<"\n";
     
     

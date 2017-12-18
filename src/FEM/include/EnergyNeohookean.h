@@ -23,7 +23,8 @@ public:
         Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
         double detF = F.determinant();
         double J23 = std::pow(detF,-2.0/3.0);
-        return m_C*(((J23*F).transpose()*(J23*F)).trace() - 3) + m_D*(detF - 1)*(detF - 1); //this is wrong and so are the gradient and stiffness matrix should be trace(F*J^-2/3^T blah ...)
+        Eigen::Matrix<DataType, 3,3> Cbar = J23*F.transpose()*F;
+        return m_C*(Cbar.trace() - 3) + m_D*(detF - 1)*(detF - 1); //this is wrong and so are the gradient and stiffness matrix should be trace(F*J^-2/3^T blah ...)
     }
     
     template<typename Vector>

@@ -45,7 +45,7 @@ namespace Gauss {
             
             x0 = x0+alpha*p;
             
-            return (fabs((f(x0) - E0)/E0) < tol1 ? true : false);
+            return (fabs(f(x0) - E0) < tol1 ? true : false);
             
         }
         

@@ -280,11 +280,20 @@ public:
         
     }
     
-    
     template<typename Matrix>
     inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
-        std::cout<<"getCauchyStress not implemented \n";
+        double mu = 50.0;
+        double lambda = 50.0;
+
+        Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
+        double J = F.determinant();
+        auto F_inv_T = F.inverse().transpose();
+
+        auto P = mu * (F - F_inv_T) + lambda * log(J) * F_inv_T;
+
+        S = (P * F.transpose()) / J;
     }
+
     
     inline const DataType & getC() const { return m_C; }
     inline const DataType & getD() const { return m_D; }

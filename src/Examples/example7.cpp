@@ -52,6 +52,11 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
+    AssemblerEigenSparseMatrix<double> stiffness;
+    getStiffnessMatrix(stiffness, world);
+    std::cout<<Eigen::MatrixXd(*stiffness)<<"\n";
+    
+    
     MyTimeStepper stepper(0.01);
     
     stepper.step(world);

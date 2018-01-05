@@ -7,6 +7,7 @@
 #include <Update.h>
 #include <RenderableFEM.h>
 #include <RenderableFEMHex.h>
+#include <RenderableFEMTri.h>
 
 //specific physical system types
 #include <PhysicalSystemParticles.h>

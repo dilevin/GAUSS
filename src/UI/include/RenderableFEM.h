@@ -257,10 +257,10 @@ namespace Gauss {
             
             //scale materials and use them to scale the colors
             //Let's just embrace lambdas
-            auto ymMax = (*std::max_element(m_fem->getImpl().getElements().begin(),
-                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
-            auto ymMin = (*std::min_element(m_fem->getImpl().getElements().begin(),
-                                            m_fem->getImpl().getElements().begin(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+            double ymMax = (*std::max_element(m_fem->getImpl().getElements().begin(),
+                                            m_fem->getImpl().getElements().end(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
+            double ymMin = (*std::min_element(m_fem->getImpl().getElements().begin(),
+                                            m_fem->getImpl().getElements().end(), [](auto a, auto b){ return a->getE() < b->getE(); }))->getE();
             
         
             double dym = (ymMax - ymMin);
@@ -270,7 +270,7 @@ namespace Gauss {
             for(; tetId < numTets; ++tetId) {
                 
                 color =(m_fem->getImpl().getElement(tetId)->getE() - ymMin)/dym;
-                color = 0.0;
+                //color = 0.0;
                 rawVertexArray[idx++] = color*red.x();
                 rawVertexArray[idx++] = red.y();
                 rawVertexArray[idx++] = color*red.z();

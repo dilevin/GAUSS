@@ -13,9 +13,8 @@ public:
     }
     
     inline void setParameters(double youngsModulus, double poissonsRatio) {
-        m_C = 0.5*(youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
-        m_D = 0.5*youngsModulus/(2.0*(1.0+poissonsRatio));
-        
+        m_D = 0.5*(youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
+        m_C = 0.5*youngsModulus/(2.0*(1.0+poissonsRatio));
     }
     
     inline DataType getValue(double *x, const State<DataType> &state) {
@@ -46,7 +45,7 @@ public:
         f33 = F(2,2)+1.0;
         
         //Force Vector computation from Mathematica notebook
-        Eigen::Matrix<DataType, 9,1> dw; //WRONG I FORGET TO DIVIDE BY THE DERIVATIVE :(
+        Eigen::Matrix<DataType, 9,1> dw;
         double C,D;
         C = m_C;
         D = m_D;

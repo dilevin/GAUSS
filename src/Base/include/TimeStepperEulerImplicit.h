@@ -150,7 +150,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-using TimeStepperEulerImplict = TimeStepper<DataType, TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler> >;
+using TimeStepperEulerImplicit = TimeStepper<DataType, TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler> >;
 
 #endif
 #endif /* TimeStepperEulerImplicit_h */

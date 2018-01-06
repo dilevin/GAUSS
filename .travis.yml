@@ -20,6 +20,7 @@ matrix:
         - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DLIBIGL_INCLUDE_PATH=/Users/travis/build/dilevin/GAUSS/libigl/include -DEigen3_DIR=/usr/local/Cellar/eigen/3.3.4/include/eigen3
         - make all 
     - os: linux
+      group: deprecated-2017Q4
       script: 
         - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
         - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++

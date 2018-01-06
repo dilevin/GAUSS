@@ -266,7 +266,7 @@ namespace Gauss {
             double dym = (ymMax - ymMin);
             double color = 0.0;
             dym = (dym > 0 ? dym : 1.0);
-            
+        
             for(; tetId < numTets; ++tetId) {
                 
                 color =(m_fem->getImpl().getElement(tetId)->getE() - ymMin)/dym;

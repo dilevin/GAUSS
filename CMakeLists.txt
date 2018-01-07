@@ -44,9 +44,6 @@ set(GAUSS_BINARY_DIR ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
 
 if(APPLE)
     if(USE_OPENMP)
-        #CMAKE isn't designed to set these here anymore, need to be passed in
-        #set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE PATH "C compiler" FORCE)
-        #set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang++ CACHE PATH "C++ compiler" FORCE)
         set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
         set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)
         set(CMAKE_XCODE_ATTRIBUTE_CC /usr/local/opt/llvm/bin/clang)

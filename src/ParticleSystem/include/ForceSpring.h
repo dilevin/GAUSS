@@ -30,12 +30,11 @@ namespace Gauss {
             }
             
             //forces can give you the energy stored, the force itself and the hessian
-            template<typename Scalar>
-            inline void getEnergy(Scalar &e,  State<DataType> &state) {
+            inline DataType getEnergy(State<DataType> &state) {
                 
                 //spring energy = k*(1.0 - l/l0).^2]
                 DataType l = (1.0-(m_q1(state)-m_q0(state)).norm());
-                e = 0.5*m_k*l*l;
+                return 0.5*m_k*l*l;
             }
             
             //forces always act on at least one DOF of the system this function returns which DOF the are acting on.

@@ -13,9 +13,8 @@ namespace Gauss {
         ~Force() { }
     
         //forces can give you the energy stored, the force itself and the hessian
-        template<typename Scalar>
-        inline void getEnergy(Scalar &e,  State<DataType> &state) {
-            m_impl.energy(e, state);
+        inline DataType getEnergy(State<DataType> &state) {
+            return m_impl.getEnergy(state);
         }
         
         //forces always act on at least one DOF of the system this function returns which DOF the are acting on.

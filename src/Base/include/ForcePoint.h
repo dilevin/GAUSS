@@ -28,11 +28,10 @@ namespace Gauss {
             }
             
             //forces can give you the energy stored, the force itself and the hessian
-            template<typename Scalar>
-            inline void getEnergy(Scalar &e,  State<DataType> &state) {
+            inline DataType getEnergy(State<DataType> &state) {
                 
-                assert(1 == 0);
-                std::cout<<"Force point get energy not implemented yet \n";
+                return -mapDOFEigen(*m_dof, state).dot(m_fPoint);
+                
                 
             }
             

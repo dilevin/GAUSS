@@ -32,7 +32,7 @@ namespace Gauss {
             inline double getDensity() { return m_rho; }
 
             inline DataType getValue(double *x, const State<DataType> &state) {
-                auto v = ShapeFunction::J(x, state)*ShapeFunction::qDot();
+                auto v = ShapeFunction::J(x, state)*ShapeFunction::qDot(state);
                 return 0.5*m_rho*v.transpose()*v;
             }
 

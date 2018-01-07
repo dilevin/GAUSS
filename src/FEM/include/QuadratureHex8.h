@@ -25,7 +25,7 @@ namespace Gauss {
             inline QuadratureHex8(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             Energy(V,F,qDOFList, qDotDOFList){ }
             
-            inline double getValue(State<DataType> &state) {
+            inline double getValue(const State<DataType> &state) {
                 DataType w = static_cast<DataType>(Energy::volume())/8.0;
                 DataType alpha = static_cast<DataType>(sqrt(1.0/3.0));
                 

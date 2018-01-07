@@ -142,7 +142,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 
 include_directories(${GAUSS_INCLUDE_DIR})
-set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "")
+set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "" FORCE)
+set(Gauss_EXT_INCLUDE_DIRS ${GAUSS_INCLUDE_DIR} CACHE STRING " " FORCE)
+set(Gauss_EXT_LIBDIR ${GAUSS_LINK_DIR} CACHE STRING "" FORCE)
 
 if(USE_MATLAB)
     add_subdirectory(${PROJECT_SOURCE_DIR}/src/MATLAB)

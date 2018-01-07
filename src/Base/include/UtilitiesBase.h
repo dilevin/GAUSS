@@ -19,6 +19,10 @@ double getEnergy(World &world) {
         energy += a->getEnergy(world.getState());
     });
     
+    forEach(world.getForceList(), [&energy, &world](auto a) {
+        energy += a->getEnergy(world.getState());
+    });
+    
     return energy;
 }
 

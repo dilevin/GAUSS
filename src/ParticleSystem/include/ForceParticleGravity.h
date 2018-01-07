@@ -28,9 +28,9 @@ namespace Gauss {
             }
             
             //forces can give you the energy stored, the force itself and the hessian
-            template<typename Scalar>
-            inline void getEnergy(Scalar &e,  State<DataType> &state) {
-                
+            inline DataType getEnergy(State<DataType> &state) {
+                std::cout<<"GetEnergy ForceGravity Not implemetned \n";
+                return 0;
             }
             
             //forces always act on at least one DOF of the system this function returns which DOF the are acting on.

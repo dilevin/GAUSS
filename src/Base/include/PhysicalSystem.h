@@ -28,7 +28,8 @@ namespace Gauss {
         }
         
         inline DataType getEnergy(const State<DataType> &state) { return m_systemImpl.getEnergy(state); }
-        inline DataType getPotentialEnergy(const State<DataType> &state) { return m_systemImpl.getPotentialEnergy(state); }
+        inline DataType getStrainEnergy(const State<DataType> &state) { return m_systemImpl.getStrainEnergy(state); }
+        inline decltype(auto) getStrainEnergyPerElement(const State<DataType> &state) { return m_systemImpl.getStrainEnergyPerElement(state); }
         
         template<typename Assembler>
         void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {

@@ -48,12 +48,12 @@ namespace Gauss {
             }
             
                              
-            inline double getPotentialEnergy(const State<DataType> &state) {
+            inline double getStrainEnergy(const State<DataType> &state) {
                 return QuadratureU::getValue(state);
             }
             
             inline double getEnergy(const State<DataType> &state) {
-                return getKineticEnergy(state)+getPotentialEnergy(state)+getBodyForceWork(state);
+                return getKineticEnergy(state)+getStrainEnergy(state)+getBodyForceWork(state);
             }
             
             template<typename Vector>

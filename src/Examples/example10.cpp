@@ -10,6 +10,7 @@
 #include <TimeStepperEulerImplicitLinear.h>
 #include <TimeStepperEulerImplicit.h>
 #include <type_traits>
+#include <UtilitiesFEM.h>
 using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring

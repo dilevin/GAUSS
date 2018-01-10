@@ -17,6 +17,8 @@ set(LLVM_BIN "/usr/local/opt/llvm/bin" CACHE STRING "CLANG Binary Directory such
 set(LLVM_LIB "/usr/local/opt/llvm/lib" CACHE STRING "CLANG Lib Directory such as /usr/local/opt/llvm/lib")
 set(LLVM_INCLUDE "/usr/local/opt/llvm/lib/clang/4.0.1/include" CACHE STRING "CLANG Header Directory such as /usr/local/opt/llvm/include")
 
+set(CMAKE_C_COMPILER ${LLVM_BIN}/clang CACHE PATH "C compiler" FORCE)
+set(CMAKE_CXX_COMPILER ${LLVM_BIN}/clang++ CACHE PATH "C++ compiler" FORCE)
 
 ### Paradiso
 set(USE_PARDISO OFF CACHE BOOL "Use Pardiso if it is available to you")

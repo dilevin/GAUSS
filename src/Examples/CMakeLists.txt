@@ -22,6 +22,8 @@ if(USE_PARDISO)
 	target_link_libraries(Example11 Core Base FEM Optimization UI ${GAUSS_LIBS})
 endif(USE_PARDISO)
 
+add_executable(Example13 example13.cpp)
+
 target_link_libraries(Example1 Core Base UI ${GAUSS_LIBS})
 target_link_libraries(Example2 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example3 Core Base FEM UI ${GAUSS_LIBS})
@@ -38,6 +40,6 @@ target_link_libraries(Example5 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example7 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example9 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example10 Core Base FEM UI ${GAUSS_LIBS})
-
+target_link_libraries(Example13 Core Base FEM UI ${GAUSS_LIBS})
 
 

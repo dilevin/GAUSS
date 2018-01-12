@@ -14,7 +14,7 @@ using namespace ParticleSystem; //For Force Spring
 typedef PhysicalSystemFEM<double, LinearPlaneStrainTri> FEMPlaneStrainTri;
 
 typedef World<double, std::tuple<FEMPlaneStrainTri *>, std::tuple<ForceSpringFEMParticle<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double> > MyTimeStepper;
+typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 

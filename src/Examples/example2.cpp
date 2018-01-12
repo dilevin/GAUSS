@@ -18,7 +18,7 @@ using namespace ParticleSystem; //For Force Spring
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>, std::tuple<ForceSpringFEMParticle<double> *>, std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplictLinear<double, AssemblerEigenSparseMatrix<double>,
+typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;

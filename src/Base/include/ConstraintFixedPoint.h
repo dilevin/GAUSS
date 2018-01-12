@@ -12,6 +12,7 @@
 #include <Constraint.h>
 #include <DOFParticle.h>
 #include <UtilitiesEigen.h>
+#include <iterator>
 
 namespace Gauss {
     template<typename DataType>
@@ -89,6 +90,81 @@ namespace Gauss {
         for(auto iV : minV) {
             world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
         }
+    }
+    
+    //Utility functions to fix a bunch of points
+    template<typename FEMSystem>
+    Eigen::VectorXi minVertices(FEMSystem *system, unsigned int dim = 0) {
+        
+        
+        //find all vertices with minimum x coordinate and fix DOF associated with them
+        auto minX = system->getImpl().getV()(0,dim);
+        std::vector<unsigned int> minV;
+        
+        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(system->getImpl().getV()(ii,dim) < minX) {
+                minX = system->getImpl().getV()(ii,dim);
+                minV.clear();
+                minV.push_back(ii);
+            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < 1e-5) {
+                minV.push_back(ii);
+            }
+        }
+        
+        Eigen::VectorXi indices(minV.size());
+        
+        //add a bunch of constraints
+        for(unsigned int iV = 0; iV < minV.size(); ++iV) {
+            indices(iV) = minV[iV];
+        }
+        
+        return indices;
+    }
+
+    
+    template<typename World, typename FEMSystem, typename DataType = double>
+    Eigen::SparseMatrix<DataType> fixedPointProjectionMatrix(Eigen::VectorXi &indices, FEMSystem &system,World &world) {
+        
+        std::vector<Eigen::Triplet<DataType> > triplets;
+        Eigen::SparseMatrix<DataType> P;
+        Eigen::VectorXi sortedIndices = indices;
+        std::sort(sortedIndices.data(), sortedIndices.data()+indices.rows());
+        
+        //build a projection matrix P which projects fixed points out of a physical syste
+        int fIndex = 0;
+        
+        //total number of DOFS in system
+        
+        unsigned int n = mapStateEigen<0>(world).rows();
+        unsigned int m = mapStateEigen<0>(world).rows() - 3*indices.rows();
+        
+        P.resize(m,n);
+        
+        //number of unconstrained DOFs
+        unsigned int rowIndex =0;
+        for(unsigned int vIndex = 0; vIndex < system.getImpl().getV().rows(); vIndex++) {
+            
+            while((vIndex < system.getImpl().getV().rows()) && (fIndex < sortedIndices.rows()) &&(vIndex == sortedIndices[fIndex])) {
+                fIndex++;
+                vIndex++;
+            }
+            
+            if(vIndex == system.getImpl().getV().rows())
+                break;
+            
+            //add triplet into matrix
+            triplets.push_back(Eigen::Triplet<DataType>(system.getQ().getGlobalId() +rowIndex, system.getQ().getGlobalId() + 3*vIndex,1));
+            triplets.push_back(Eigen::Triplet<DataType>(system.getQ().getGlobalId() +rowIndex+1, system.getQ().getGlobalId() + 3*vIndex+1, 1));
+            triplets.push_back(Eigen::Triplet<DataType>(system.getQ().getGlobalId() +rowIndex+2, system.getQ().getGlobalId() + 3*vIndex+2, 1));
+            
+            rowIndex+=3;
+        }
+        
+        P.setFromTriplets(triplets.begin(), triplets.end());
+        
+        //build the matrix and  return
+        return P;
     }
 
     

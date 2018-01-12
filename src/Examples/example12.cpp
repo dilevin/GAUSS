@@ -23,7 +23,7 @@ typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<do
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *, MyCollisionDetector *> > MyWorld;
 
-typedef TimeStepperEulerImplictLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
+typedef TimeStepperEulerImplicitLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;

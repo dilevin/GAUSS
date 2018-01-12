@@ -137,7 +137,7 @@ namespace Gauss {
     }
     
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-    using TimeStepperEulerImplictLinearCollisions = TimeStepper<DataType, TimeStepperImplEulerImplicitLinearCollisions<DataType, MatrixAssembler, VectorAssembler> >;
+    using TimeStepperEulerImplicitLinearCollisions = TimeStepper<DataType, TimeStepperImplEulerImplicitLinearCollisions<DataType, MatrixAssembler, VectorAssembler> >;
     }
 }
 #endif /* TimeStepperEulerImplicitLinearCollisions_h */

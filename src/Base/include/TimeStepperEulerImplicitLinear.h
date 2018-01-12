@@ -161,7 +161,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-using TimeStepperEulerImplictLinear = TimeStepper<DataType, TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler> >;
+using TimeStepperEulerImplicitLinear = TimeStepper<DataType, TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler> >;
 
 
 

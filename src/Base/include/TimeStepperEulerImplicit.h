@@ -99,7 +99,8 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     //Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
     //we're going to build equality constraints into our gradient and hessian calcuations
-    auto E = [&world](auto &a) { return getEnergy(world); };
+    auto E = [&world, &massMatrix, &qDot](auto &a) { return (getEnergy(world) -
+                                                             mapStateEigen<1>(world).transpose()*(*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*qDot); };
     
     auto H = [&world, &massMatrix, &stiffnessMatrix, &dt, &qDot](auto &a)->auto & {
         //get stiffness matrix

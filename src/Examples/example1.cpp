@@ -16,7 +16,7 @@ typedef World<double,
               std::tuple<ForceSpringParticles<double> *>,
               std::tuple<ConstraintFixedPoint<double> *> >  MyWorld;
 
-typedef TimeStepperEulerImplictLinear<double,
+typedef TimeStepperEulerImplicitLinear<double,
                                       Assembler<double, AssemblerImplEigenSparseMatrix>,
                                       Assembler<double, AssemblerImplEigenVector> > MyTimeStepper;
 

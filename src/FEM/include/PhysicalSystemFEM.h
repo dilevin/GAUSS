@@ -76,6 +76,26 @@ namespace Gauss {
                 
                 return energy;
             }
+
+            DataType getStrainEnergy(const State<DataType> &state) const {
+                
+                double energy = 0.0;
+                for(auto &element : m_elements) {
+                    energy += element->getStrainEnergy(state);
+                }
+                
+                return energy;
+            }
+
+            decltype(auto) getStrainEnergyPerElement(const State<DataType> &state) const {
+                Eigen::VectorXx<DataType> energyPerElement(m_elements.size());
+
+                for(int i=0; i < m_elements.size(); i++) {
+                    energyPerElement[i] = m_elements[i]->getStrainEnergy(state);                
+                }
+                
+                return energyPerElement;
+            }
             
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {

@@ -120,8 +120,8 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     
     LBFGSpp::LBFGSParam<DataType> param;
     param.epsilon = 1e-3;
-    param.max_iterations = 1000;
-    param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE;
+    param.max_iterations = 100;
+    param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
     
     // Create solver and function object
     LBFGSpp::LBFGSSolver<DataType> m_solver(param);

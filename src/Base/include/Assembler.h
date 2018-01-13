@@ -88,8 +88,8 @@ namespace Gauss {
         }
         
     protected:
-        unsigned int m_rowOffset;
-        unsigned int m_colOffset;
+        int m_rowOffset;
+        int m_colOffset;
     private:
         
     };
@@ -108,7 +108,7 @@ namespace Gauss {
         Assembler() : m_impl() {  }
         ~Assembler() { }
         
-        inline void init(unsigned int m, unsigned int n=1, unsigned int rowOffset = 0, unsigned int colOffset = 0) {
+        inline void init(unsigned int m, unsigned int n=1, int rowOffset = 0, int colOffset = 0) {
             m_impl.setOffset(0,0);
             m_impl.init(m,n);
         }
@@ -134,7 +134,7 @@ namespace Gauss {
             m_impl.assemble(i, toAssemble);
         }
         
-        inline void setOffset(unsigned int rowOffset, unsigned int colOffset = 0) {
+        inline void setOffset(int rowOffset, int colOffset = 0) {
             m_impl.setOffset(rowOffset, colOffset);
         }
         
@@ -144,8 +144,8 @@ namespace Gauss {
     private:
     
         Impl m_impl; //specific implementation
-        unsigned int m_rowOffset;
-        unsigned int m_colOffset;
+        int m_rowOffset;
+        int m_colOffset;
     };
 }
 
@@ -403,13 +403,14 @@ namespace Gauss {
 
     };
 
+    //for matrices
     //equals operator (just selects out for assembler at compile time
     template<typename A, typename B, typename I, typename J, unsigned int Operation=0>
     inline void assign(A &a, B &b, I &&i, J &&j) {
         static_if<isAssembler<typename std::remove_reference<A>::type>::val()>([&](auto f){
-            static_if<Operation==0>([&](auto f) {
+            static_if<Operation==0>([&](auto f) { //don't transpose
                 f(a).set(i, j, b);
-            }).else_([&](auto f) {
+            }).else_([&](auto f) { //transpose
                 f(a).set(j,i,b);
             });
         }).else_([&](auto f) {
@@ -417,6 +418,7 @@ namespace Gauss {
         });
     }
     
+    //for vectors
     //equals operator (just selects out for assembler at compile time
     template<typename A, typename B, typename I>
     inline void assign(A &a, B &b, I &&i) {

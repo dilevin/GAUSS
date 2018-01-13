@@ -55,6 +55,27 @@ void getForceVector(Matrix &forceVector, World &world) {
     ASSEMBLEEND(forceVector);
 }
 
+template<typename Matrix, typename System, typename World>
+void getForceVector(Matrix &forceVector, System &system, World &world) {
+    ASSEMBLEVECINIT(forceVector, system.getQ().getNumScalarDOF());
+    forceVector.setOffset(-system.getQ().getGlobalId(), 0);
+    system.getForce(forceVector, world.getState());
+    //ASSEMBLELIST(forceVector, world.getForceList(), getForce);
+    //ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
+    ASSEMBLEEND(forceVector);
+}
+
+template<typename Matrix, typename System, typename World>
+void getInternalForceVector(Matrix &forceVector, System &system, World &world) {
+    ASSEMBLEVECINIT(forceVector, system.getQ().getNumScalarDOF());
+    forceVector.setOffset(-system.getQ().getGlobalId(), 0);
+    system.getInternalForce(forceVector, world.getState());
+    //ASSEMBLELIST(forceVector, world.getForceList(), getForce);
+    //ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
+    ASSEMBLEEND(forceVector);
+}
+
+
 //add in the constraints
 template<typename Matrix, typename World>
 void getConstraintMatrix(Matrix &constraintMatrix, World &world) {

@@ -67,7 +67,9 @@ int main(int argc, char **argv) {
     q1[0] = 5.0;
     q1[1] = 7.0;
     
-    
+    AssemblerEigenVector<double> force;
+    getInternalForceVector(force, *test, world);
+    std::cout<<*force<<"\n";
     MyTimeStepper stepper(0.01);
     
     //Display

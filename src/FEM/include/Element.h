@@ -86,6 +86,7 @@ namespace Gauss {
                  //Integrate Body Force (send it density function)
                 QuadratureBF::setBodyForceDensity(QuadratureT::getDensity());
                 QuadratureBF::getGradient(f, state);
+                
             }
                              
         protected:

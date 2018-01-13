@@ -170,7 +170,6 @@ namespace Gauss {
 
                 //assuming force does same rate of work so generalized force = J'T*f
                 f = ShapeFunction::J(x,state).transpose()*m_rho*m_g;
-
             }
 
             template<typename Matrix>

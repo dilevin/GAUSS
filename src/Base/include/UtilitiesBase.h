@@ -10,6 +10,8 @@
 
 #include <Assembler.h>
 #include <PhysicalSystem.h>
+#include <igl/boundary_facets.h>
+#include <igl/writeOBJ.h>
 
 template<typename World>
 double getEnergy(World &world) {
@@ -110,7 +112,6 @@ struct SystemIndex {
 };
 
 
-
 class PassSystem {
     
 public:
@@ -120,6 +121,7 @@ public:
     }
     
 };
+
 template<typename SystemList, typename Func, typename ...Params>
 inline decltype(auto) apply(SystemList &list, SystemIndex index, Func &func, Params ...params) {
     PassSystem A;
@@ -132,6 +134,60 @@ inline decltype(auto) apply(SystemList &list, SystemIndex index, Func func, Para
     apply(list.getStorage(), index.type(), A, func, index, params...);
 }
 
+template<typename Geometry>
+inline void writeGeoToFile(std::string filename, Geometry &geo, Eigen::VectorXd &u) {
+    std::cout<<"This write GEO method does nothing\n";
+}
 
+template<>
+inline void writeGeoToFile<std::pair<Eigen::MatrixXd &, Eigen::MatrixXi &> >(std::string filename, std::pair<Eigen::MatrixXd &, Eigen::MatrixXi &> &geo, Eigen::VectorXd &u) {
+    
+    Eigen::MatrixXi B; //boundary facets
+    Eigen::MatrixXd  uMat = Eigen::Map<Eigen::MatrixXd>(u.data(), 3, u.rows()/3);
+    
+    std::cout<<"Writing "<<filename<<"\n";
+    
+    //get the boundary facets for my data then write everything to disk
+    igl::boundary_facets(geo.second, B);
+    
+    B = B.rowwise().reverse().eval();
+    
+    igl::writeOBJ(filename, geo.first+uMat.transpose(), B);
 
+}
+
+//write obj file for each object in scene something like 'simname_objindex_frame_index.obj'
+template<typename World>
+inline void writeWorldToOBJ(std::string folder, std::string simName, World &world, unsigned int frameNumber) {
+    
+    //iterate through world, get geometry for each system and write to OBJ
+    std::cout<<"WARNING Only works for FEM Systems Currently\n";
+    
+    //build protostring for file names
+    std::string firstPart = folder+"/"+simName;
+    unsigned int numObjects = world.getNumSystems();
+    
+    //Loop through every object, check if any points are on the wrong side of the floor, if so
+    //record collision
+    forEachIndex(world.getSystemList(), [&world, &firstPart, &numObjects, &frameNumber](auto type, auto index, auto &a) {
+        
+        auto geo = a->getGeometry();
+        
+        int objID = type*numObjects + index;
+        
+        std::string padFrameNumber = std::string(10-std::to_string(frameNumber).size(), '0').append(std::to_string(frameNumber));
+        
+        std::string outputFile = firstPart + "_"+std::to_string(objID)+"_"+padFrameNumber+".obj";
+    
+        //get object displacuments
+        Eigen::VectorXd disp = mapDOFEigen(a->getQ(), world.getState());
+        
+        writeGeoToFile(outputFile, geo, disp);
+    
+        
+       
+    });
+    
+    
+}
 #endif /* UtilitiesBase_h */

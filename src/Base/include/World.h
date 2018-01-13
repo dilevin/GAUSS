@@ -70,7 +70,7 @@ namespace Gauss
         inline unsigned int getNumQDOFs() const { return m_numQDOFs; }
         inline unsigned int getNumQDotDOFs() const { return m_numQDotDOFs; }
         inline unsigned int getTotalDOFs() const { return m_numQDOFs + m_numQDotDOFs; }
-        
+        inline unsigned int getNumSystems() const { return m_systems.getNumCategories(); }
         //Matrix Storage Stuff
         inline unsigned int getMassNNZ()  {
             unsigned int nnz = 0;

@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
-    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(-0.2,1.0,0.0), Eigen::Vector3d(0.0,-5.0,0.0));
+    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(0.0,1.0,0.0), Eigen::Vector3d(0.0,-5.0,0.0));
     world.addSystem(test);
     world.addInequalityConstraint(&cd);
     world.finalize();

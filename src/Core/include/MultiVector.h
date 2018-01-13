@@ -37,6 +37,7 @@ namespace Gauss {
         //access
         std::tuple<std::vector<Types>...> & getStorage() { return m_vectorTuple; }
         
+        unsigned int getNumCategories() const { return std::tuple_size<std::tuple<std::vector<Types>...> >::value;}
         
         constexpr unsigned int numTypes() { return std::tuple_size<std::tuple<std::vector<Types>...> >::value; }
         

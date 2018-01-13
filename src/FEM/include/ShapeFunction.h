@@ -182,7 +182,9 @@ namespace Gauss {
             }
 
             inline Eigen::Vector3x<DataType> x(double alphaX, double alphaY, double alphaZ) const {
-                return m_x3; //not implemented properly, should convert from barycentric coords to position in tri
+                Eigen::Vector3x<DataType> lambda;
+                lambda << alphaX, alphaY, alphaZ;
+                return m_T.inverse()*lambda + m_x3;
             }
             
             

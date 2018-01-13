@@ -28,7 +28,7 @@ namespace Gauss {
                 
                 Eigen::Vector3x<DataType> x;
                 
-                return w*Energy::getValue(Energy::x(0.0,0.0,0.0).data(), state);
+                return w*Energy::getValue(Energy::x(0.333,0.333,0.333).data(), state);
                 
             }
             
@@ -41,7 +41,7 @@ namespace Gauss {
                 Eigen::Vector3x<DataType> x;
                 fInt.setZero();
                 
-                Energy::getGradient(fInt, Energy::x(0.0,0.0,0.0).data(), state);
+                Energy::getGradient(fInt, Energy::x(0.25,0.25, 0.25).data(), state);
                 fInt *= w;
                 assign(f, fInt, Energy::m_qDofs);
                 
@@ -56,7 +56,7 @@ namespace Gauss {
                 Eigen::Vector3x<DataType> x;
                 HInt.setZero();
                 
-                Energy::getHessian(HInt, Energy::x(0.0, 0.0,0.0).data(), state);
+                Energy::getHessian(HInt, Energy::x(0.333, 0.333,0.333).data(), state);
                 HInt *= w;
                 assign(H, HInt, Energy::m_qDofs, Energy::m_qDofs);
                 

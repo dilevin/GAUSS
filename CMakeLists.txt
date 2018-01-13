@@ -154,6 +154,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 
 set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/LBFGS++/include)
+
 include_directories(${GAUSS_INCLUDE_DIR})
 
 set(Gauss_EXT_LIBS ${GAUSS_LIBS} CACHE STRING "" FORCE)

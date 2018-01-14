@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
     test1->getImpl().setMass(1000);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
-                                                                                     4.0, 400000.0);
+                                                                                     5, 20000.0);
     world.addSystem(test);
     world.addSystem(test1);
     world.addForce(forceSpring);
@@ -67,10 +67,7 @@ int main(int argc, char **argv) {
     q1[0] = 5.0;
     q1[1] = 7.0;
     
-    AssemblerEigenVector<double> force;
-    getInternalForceVector(force, *test, world);
-    std::cout<<*force<<"\n";
-    MyTimeStepper stepper(0.01);
+    MyTimeStepper stepper(0.1);
     
     //Display
     QGuiApplication app(argc, argv);

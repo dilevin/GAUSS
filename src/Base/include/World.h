@@ -262,6 +262,14 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     unsigned int totalConstraints = 0;
     World &world = *this;
     
+    forEach(m_constraints, [&totalConstraints](auto a) {
+        a->getIndex().offsetGlobalId(totalConstraints);
+        totalConstraints += a->getNumRows();
+    });
+    
+    m_numConstraints = totalConstraints;
+    totalConstraints = 0;
+    
     forEach(m_inequalityConstraints, [&totalConstraints, &world](auto a) {
         a->update(world); //makes sure everything is current
         a->getIndex().setGlobalId(totalConstraints);

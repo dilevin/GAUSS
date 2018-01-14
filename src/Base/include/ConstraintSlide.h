@@ -39,7 +39,8 @@ namespace Gauss {
         template<typename Vector>
         inline void getFunction(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
             
-            Eigen::Vector3d func = m_val - mapDOFEigen(*m_dofFixed, state)[m_dir];
+            Eigen::Matrix<double,1,1> func;
+            func(0) = m_val - mapDOFEigen(*m_dofFixed, state)[m_dir];
             assign(f, func, std::array<ConstraintIndex,1>{{index}});
         }
         

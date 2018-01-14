@@ -29,6 +29,9 @@ namespace Gauss {
             m_p0 = pos;
         }
         
+        auto & getFixedPoint() {
+            return m_p0;
+        }
         ~ConstraintFixedPointImpl() { }
         
         constexpr unsigned int getNumRows() { return 3; }
@@ -94,20 +97,20 @@ namespace Gauss {
     
     //Utility functions to fix a bunch of points
     template<typename FEMSystem>
-    Eigen::VectorXi minVertices(FEMSystem *system, unsigned int dim = 0) {
+    Eigen::VectorXi maxVertices(FEMSystem *system, unsigned int dim = 0) {
         
         
         //find all vertices with minimum x coordinate and fix DOF associated with them
-        auto minX = system->getImpl().getV()(0,dim);
+        auto maxX = system->getImpl().getV()(0,dim);
         std::vector<unsigned int> minV;
         
         for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
-            if(system->getImpl().getV()(ii,dim) < minX) {
-                minX = system->getImpl().getV()(ii,dim);
+            if(system->getImpl().getV()(ii,dim) > maxX) {
+                maxX = system->getImpl().getV()(ii,dim);
                 minV.clear();
                 minV.push_back(ii);
-            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < 1e-5) {
+            } else if(fabs(system->getImpl().getV()(ii,dim) - maxX) < 1e-5) {
                 minV.push_back(ii);
             }
         }
@@ -122,7 +125,7 @@ namespace Gauss {
         return indices;
     }
 
-    
+
     template<typename World, typename FEMSystem, typename DataType = double>
     Eigen::SparseMatrix<DataType> fixedPointProjectionMatrix(Eigen::VectorXi &indices, FEMSystem &system,World &world) {
         

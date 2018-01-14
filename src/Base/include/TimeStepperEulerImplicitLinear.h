@@ -92,8 +92,9 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
     ASSEMBLELIST(forceVector, world.getForceList(), getForce);
     ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
+    ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getFunction, world.getNumQDotDOFs(), 0);
     ASSEMBLEEND(forceVector);
-    
+
     //toMatlab(*constraintMatrix, "./testConstraintMat");
     //std::cout<<*constraintVector<<"\n";
     //ASSEMBLEMAT(world, massMatrix, getNumQDotDOFs, getNumQDotDOFs, getMassMatrix);

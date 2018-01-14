@@ -88,6 +88,11 @@ namespace Gauss {
         //how many DOFs are involved in this constraint
         unsigned int getNumDOF() { return m_impl.getNumDOF(); }
         
+        template <typename World, typename Matrix>
+        inline void getFunction(Matrix &g,  World &world, const State<DataType> &state) {
+            m_impl.getFunction(g, state, m_index);
+        }
+        
         template <typename World, typename Matrix, unsigned int Operation=0>
         inline void getGradient(Matrix &g,  World &world, const State<DataType> &state) {
             m_impl.template getGradient<World, Matrix,Operation>(g, world, state, m_index);
@@ -97,6 +102,8 @@ namespace Gauss {
         inline void update(World &world) {
             callUpdate(m_impl, world, 0);
         }
+        
+        inline auto & getImpl() { return m_impl; }
     protected:
         
         Impl m_impl;

@@ -119,9 +119,11 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
         ASSEMBLELIST(forceVector, world.getForceList(), getForce);
         ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
+        ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getFunction, world.getNumQDotDOFs(), 0);
         ASSEMBLEEND(forceVector);
         
         (*forceVector).head(world.getNumQDotDOFs()) *= -dt;
+        (*forceVector).tail(world.getNumConstraints()) *= -1.0;
         (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*(mapStateEigen<1>(world)-qDot);
         
         return (*forceVector);

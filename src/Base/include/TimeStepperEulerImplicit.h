@@ -142,7 +142,6 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     //solve this using newton's method
     auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
     x0.setZero();
-    mapStateEigen<1>(world).setZero();
     //x0.head(world.getNumQDotDOFs()) = mapStateEigen<1>(world);
     Optimization::newton(E, g, H, solve, x0, update, 1e-4, 10000);
     //std::cout<<mapStateEigen<1>(world)<<"\n";

@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
     
+    MyTimeStepper stepper(0.1);
+    
     //Display
     QGuiApplication app(argc, argv);
     

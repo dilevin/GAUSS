@@ -62,6 +62,7 @@ void getForceVector(Matrix &forceVector, System &system, World &world) {
     ASSEMBLEVECINIT(forceVector, system.getQ().getNumScalarDOF());
     forceVector.setOffset(-system.getQ().getGlobalId(), 0);
     system.getForce(forceVector, world.getState());
+    
     //ASSEMBLELIST(forceVector, world.getForceList(), getForce);
     //ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
     ASSEMBLEEND(forceVector);

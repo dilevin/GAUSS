@@ -33,7 +33,12 @@ namespace Gauss {
             inline DataType getEnergy(State<DataType> &state) {
                 
                 //spring energy = k*(1.0 - l/l0).^2]
-                DataType l = (1.0-(m_q1(state)-m_q0(state)).norm());
+                double mag = (m_q1(state)-m_q0(state)).norm();
+                //if(fabs(mag) < 1e-3) {
+                  //  mag = 1e-3;
+                //}
+                
+                DataType l = (1.0- mag/m_l0);
                 return 0.5*m_k*l*l;
             }
             
@@ -77,15 +82,15 @@ namespace Gauss {
                 auto q0 = m_q0(state);
                 auto q1 = m_q1(state);
            
-                double l = (q1-q0).norm();
-                
-                if(fabs(l) < 1e-8) {
-                    l = 1e-8;
-                }
+                double mag = (q1-q0).norm();
                 
                 
-                double strain = 1.0 - l/m_l0;
-                Eigen::Vector3d fSpring = (m_k/(m_l0*m_l0))*strain*(q1-q0)/l;
+                if(fabs(mag) < 1e-8) {
+                    mag = 1e-8;
+               }
+                
+                
+                Eigen::Vector3d fSpring = (m_k/m_l0)*(1.0/mag -1.0/m_l0)*(q1-q0);
                 assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 fSpring = -fSpring;
                 assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}});
@@ -98,17 +103,19 @@ namespace Gauss {
                 auto q0 = m_q0(state);
                 auto q1 = m_q1(state);
                 
-                double l = (q1-q0).norm();
+                Eigen::Vector3x<DataType> dq = q1-q0;
+               
+                double mag = (q1-q0).norm();
+                if(fabs(mag) < 1e-8) {
+                    mag = 1e-8;
+               }
                 
-                if(fabs(l) < 1e-8) {
-                    l = 1e-8;
-                }
+                Eigen::Vector3x<DataType> dqN = dq/mag;
                 
-                
-                double strain = 1.0 - l/m_l0;
-                double b = (m_k/(m_l0*m_l0*l));
-                double a = b*strain;
-                double c = b/l;
+                //double strain = 1.0 - l/m_l0;
+                double b = m_k/m_l0;
+                double a = b*(1.0/mag - 1.0/m_l0);
+                double c = b/(mag);
                 
                 Eigen::Matrix<double, 6,3> B;
                 B << -1,  0,  0,
@@ -119,7 +126,7 @@ namespace Gauss {
                       0,  0,  1;
                 
                 Eigen::Matrix<double, 6,6> Hspring;
-                Hspring = -a*B*B.transpose() + c*B*(q1-q0)*((B*(q1-q0)).transpose());
+                Hspring = a*B*B.transpose() - c*B*dqN*dqN.transpose()*B.transpose();
                 assign(H, Hspring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}}, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 
             }

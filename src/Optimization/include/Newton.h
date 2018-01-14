@@ -18,6 +18,8 @@ namespace Gauss {
             
              //std::cout<<"NORM2: "<<x0.norm()<<"\n";
             //first version is a lazy Newton step with no line search.
+            
+            pscallback(x0);
             double E0 = f(x0);
             auto p = -solver(H(x0), g(x0));
             double gStep = g(x0).transpose()*p;
@@ -25,7 +27,7 @@ namespace Gauss {
             //back tracking line search
             double alpha =1;
             double c = 1e-4; //from Nocedal and Wright pg 31
-            double rho = 0.5;
+            double rho = 0.7;
             
             while(true) {
                 
@@ -38,9 +40,9 @@ namespace Gauss {
                 //std::cout<<f(x0+alpha*p)<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
                 alpha = alpha*rho;
                 
-                if(alpha < 1e-8) {
-                    alpha = 0;
-                }
+                //if(alpha < 1e-8) {
+                  //  alpha = 0;
+                //}
             }
             
             x0 = x0+alpha*p;

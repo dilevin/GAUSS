@@ -79,7 +79,7 @@ namespace Gauss {
 
             DataType getStrainEnergy(const State<DataType> &state) const {
                 
-                double energy = 0.0;
+                DataType energy = 0.0;
                 for(auto &element : m_elements) {
                     energy += element->getStrainEnergy(state);
                 }

@@ -43,6 +43,16 @@ int main(int argc, char **argv) {
     MyWorld world;
     
     //new code -- load tetgen files
+    //Eigen::MatrixXd V(4,3);
+    //Eigen::MatrixXi F(1,4);
+    
+    //V << 0,0,0,
+      //   1,0,0,
+       //  0,1,0,
+        // 0,0,1;
+    
+    //F << 0, 1, 2, 3;
+    
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
@@ -58,7 +68,7 @@ int main(int argc, char **argv) {
     q.setZero();
     
     Eigen::VectorXi indices = minVertices(test, 0);
-    
+        
     Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
     MyTimeStepper stepper(0.1,P);

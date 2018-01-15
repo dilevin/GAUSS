@@ -109,9 +109,11 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
         ASSEMBLEEND(forceVector);
         
         (*forceVector) *= -dt;
+        
         (*forceVector) += (*massMatrix)*(P.transpose()*x - qDot);
         
         grad = P*(*forceVector);
+        
         double E = (getEnergy(world) - x.transpose()*P*(*massMatrix)*qDot);
     
         return E;
@@ -119,8 +121,10 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     };
     
     LBFGSpp::LBFGSParam<DataType> param;
-    param.epsilon = 1e-3;
-    param.max_iterations = 100;
+    param.epsilon = 1e-4;
+    param.max_iterations = 1000;
+    param.past = 5;
+    param.m = 1;
     param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
     
     // Create solver and function object
@@ -128,6 +132,7 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     
     double fx = 0.0;
     Eigen::VectorXd qNew = P*qDot;
+    qNew.setZero();
    
     m_solver.minimize(objective, qNew, fx);
     mapStateEigen<1>(world) = P.transpose()*qNew;

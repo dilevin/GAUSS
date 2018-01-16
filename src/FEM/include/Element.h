@@ -45,11 +45,11 @@ namespace Gauss {
             ~ElementBase() { }
 
             static constexpr unsigned int numDOFs() { return NUM; }
-            
+
             inline decltype(auto) getQDOFList() {
                 return QuadratureU::m_qDofs;
             }
-
+            
             inline double getKineticEnergy(const State<DataType> &state) {
                 return QuadratureT::getValue(state);
             }

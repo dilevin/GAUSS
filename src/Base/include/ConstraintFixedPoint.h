@@ -87,15 +87,9 @@ namespace Gauss {
     template<typename World, typename FEMSystem>
     void fixDisplacementMin(World &world, FEMSystem *system, unsigned int dim = 0, double tolerance=1e-5) {
         //find all vertices with minimum x coordinate and fix DOF associated with them
-        auto minX = system->getImpl().getV()(0,dim);
+        auto minX = system->getImpl().getV().col(dim).minCoeff();
         std::vector<unsigned int> minV;
-        
-        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
-            if(system->getImpl().getV()(ii,dim) < minX) {
-                minX = system->getImpl().getV()(ii,dim);
-            }
-        }
 	   for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
             if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
@@ -122,8 +116,7 @@ namespace Gauss {
                 minX = system->getImpl().getV()(ii,dim);
             }
         }
-	for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
-            
+	    for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
                 minV.push_back(ii);
             }

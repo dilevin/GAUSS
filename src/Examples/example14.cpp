@@ -35,7 +35,7 @@ std::vector<ConstraintFixedPoint<double> *> movingConstraints;
 
 void preStepCallback(MyWorld &world) {
     // This is an example callback
-    
+
     //script some motion
     for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
         if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
@@ -46,20 +46,20 @@ void preStepCallback(MyWorld &world) {
 
 int main(int argc, char **argv) {
     std::cout<<"Test Neohookean FEM \n";
-    
+
     //Setup Physics
     MyWorld world;
-    
+
     //new code -- load tetgen files
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
-    
+
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
-    
+
     FEMLinearTets *test = new FEMLinearTets(V,F);
-    
+
     world.addSystem(test);
-    
+
     fixDisplacementMin(world, test); //fix one side
     Eigen::VectorXi movingVerts = maxVertices(test, 0);//indices for moving parts
 
@@ -67,20 +67,20 @@ int main(int argc, char **argv) {
         movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
         world.addConstraint(movingConstraints[ii]);
     }
-    
+
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
-    
+
     auto q = mapStateEigen(world);
     q.setZero();
-    
+
     MyTimeStepper stepper(0.01);
-    
+
     //Display
     QGuiApplication app(argc, argv);
-    
+
     MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
     GAUSSVIEW(scene);
-    
+
     return app.exec();
-    
+
 }

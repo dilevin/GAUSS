@@ -73,7 +73,7 @@ namespace Gauss {
     
     //Utility functions to fix a bunch of points
     template<typename World, typename FEMSystem>
-    void fixDisplacementMin(World &world, FEMSystem *system, unsigned int dim = 0) {
+    void fixDisplacementMin(World &world, FEMSystem *system, unsigned int dim = 0, double tolerance=1e-5) {
         //find all vertices with minimum x coordinate and fix DOF associated with them
         auto minX = system->getImpl().getV()(0,dim);
         std::vector<unsigned int> minV;
@@ -82,12 +82,61 @@ namespace Gauss {
             
             if(system->getImpl().getV()(ii,dim) < minX) {
                 minX = system->getImpl().getV()(ii,dim);
-                minV.clear();
-                minV.push_back(ii);
-            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < 1e-5) {
+            }
+        }
+	for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
                 minV.push_back(ii);
             }
         }
+        
+        //add a bunch of constraints
+        for(auto iV : minV) {
+            world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
+        }
+    }
+
+    //Utility functions to fix a bunch of points
+    template<typename World, typename FEMSystem>
+    void fixDisplacementMax(World &world, FEMSystem *system, unsigned int dim = 0, double tolerance=1e-5) {
+        //find all vertices with minimum x coordinate and fix DOF associated with them
+        auto minX = system->getImpl().getV()(0,dim);
+        std::vector<unsigned int> minV;
+        
+        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(system->getImpl().getV()(ii,dim) > minX) {
+                minX = system->getImpl().getV()(ii,dim);
+            }
+        }
+	for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
+                minV.push_back(ii);
+            }
+        }
+        
+        //add a bunch of constraints
+        for(auto iV : minV) {
+            world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
+        }
+    }
+
+//Utility functions to fix a bunch of points
+    template<typename World, typename FEMSystem>
+    void fixDisplacementBetween(World &world, FEMSystem *system, unsigned int dim = 0, double x1=0, double x2=0) {
+        //find all vertices with minimum x coordinate and fix DOF associated with them
+        auto minX = system->getImpl().getV()(0,dim);
+	std::vector<unsigned int> minV;
+        
+        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(system->getImpl().getV()(ii,dim) > x1 && system->getImpl().getV()(ii,dim) < x2) {
+                minX = system->getImpl().getV()(ii,dim);
+            }
+        }
+
         
         //add a bunch of constraints
         for(auto iV : minV) {

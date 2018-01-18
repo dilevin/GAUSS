@@ -30,8 +30,8 @@ namespace Gauss {
     {
     public:
         
-        TimeStepperImplEulerImplicit()  {
-            
+        TimeStepperImplEulerImplicit(unsigned int num_iterations)  {
+            m_num_iterations = num_iterations;
         }
         
         TimeStepperImplEulerImplicit(const TimeStepperImplEulerImplicit &toCopy) {
@@ -52,7 +52,7 @@ namespace Gauss {
         MatrixAssembler m_massMatrix;
         MatrixAssembler m_stiffnessMatrix;
         VectorAssembler m_forceVector;
-        
+        unsigned int m_num_iterations;
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
         
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
@@ -145,7 +145,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
     x0.setZero();
     //x0.head(world.getNumQDotDOFs()) = mapStateEigen<1>(world);
-    Optimization::newton(E, g, H, solve, x0, update, 1e-4, 10000);
+    Optimization::newton(E, g, H, solve, x0, update, 1e-4, m_num_iterations);
     //std::cout<<mapStateEigen<1>(world)<<"\n";
     
     

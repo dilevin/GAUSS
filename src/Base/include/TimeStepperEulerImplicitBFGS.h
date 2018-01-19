@@ -56,8 +56,6 @@ namespace Gauss {
         VectorAssembler m_forceVector;
         Eigen::SparseMatrix<DataType> m_P;
         
-        
-        
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
         
     private:
@@ -123,8 +121,8 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     LBFGSpp::LBFGSParam<DataType> param;
     param.epsilon = 1e-4;
     param.max_iterations = 1000;
-    param.past = 5;
-    param.m = 1;
+    param.past = 2;
+    param.m = 5;
     param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
     
     // Create solver and function object

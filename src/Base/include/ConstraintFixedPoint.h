@@ -89,9 +89,7 @@ namespace Gauss {
         //find all vertices with minimum x coordinate and fix DOF associated with them
         auto minX = system->getImpl().getV().col(dim).minCoeff();
         std::vector<unsigned int> minV;
-            
 	   for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
-            
             if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
                 minV.push_back(ii);
             }

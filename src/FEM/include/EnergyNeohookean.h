@@ -6,7 +6,11 @@
 template<typename DataType>
 inline DataType stablePow(DataType a, DataType b) {
     
-    return std::pow(std::cbrt(a),b);
+    
+    return static_cast<DataType> (std::pow(std::cbrt(static_cast<double>(a)),static_cast<double>(b)));
+    //return std::cbrt(std::pow(a,b));
+    //double val = std::pow(std::abs(a),b/3.0);
+    //return val;
     
         
 }
@@ -32,7 +36,7 @@ public:
         J23=1.0/J23;
         //double J23 = 1.0/(std::pow(detF*detF, 1.0/3.0));
         Eigen::Matrix<DataType, 3,3> Cbar = J23*F.transpose()*F;
-        return m_C*(Cbar.trace() - 3) + m_D*(detF - 1)*(detF - 1);
+        return m_C*(Cbar.trace() - 3.0) + m_D*(detF - 1)*(detF - 1);
     }
     
     template<typename Vector>

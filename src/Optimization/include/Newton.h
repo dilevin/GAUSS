@@ -27,7 +27,7 @@ namespace Gauss {
             //back tracking line search
             double alpha =1;
             double c = 1e-4; //from Nocedal and Wright pg 31
-            double rho = 0.8;
+            double rho = 0.5;
             
             while(true) {
                 

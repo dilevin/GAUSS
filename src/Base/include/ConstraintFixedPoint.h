@@ -133,7 +133,7 @@ namespace Gauss {
         for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
             if(system->getImpl().getV()(ii,dim) > x1 && system->getImpl().getV()(ii,dim) < x2) {
-                minX = system->getImpl().getV()(ii,dim);
+                minV.push_back(ii);
             }
         }
 

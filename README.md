@@ -9,6 +9,12 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 5. OPTIONAL: Spectra Eigenproblem Solver (https://spectralib.org)
 
 ### "Easy" Install Scripts ###
+
+Clone this repository with 
+```bash
+git clone --recursive https://github.com/dilevin/GAUSS.git
+```
+
 #### Install Instructions OS X (Basic install, no bells or whistles) ####
 1. Install Homebrew (https://brew.sh)
 2. At command line: chmod a+x ./InstallGAUSS_OSX.sh

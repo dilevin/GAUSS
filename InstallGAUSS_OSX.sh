@@ -15,8 +15,6 @@ sudo hdiutil attach -noverify ./qt-opensource-mac-x64-5.9.0.dmg
 mkdir ./build
 cd ./build
 
-echo "Installing LibIGL from https://github.com/libigl/libigl"
-git clone --recursive https://github.com/libigl/libigl.git ./libigl
 
 echo "Building make files (this can fail if homebrew CMake version is wrong)"
 cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DLIBIGL_INCLUDE_PATH=./libigl/include -DEigen4_DIR=/usr/local/Cellar/eigen/3.3.4/include/eigen3 -DCMAKE_BUILD_TYPE=Release

@@ -60,12 +60,12 @@ int main(int argc, char **argv) {
     MyTimeStepper stepper(0.1, 1000);
 
     //Display
-    //QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
-    //MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
-    //GAUSSVIEW(scene);
+    MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
+    GAUSSVIEW(scene);
 
-    //return app.exec();
-return 1;
+    return app.exec();
+
 
 }

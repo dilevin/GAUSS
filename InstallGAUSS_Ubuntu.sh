@@ -17,10 +17,8 @@ sudo apt-get install libglu1-mesa-dev -y
 sudo apt-get install libfontconfig1
 sudo apt-get install libeigen3-dev
 
-echo "Install libIGL"
 mkdir build
 cd build
-git clone --recursive https://github.com/libigl/libigl.git
 
 echo "Compile GAUSS"
 cmake .. -DCMAKE_PREFIX_PATH=/opt/Qt5.9.0/5.9/gcc_64/lib/cmake -DLIBIGL_INCLUDE_PATH=./libigl/include -DEigen3_DIR=/usr/include/eigen3 -DCMAKE_BUILD_TYPE=Release

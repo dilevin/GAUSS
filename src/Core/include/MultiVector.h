@@ -47,7 +47,7 @@ namespace Gauss {
         
         template<unsigned int systemType>
         inline auto&& get() {
-            static_assert(systemType < numTypes());
+            static_assert(systemType < numTypes(),"");
             
             return std::get<systemType>(m_vectorTuple);
         }

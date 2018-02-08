@@ -37,17 +37,66 @@ namespace Gauss {
         //access
         std::tuple<std::vector<Types>...> & getStorage() { return m_vectorTuple; }
         
-        unsigned int getNumCategories() const { return std::tuple_size<std::tuple<std::vector<Types>...> >::value;}
-        
-        constexpr unsigned int numTypes() { return std::tuple_size<std::tuple<std::vector<Types>...> >::value; }
+        constexpr static unsigned int numTypes() { return sizeof...(Types); }
+
+        template <int... M>
+        using IS = typename std::integer_sequence<int,M...>;
+        constexpr static auto _is() { return std::make_integer_sequence<int,numTypes()>(); }
+
+        unsigned int getNumCategories() const { return numTypes();}
         
         template<unsigned int systemType>
-        inline auto get(unsigned int index) {
-            assert(index < numTypes());
-            assert(index < std::get<systemType>(m_vectorTuple).size());
+        inline auto&& get() {
+            static_assert(systemType < numTypes());
             
-            return std::get<systemType>(m_vectorTuple)[index];
+            return std::get<systemType>(m_vectorTuple);
         }
+        template<unsigned int systemType>
+        inline auto get(unsigned int index) {
+            auto&& myvec = get<systemType>();
+            assert(index < myvec.size());
+            
+            return myvec[index];
+        }
+    template <int... M, typename Func>
+    void forEachVector(IS<M...>, Func&& f) {
+#ifdef __cpp_fold_expressions
+        (f(get<M>()),...); 
+#else
+        (void)std::initializer_list<int>{ (f(get<M>()),0)... };
+#endif
+    }
+    template <typename Func>
+    void forEachVector(Func&& f) { forEachVector(_is(),std::forward<Func>(f)); }
+
+    template <int... M, typename Func>
+    void forEachVectorWithClassIndex(IS<M...>, Func&& f) {
+#ifdef __cpp_fold_expressions
+        (f(M,get<M>()),...); 
+#else
+        (void)std::initializer_list<int>{(f(M,get<M>()),0)...};
+#endif
+    }
+    template <typename Func>
+    void forEachVectorWithClassIndex(Func&& f) { forEachVectorWithClassIndex(_is(),std::forward<Func>(f)); }
+
+    template <typename Func>
+    void forEach(Func&& f) { forEachVector([&](auto&& vec) {
+            for(auto&& v: vec) {
+                f(v);
+            }
+            }); 
+    }
+    template <typename Func>
+    void forEachIndex(Func&& f) { forEachVectorWithClassIndex([&](int ci, auto&& vec) {
+            for(unsigned int i = 0; i < vec.size(); ++i) {
+                f(ci,i,vec[i]);
+            }
+            }); 
+    }
+
+
+
         
     protected:
            std::tuple<std::vector<Types>...> m_vectorTuple;
@@ -57,36 +106,6 @@ namespace Gauss {
     
     
     //utility methods
-    template<typename T, typename Func,unsigned int index>
-    class forEachClass
-    {
-    public:
-        inline forEachClass(T &tuple, Func &f) {
-        
-            forEachClass<T, Func, index-1>(tuple, f);
-        
-            for(auto &itr : std::get<index>(tuple))
-            {
-                f(itr);
-            }
-        
-        }
-    };
-    
-    //terminate recursion
-    template<typename T, typename Func>
-    class forEachClass<T,Func,0>
-    {
-    public:
-        inline forEachClass(T &tuple, Func &f) {
-            
-            for(auto &itr : std::get<0>(tuple))
-            {
-                f(itr);
-            }
-            
-        }
-    };
 
     //these loops give me the tuple and vector index of the paricular item
     template<typename T, typename Func,unsigned int index>
@@ -105,58 +124,21 @@ namespace Gauss {
         }
     };
     
-    //terminate recursion
-    template<typename T, typename Func>
-    class forEachIndexClass<T,Func,0>
-    {
-    public:
-        inline forEachIndexClass(const T &tuple, Func &f) {
-            
-            for(unsigned int ii=0; ii<std::get<0>(tuple).size(); ++ii)
-            {
-                f(0, ii, std::get<0>(tuple)[ii]);
-            }
-        }
-    };
 
-    //convenience functions
     template<typename ...T, typename Func>
     inline void forEach(MultiVector<T...> &mv, Func func) {
-        forEachClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
+        mv.forEach(func);
     }
-    
+
     template<typename ...T, typename Func>
     inline void forEachIndex(MultiVector<T...> &mv, Func func) {
-        forEachIndexClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
+        mv.forEachIndex(func);
     }
     
-    //recursively touch each vector in the multivector (could probably build all these functions out of
-    //lambdas but in a rush now)
-    template<typename T, typename Func,unsigned int index>
-    class eachVectorClass
-    {
-    public:
-        inline eachVectorClass(T &tuple, Func &f) {
-            
-            eachVectorClass<T, Func, index-1>(tuple, f);
-            f(std::get<index>(tuple));
-        }
-    };
     
-    template<typename T, typename Func>
-    class eachVectorClass<T,Func,0>
-    {
-    public:
-        inline eachVectorClass(T &tuple, Func &f) {
-            
-                f(std::get<0>(tuple));
-        }
-    };
-    
-    //convenience functions
     template<typename ...T, typename Func>
     inline void eachVector(MultiVector<T...> &mv, Func func) {
-        eachVectorClass<typename MultiVector<T...>::TupleType,Func,std::tuple_size<typename MultiVector<T...>::TupleType>::value-1>(mv.getStorage(),func);
+        mv.forEachVector(func);
     }
     
     //member functions that need utility code above

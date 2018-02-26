@@ -42,6 +42,7 @@ namespace Gauss {
                 //do Nothing (I don't think I use this for anything really)
             }
 
+
             template<typename Matrix>
             inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
 

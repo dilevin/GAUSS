@@ -14,6 +14,7 @@
 #include <ForceSpring.h>
 #include <UtilitiesEigen.h>
 #include <complex>
+#include <Constraint.h>
 
 //A collection of useful FEM utilities
 
@@ -70,6 +71,43 @@ namespace Gauss {
         
         template<typename DataType>
         using ForceSpringFEMParticle = Force<DataType, ParticleSystem::ForceSpringImpl<DataType, PosFEM<DataType>, ParticleSystem::PosParticle<DataType> > >;
+        
+        //some convenience functions for getting various, useful, assembled matrices
+        //FEM is assumed to be an FEM system
+        //x is a nx3 matrix of points in space, we're going to build the shape function matrix evaluated at each point
+        template<typename Matrix, typename FEM, typename State>
+        void getShapeFunctionMatrix(Matrix &N, Eigen::MatrixXd &x, FEM &fem, State &state) {
+            
+            double y[3];
+            ConstraintIndex cIndex(0, 0, 3); //ConstraintIndices help the assembler understand how rows are handled globally
+                
+                
+            ASSEMBLEMATINIT(N, x.rows(), fem.getQ().getNumScalarDOF());
+        
+            for(unsigned int ii=0; ii<x.rows(); ++ii) {
+                
+                for(unsigned int jj=0; jj<fem.getElements().size(); ++jj) {
+                    //compute shape function matrix for an element, if it has negative values we're outside so carry on.
+                    y[0]= x(ii,0);
+                    y[1]= x(ii,1);
+                    y[2]= x(ii,2);
+                    
+                    auto Jmat = fem.getElements()[jj]->J(y, state);
+                    
+                    if (Jmat.minCoeff() < 0) {
+                        //use the assembler to add it to the current matrix
+                        N.set(cIndex, fem.getElements()[jj]->q(), Jmat);
+                        break;
+                    }
+                    
+                    
+                }
+                
+                cIndex.offsetGlobalId(3); //increment global id by 3 for the next point
+            }
+            
+            ASSEMBLEEND(N);
+        }
     }
 }
 

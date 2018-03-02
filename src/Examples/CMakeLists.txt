@@ -24,6 +24,7 @@ endif(USE_PARDISO)
 
 add_executable(Example13 example13.cpp)
 add_executable(Example14 example14.cpp)
+add_executable(Example15 example15.cpp)
 
 target_link_libraries(Example1 Core Base UI ${GAUSS_LIBS})
 target_link_libraries(Example2 Core Base FEM UI ${GAUSS_LIBS})
@@ -43,4 +44,4 @@ target_link_libraries(Example9 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example10 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example13 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example14 Core Base FEM UI ${GAUSS_LIBS})
-
+target_link_libraries(Example15 Core Base FEM UI ${GAUSS_LIBS})

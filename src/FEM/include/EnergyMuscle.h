@@ -16,8 +16,8 @@ public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyMuscle(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
         setParameters(2e5, 0.45);
-        muscle_magnitude = 5000;
-        fibre_direction(0) = 1;
+        muscle_magnitude = 0;
+        fibre_direction(0) = 0;
         fibre_direction(1) = 0;
         fibre_direction(2) = 0;
         

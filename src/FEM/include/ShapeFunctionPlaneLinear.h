@@ -78,6 +78,7 @@ namespace Gauss {
 
                 //compile time if to get the shape function I want (just returning barycentric coordinates for this
                 //case
+
                 static_if<(Vertex > 0)>([&](auto f){
                     phiOut = m_T.row(Vertex-1)*((Eigen::Map<Eigen::Matrix<DataType, 3,1> >(x) - m_x3).head(2));
                 }).else_([&](auto f) {
@@ -110,16 +111,26 @@ namespace Gauss {
             }
 
             //Kinematics stuff (break into new template class then it suits me
-            template<typename Matrix>
-            inline void F(Matrix &output, State<DataType> &state) {
+            // template<typename Matrix>
+            // inline void F(Matrix &output, State<DataType> &state) {
 
-                Eigen::Map<Eigen::VectorXd> m_q0(mapDOFEigen(*m_qDofs[0], state));
-                Eigen::Map<Eigen::VectorXd> m_q1(mapDOFEigen(*m_qDofs[1], state));
-                Eigen::Map<Eigen::VectorXd> m_q2(mapDOFEigen(*m_qDofs[2], state));
-                output =    m_q0*Eigen::Map<Eigen::VectorXd>(dphi<0>).transpose()+
-                            m_q1*Eigen::Map<Eigen::VectorXd>(dphi<1>).transpose()+
-                            m_q2*Eigen::Map<Eigen::VectorXd>(dphi<2>).transpose();
+            //     Eigen::Map<Eigen::VectorXd> m_q0(mapDOFEigen(*m_qDofs[0], state));
+            //     Eigen::Map<Eigen::VectorXd> m_q1(mapDOFEigen(*m_qDofs[1], state));
+            //     Eigen::Map<Eigen::VectorXd> m_q2(mapDOFEigen(*m_qDofs[2], state));
+            //     output =    m_q0*Eigen::Map<Eigen::VectorXd>(dphi<0>).transpose()+
+            //                 m_q1*Eigen::Map<Eigen::VectorXd>(dphi<1>).transpose()+
+            //                 m_q2*Eigen::Map<Eigen::VectorXd>(dphi<2>).transpose();
 
+            // }
+            inline Eigen::Matrix<DataType, 3,3> F(double *x, const State<DataType> &state) {
+                
+                Eigen::Matrix<DataType,3,3> Ftemp;
+                
+                Ftemp  = mapDOFEigen(*m_qDofs[0], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<0>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[1], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<1>(x).data(),3);
+                Ftemp += mapDOFEigen(*m_qDofs[2], state)*Eigen::Map<Eigen::Matrix<DataType, 1,3> >(dphi<2>(x).data(),3);
+                return Ftemp;
+                
             }
 
             //Jacobian: derivative with respect to degrees of freedom
@@ -188,6 +199,11 @@ namespace Gauss {
                 mapDOFEigen(*m_qDotDofs[2], state);
 
                 return tmp;
+            }
+
+            inline std::array<DOFBase<DataType,0>*,3>  getQDofs()
+            {
+                return m_qDofs;
             }
 
             inline double volume() { return 0.5*m_T.inverse().determinant()*m_thickness; }

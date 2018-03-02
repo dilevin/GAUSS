@@ -30,6 +30,9 @@ namespace Gauss {
         template<typename DataType>
         using LinearPlaneStrainTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionPlaneLinear>;
 
+        template<typename DataType>
+        using MuscleTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionPlaneLinear>;
+
     }
 }
 #endif /* ElementTypes_h */

@@ -29,6 +29,7 @@ add_executable(Example15 example15.cpp)
 target_link_libraries(Example1 Core Base UI ${GAUSS_LIBS})
 target_link_libraries(Example2 Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(Example3 Core Base FEM UI ${GAUSS_LIBS})
+
 if(USE_OPENMP)
 	target_link_libraries(Example4 Core Base FEM UI ${GAUSS_LIBS})
 endif(USE_OPENMP)

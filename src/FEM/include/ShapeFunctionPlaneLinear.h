@@ -159,6 +159,15 @@ namespace Gauss {
 
             }
 
+            //get DOFs
+            inline std::array<DOFBase<DataType,3> *, 8> & q() {
+                return m_qDofs;
+            }
+            
+            inline std::array<DOFBase<DataType,3> *, 8> & qDot() {
+                return m_qDotDofs;
+            }
+            
             inline VectorQ q(const State<DataType> &state) {
 
                 VectorQ tmp;

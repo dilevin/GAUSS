@@ -19,7 +19,7 @@ class EnergyNeohookean : public ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyNeohookean(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
-        setParameters(2e5, 0.45);
+        setParameters(2e6, 0.45);
         
     }
     

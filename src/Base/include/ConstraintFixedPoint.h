@@ -71,6 +71,18 @@ namespace Gauss {
     template<typename DataType>
     using ConstraintFixedPoint = Constraint<DataType, ConstraintFixedPointImpl<DataType> >;
     
+    template<typename World, typename FEMSystem>
+    Eigen::Vector3d getMinXYZ(World &world, FEMSystem *system)
+    {
+        return system->getImpl().getV().colwise().minCoeff();
+    }
+
+    template<typename World, typename FEMSystem>
+    Eigen::Vector3d getMaxXYZ(World &world, FEMSystem *system)
+    {
+        return system->getImpl().getV().colwise().maxCoeff();
+    }
+
     //Utility functions to fix a bunch of points
     template<typename World, typename FEMSystem>
     void fixDisplacementMin(World &world, FEMSystem *system, unsigned int dim = 0, double tolerance=1e-5) {
@@ -84,7 +96,7 @@ namespace Gauss {
                 minX = system->getImpl().getV()(ii,dim);
             }
         }
-	for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+	   for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
             if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
                 minV.push_back(ii);

@@ -187,10 +187,15 @@ namespace Gauss {
                 return m_T.inverse()*lambda + m_x3;
             }
             
+            inline std::array<DOFBase<DataType,0>*,4>  getQDofs()
+            {
+                return m_qDofs;
+            }
             
             inline double volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
             
             constexpr unsigned int getNumVerts() { return 4; }
+            
             
         protected:
             

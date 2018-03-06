@@ -249,7 +249,7 @@ namespace Gauss {
         if(eigs.info() == Spectra::SUCCESSFUL) {
             //correct eigenvalues
             for(unsigned int ii=0; ii<eigs.eigenvalues().rows(); ++ii) {
-                eigs.eigenvalues()[ii] = -static_cast<DataType>(1)/(eigs.eigenvalues()[ii] - shift);
+                eigs.eigenvalues()[ii] = -(static_cast<DataType>(1)/(eigs.eigenvalues()[ii]) + shift);
             }
             return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
         } else {

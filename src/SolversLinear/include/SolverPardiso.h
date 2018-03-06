@@ -72,11 +72,11 @@ public:
         
     }
     
-    int symbolicFactorization(Eigen::SparseMatrix<double, Eigen::RowMajor> &A) {
+    int symbolicFactorization(Eigen::SparseMatrix<double, Eigen::RowMajor> &A, unsigned int nrhs = 1) {
         
         unsigned int nnz = A.nonZeros();
         unsigned int nno = A.outerSize();
-        
+        m_nrhs = nrhs;
         m_innerArray.clear();
         m_a.clear();
         for(unsigned int jj=0; jj<nnz; ++jj) {
@@ -140,12 +140,13 @@ public:
         int phase = 33;
         int      idum = 0;              /* Integer dummy. */
         int error = 0;
+        int nrhs = rhs.cols();
         
-        m_x.resize(rhs.rows(), 1);
+        m_x.resize(rhs.rows(), nrhs);
         m_integerParams[7] = 1;       /* Max numbers of iterative refinement steps. */
         
         pardiso(m_ptr, &m_maxfct, &m_mnum, &m_matrixType, &phase, &m_n, m_a.data(), m_outerArray.data(),
-                m_innerArray.data(), &idum, &m_nrhs, m_integerParams, &m_displayStats, rhs.data(), m_x.data(), &error, m_doubleParams);
+                m_innerArray.data(), &idum, &nrhs, m_integerParams, &m_displayStats, rhs.data(), m_x.data(), &error, m_doubleParams);
         
         /*pardiso (pt, &maxfct, &mnum, &mtype, &phase,
                  &n, a, ia, ja, &idum, &nrhs,
@@ -204,7 +205,7 @@ protected:
     int      m_displayStats;
     std::vector<int> m_outerArray, m_innerArray;
     std::vector<double> m_a;
-    Eigen::VectorXd m_x;
+    Eigen::MatrixXd m_x;
     
 private:
     

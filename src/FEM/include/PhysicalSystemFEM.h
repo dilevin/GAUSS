@@ -143,6 +143,13 @@ namespace Gauss {
                 });
             }
             
+            template<typename Assembler>
+            inline void getBodyForce(Assembler &assembler, const State<DataType> &state) const {
+                forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
+                    element->getBodyForce(assemble, state);
+                });
+            }
+            
             inline unsigned int getNumElements() { return m_elements.size(); }
             
             inline ElementType * getElement(unsigned int i) {

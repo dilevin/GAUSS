@@ -32,6 +32,10 @@ namespace Gauss {
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionHexTrilinear(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) {
 
+                if(F.cols() != 8) {
+                    std::cout<<" ShapeFunctionHexTrilinear: supplied mesh is not a hex mesh \n";
+                    exit(1);
+                }
                 //for the time being assume things come as a stack (qdofs and qdotdofs)
                 m_qDofs[0] = qDOFList[0];
                 m_qDofs[1] = qDOFList[1];

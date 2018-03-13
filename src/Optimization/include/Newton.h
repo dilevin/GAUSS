@@ -21,7 +21,7 @@ namespace Gauss {
             
             pscallback(x0);
             double E0 = f(x0);
-            auto p = -solver(H(x0), g(x0));
+            Vector p = -solver(H(x0), g(x0));
             double gStep = g(x0).transpose()*p;
             
             //back tracking line search

@@ -29,6 +29,8 @@ namespace Gauss {
             template<unsigned int Rows>
             using MatrixDOF = Eigen::Matrix<DataType, Rows, 9>;
 
+            ShapeFunctionPlaneLinear() { }
+                
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionPlaneLinear(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(2,2) {
 

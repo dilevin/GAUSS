@@ -14,13 +14,13 @@ namespace Gauss {
 
         /////// Kinetic Energy Terms //////
         template<typename DataType, typename ShapeFunction>
-        class EnergyKineticNone : public ShapeFunction {
+        class EnergyKineticNone : public virtual ShapeFunction {
 
         };
 
         //Non-lumped kinetic energy
         template<typename DataType, typename ShapeFunction>
-        class EnergyKineticNonLumped : public ShapeFunction {
+        class EnergyKineticNonLumped : public virtual ShapeFunction {
         public:
             template<typename QDOFList, typename QDotDOFList>
             EnergyKineticNonLumped(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
@@ -61,7 +61,7 @@ namespace Gauss {
 
         /////// Potential Energy Terms //////
         template<typename DataType, typename ShapeFunction>
-        class EnergyPotentialNone : public ShapeFunction {
+        class EnergyPotentialNone : public virtual ShapeFunction {
         public:
             template<typename DOFList>
             EnergyPotentialNone(Eigen::MatrixXd &V, Eigen::MatrixXi &F, DOFList &dofList) : ShapeFunction(V,F, dofList) { }
@@ -137,14 +137,14 @@ namespace Gauss {
 
         //////// Body Force Terms /////////
         template<typename DataType, typename ShapeFunction>
-        class BodyForceNone : public ShapeFunction {
+        class BodyForceNone : public virtual ShapeFunction {
         public:
              template<typename QDOFList, typename QDotDOFList, typename ...Params>
             BodyForceNone(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList, Params ...params) : ShapeFunction(V,F, qDOFList, qDotDOFList) { }
         };
 
         template<typename DataType, typename ShapeFunction>
-        class BodyForceGravity : public ShapeFunction {
+        class BodyForceGravity : public virtual ShapeFunction {
         public:
             template<typename QDOFList, typename QDotDOFList>
             BodyForceGravity(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V,F, qDOFList, qDotDOFList)

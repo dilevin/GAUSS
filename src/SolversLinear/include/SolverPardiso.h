@@ -161,7 +161,7 @@ public:
     }
     
     template<typename Vector>
-    Vector & solve(SparseMatrix &A, Vector &b) {
+    const Eigen::MatrixBase<Eigen::MatrixXd> & solve(SparseMatrix &A, Vector &b) {
         symbolicFactorization(A);
         numericalFactorization();
         solve(b);
@@ -184,7 +184,7 @@ public:
     }
     
     
-    inline auto getX() { return m_x; }
+    inline auto & getX() { return m_x; }
     
 protected:
     

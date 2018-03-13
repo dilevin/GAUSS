@@ -29,6 +29,8 @@ namespace Gauss {
             template<unsigned int Rows>
             using MatrixDOF = Eigen::Matrix<DataType, Rows, 24>;
             
+            ShapeFunctionHexTrilinear() { }
+            
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionHexTrilinear(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) {
 

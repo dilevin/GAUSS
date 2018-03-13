@@ -42,6 +42,7 @@ namespace Gauss {
             template<unsigned int Rows>
             using MatrixDOF = Eigen::Matrix<DataType, Rows, 12>;
 
+            ShapeFunctionLinearTet() { }
             
             template<typename QDOFList, typename QDotDOFList>
             ShapeFunctionLinearTet(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(3,3) {

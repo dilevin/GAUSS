@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
     V.resize(4,3);
     F.resize(1,4);
     
-    V << 1,0,0,
+    V << 0,0,0,
+         1,0,0,
          0,1,0,
-         0,0,1,
-         0,0,0;
+         0,0,1;
     F<<0,1,2,3;
     
     //simple test for my shape function matrix code
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     x<< 0.5, 0.5, 0.5;
     
     AssemblerEigenSparseMatrix<double> N;
-    //getShapeFunctionMatrix(N, x, *test, world.getState());
+    getShapeFunctionMatrix(N, x, *test, world.getState());
     
     std::cout<<"Shape function matrix: \n"<<(*N)<<"\n";
     return 0;

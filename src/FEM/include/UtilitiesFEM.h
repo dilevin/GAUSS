@@ -94,7 +94,7 @@ namespace Gauss {
                     
                     auto Jmat = fem.getImpl().getElements()[jj]->J(y, state);
                     
-                    if (Jmat.minCoeff() < 0) {
+                    if (Jmat.minCoeff() >= 0 && Jmat.maxCoeff() > 0) {
                         //use the assembler to add it to the current matrix
                         N.set(std::array<ConstraintIndex,1>{{cIndex}}, fem.getImpl().getElements()[jj]->q(), Jmat);
                         break;

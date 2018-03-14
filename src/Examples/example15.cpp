@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd x;
     x.resize(1,3);
     
-    x<< 0.5, 0.5, 0.5;
+    x<< 0.5, 0.5, 0.0;
     
     AssemblerEigenSparseMatrix<double> N;
     getShapeFunctionMatrix(N, x, *test, world.getState());

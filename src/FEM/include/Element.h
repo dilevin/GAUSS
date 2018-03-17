@@ -17,7 +17,7 @@
 //Elements allow the evaluation of functions over the domain.
 namespace Gauss {
     namespace FEM {
-        template<   typename DataType, unsigned int N,
+        template<   typename DataType, unsigned int NUM,
                     template<typename Type, typename Energy> class QuadratureRuleT,
                     template<typename Type, typename Energy> class QuadratureRuleU,
                     template<typename Type, typename Func> class KineticEnergy,
@@ -44,7 +44,7 @@ namespace Gauss {
             }
             ~ElementBase() { }
             
-            static constexpr unsigned int numDOFs() { return N; }
+            static constexpr unsigned int numDOFs() { return NUM; }
                              
             inline double getKineticEnergy(const State<DataType> &state) {
                 return QuadratureT::getValue(state);

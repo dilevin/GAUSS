@@ -14,6 +14,7 @@ namespace Gauss {
     {
     public:
         
+        using ImplType = Impl;
         /*
          *
          * No interface be

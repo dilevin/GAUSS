@@ -8,6 +8,7 @@
 #include <RenderableFEM.h>
 #include <RenderableFEMHex.h>
 #include <RenderableFEMTri.h>
+#include <RenderableEmbeddedSurface.h>
 
 //specific physical system types
 #include <PhysicalSystemParticles.h>
@@ -166,6 +167,27 @@ namespace Gauss {
         
     };
 
+    //Embedded Mesh
+    template<typename DataType, typename System>
+    class PhysicalEntity<Embeddings::PhysicalSystemEmbeddedMesh<DataType, System> > : public PhysicalEntity<DataType>
+    
+    {
+    public:
+        PhysicalEntity(Embeddings::PhysicalSystemEmbeddedMesh<DataType, System> *system) :
+        PhysicalEntity<DataType>()
+        {
+            PhysicalEntity<DataType>::m_renderableObjects.push_back(new Renderable<typename std::remove_pointer<decltype(system)>::type>(system));
+        }
+        
+        
+        
+    protected:
+        
+        
+    private:
+        
+    };
+    
     
 }
 

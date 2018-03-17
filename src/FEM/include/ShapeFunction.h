@@ -122,10 +122,10 @@ namespace Gauss {
                 
             }
 
-            //Jacobian: derivative with respect to degrees of freedom
-            inline MatrixJ J(double *x, const State<DataType> &state) {
-            
-                 MatrixJ output;
+            //Shape function matrix at point x
+            inline MatrixJ N(double *x) {
+                
+                MatrixJ output;
                 
                 //just a 3x12 matrix of shape functions
                 //kind of assuming everything is initialized before we get here
@@ -142,6 +142,14 @@ namespace Gauss {
                 output.block(0,9, 3,3) = phi3*Eigen::Matrix3d::Identity();
                 
                 return output;
+                
+            }
+            
+            
+            //Jacobian: derivative with respect to degrees of freedom
+            inline MatrixJ J(double *x, const State<DataType> &state) {
+            
+                return N(x);
                 
             }
             

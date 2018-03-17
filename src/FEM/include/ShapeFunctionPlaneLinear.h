@@ -124,6 +124,28 @@ namespace Gauss {
             //                 m_q2*Eigen::Map<Eigen::VectorXd>(dphi<2>).transpose();
 
             // }
+            
+            //matrix quantities I need for things
+            //get interpolating function values, at point x, in matrix form
+            inline MatrixJ N(double *x) {
+                
+                MatrixJ output;
+                
+                //just a 3x12 matrix of shape functions
+                //kind of assuming everything is initialized before we get here
+                double phi0 = phi<0>(x);
+                double phi1 = phi<1>(x);
+                double phi2 = phi<2>(x);
+                
+                output.resize(3,9);
+                output.setZero();
+                output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,3, 3,3) = phi1*Eigen::Matrix<DataType,3,3>::Identity();
+                output.block(0,6, 3,3) = phi2*Eigen::Matrix<DataType,3,3>::Identity();
+                
+                return output;
+            }
+            
             inline Eigen::Matrix<DataType, 3,3> F(double *x, const State<DataType> &state) {
                 
                 Eigen::Matrix<DataType,3,3> Ftemp;
@@ -139,21 +161,7 @@ namespace Gauss {
             //Jacobian: derivative with respect to degrees of freedom
             inline MatrixJ J(double *x, const State<DataType> &state) {
 
-                MatrixJ output;
-
-                //just a 3x12 matrix of shape functions
-                //kind of assuming everything is initialized before we get here
-                double phi0 = phi<0>(x);
-                double phi1 = phi<1>(x);
-                double phi2 = phi<2>(x);
-
-                output.resize(3,9);
-                output.setZero();
-                output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,3>::Identity();
-                output.block(0,3, 3,3) = phi1*Eigen::Matrix<DataType,3,3>::Identity();
-                output.block(0,6, 3,3) = phi2*Eigen::Matrix<DataType,3,3>::Identity();
-
-                return output;
+                return N(*x);
 
             }
 

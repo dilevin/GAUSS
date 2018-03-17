@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     x<< 0.5, 0.5, 0.0;
     
     AssemblerEigenSparseMatrix<double> N;
-    getShapeFunctionMatrix(N, x, *test, world.getState());
+    getShapeFunctionMatrix(N, x, test->getImpl());
     
     std::cout<<"Shape function matrix: \n"<<(*N)<<"\n";
     return 0;

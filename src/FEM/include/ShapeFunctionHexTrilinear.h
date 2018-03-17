@@ -272,9 +272,8 @@ namespace Gauss {
                 return tmp;
             }
 
-            
-            //Jacobian: derivative with respect to degrees of freedom
-            inline MatrixJ J(double *x, const State<DataType> &state) {
+            //Local shape function matrix
+            inline MatrixJ N(double *x) {
                 
                 MatrixJ output;
                 
@@ -288,7 +287,7 @@ namespace Gauss {
                 double phi5 = phi<5>(x);
                 double phi6 = phi<6>(x);
                 double phi7 = phi<7>(x);
-
+                
                 output.resize(3,24);
                 output.setZero();
                 output.block(0,0, 3,3) = phi0*Eigen::Matrix<DataType,3,3>::Identity();
@@ -301,6 +300,12 @@ namespace Gauss {
                 output.block(0,21, 3,3) = phi7*Eigen::Matrix<DataType,3,3>::Identity();
                 
                 return output;
+            }
+            
+            //Jacobian: derivative with respect to degrees of freedom
+            inline MatrixJ J(double *x, const State<DataType> &state) {
+                
+                return N(x);
                 
             }
             

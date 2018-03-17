@@ -20,6 +20,9 @@
 #include "RenderableFEM.h"
 #include "RenderableFEMHex.h"
 
+//Embeddings
+#include "RenderableEmbeddedSurface.h"
+
 #include <TimeStepper.h>
 
 namespace Gauss {

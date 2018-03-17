@@ -9,6 +9,9 @@
 #ifndef GaussIncludes_h
 #define GaussIncludes_h
 
+//libigl includes
+#include <igl/readOBJ.h>
+
 #include <iostream>
 #include <PhysicalSystem.h>
 #include <MultiVector.h>

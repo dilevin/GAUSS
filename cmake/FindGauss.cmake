@@ -63,6 +63,7 @@ set(Gauss_INCLUDE_DIRS  ${Gauss_EXT_INCLUDE_DIRS}
                         ${ParticleSystem_SOURCE_DIR}/include
                         ${FEM_SOURCE_DIR}/include
                         ${Core_SOURCE_DIR}/include
+                        ${Embedding_SOURCE_DIR}/include
                         ${Collisions_SOURCE_DIR}/include
                         ${UI_SOURCE_DIR}/include
                         )

@@ -106,24 +106,18 @@ namespace Gauss {
     template<typename World, typename FEMSystem>
     void fixDisplacementMax(World &world, FEMSystem *system, unsigned int dim = 0, double tolerance=1e-5) {
         //find all vertices with minimum x coordinate and fix DOF associated with them
-        auto minX = system->getImpl().getV()(0,dim);
-        std::vector<unsigned int> minV;
-        
+        auto maxX = system->getImpl().getV().col(dim).maxCoeff();
+        std::vector<unsigned int> maxV;
         for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
-            if(system->getImpl().getV()(ii,dim) > minX) {
-                minX = system->getImpl().getV()(ii,dim);
-            }
-        }
-	    for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
-            if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
-                minV.push_back(ii);
+            if(fabs(system->getImpl().getV()(ii,dim) - maxX) < tolerance) {
+                maxV.push_back(ii);
             }
         }
         
         //add a bunch of constraints
-        for(auto iV : minV) {
-            world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
+        for(auto iV : maxV) {
+            world.addConstraint(new ConstraintFixedPoint<decltype(maxX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
         }
     }
 

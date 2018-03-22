@@ -230,7 +230,7 @@ namespace Gauss {
         //useful differential operators
         //B is the standard matrix form of the engineering linear strain (i.e with cross strains are multiplied by 2)
         template<typename ShapeFunction, typename DataType>
-        typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, double *x, const State<DataType> &state) {
+        inline typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, double *x, const State<DataType> &state) {
             
             typename ShapeFunction::template MatrixDOF<6> tmp;
             

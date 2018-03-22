@@ -59,7 +59,7 @@ namespace Gauss {
             return myvec[index];
         }
     template <int... M, typename Func>
-    void forEachVector(IS<M...>, Func&& f) {
+    inline void forEachVector(IS<M...>, Func&& f) {
 #ifdef __cpp_fold_expressions
         (f(get<M>()),...); 
 #else
@@ -67,10 +67,10 @@ namespace Gauss {
 #endif
     }
     template <typename Func>
-    void forEachVector(Func&& f) { forEachVector(_is(),std::forward<Func>(f)); }
+    inline void forEachVector(Func&& f) { forEachVector(_is(),std::forward<Func>(f)); }
 
     template <int... M, typename Func>
-    void forEachVectorWithClassIndex(IS<M...>, Func&& f) {
+    inline void forEachVectorWithClassIndex(IS<M...>, Func&& f) {
 #ifdef __cpp_fold_expressions
         (f(M,get<M>()),...); 
 #else
@@ -78,17 +78,17 @@ namespace Gauss {
 #endif
     }
     template <typename Func>
-    void forEachVectorWithClassIndex(Func&& f) { forEachVectorWithClassIndex(_is(),std::forward<Func>(f)); }
+    inline void forEachVectorWithClassIndex(Func&& f) { forEachVectorWithClassIndex(_is(),std::forward<Func>(f)); }
 
     template <typename Func>
-    void forEach(Func&& f) { forEachVector([&](auto&& vec) {
+    inline void forEach(Func&& f) { forEachVector([&](auto&& vec) {
             for(auto&& v: vec) {
                 f(v);
             }
             }); 
     }
     template <typename Func>
-    void forEachIndex(Func&& f) { forEachVectorWithClassIndex([&](int ci, auto&& vec) {
+    inline void forEachIndex(Func&& f) { forEachVectorWithClassIndex([&](int ci, auto&& vec) {
             for(unsigned int i = 0; i < vec.size(); ++i) {
                 f(ci,i,vec[i]);
             }

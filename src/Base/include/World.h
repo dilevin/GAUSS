@@ -216,7 +216,7 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     //compute the total number of Dofs in the system
     forEach(m_systems, [&totalQDOFs, &totalQDotDOFs](auto a){totalQDOFs+=a->getQ().getNumScalarDOF();
                                                          totalQDotDOFs+=a->getQDot().getNumScalarDOF();});
-    //std::cout<<"Number of DOFS: "<<(totalQDOFs+totalQDotDOFs)<<"\n";
+    std::cout<<"Number of DOFS: "<<(totalQDOFs+totalQDotDOFs)<<"\n";
     
     //allocate memory in the state
     m_state.resize(totalQDOFs+totalQDotDOFs);

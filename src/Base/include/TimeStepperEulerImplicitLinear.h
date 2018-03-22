@@ -38,7 +38,9 @@ namespace Gauss {
         }
         
         ~TimeStepperImplEulerImplicitLinear() {
-            m_pardiso.cleanup();
+            #ifdef GAUSS_PARDISO
+                m_pardiso.cleanup();
+            #endif
         }
         
         //Methods

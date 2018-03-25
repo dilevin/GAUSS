@@ -6,6 +6,7 @@
 #include <FEMIncludes.h>
 #include <Newton.h>
 
+#include <iostream>
 #include <tuple>
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
@@ -57,7 +58,8 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
 
-    MyTimeStepper stepper(0.1, 1000);
+    std::cout << "Starting now." << std::endl;
+    MyTimeStepper stepper(2.0, 2000);
 
     //Display
     QGuiApplication app(argc, argv);
@@ -65,6 +67,7 @@ int main(int argc, char **argv) {
     MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
     GAUSSVIEW(scene);
 
+    std::cout << "Done." << std::endl;
     return app.exec();
 
 

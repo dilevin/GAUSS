@@ -62,19 +62,19 @@ namespace Gauss {
             return m_systemImpl.getPosition(state, params...);
         }
         
-        template<typename Vector, typename ...Params>
-        inline auto getDPDQ(Vector &x, Params &... params) {
-            return m_systemImpl.getDPDQ(x, params...);
+        template<typename ...Params>
+        inline decltype(auto) getDPDQ(const State<DataType> &state, Params &...params) {
+            return m_systemImpl.getDPDQ(state, params...);
         }
         
-        template<typename  Vector, typename ...Params>
-        inline auto getVelocity(Vector &x, Params &...params) {
-            return m_systemImpl.getVelocity(x, params...);
+        template<typename ...Params>
+        inline decltype(auto) getVelocity(const State<DataType> &state, Params &...params) {
+            return m_systemImpl.getVelocity(state, params...);
         }
         
-        template<typename  Vector, typename ...Params>
-        inline auto getDVDQ(Vector &x, Params &...params) {
-            return m_systemImpl.getDVDQ(x, params...);
+        template<typename ...Params>
+        inline decltype(auto) getDVDQ(const State<DataType> &state, Params &...params) {
+            return m_systemImpl.getDVDQ(state, params...);
         }
         
         inline const auto & getImpl() const { return m_systemImpl; }

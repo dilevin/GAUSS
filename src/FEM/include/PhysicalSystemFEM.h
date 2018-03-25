@@ -100,10 +100,6 @@ namespace Gauss {
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 //call the assembler on all elements
-                //for(auto element : m_elements) {
-                  //  element->getMassMatrix(assembler, state);
-                //}
-                
                 forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
                     element->getMassMatrix(assemble,state);
                 });
@@ -112,10 +108,6 @@ namespace Gauss {
             template<typename Assembler>
             inline void getStiffnessMatrix(Assembler &assembler, const State<DataType> &state) const {
                 
-                //for(auto element : m_elements) {
-                  //  element->getStiffnessMatrix(assembler, state);
-                //}
-                
                 forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
                     element->getStiffnessMatrix(assemble, state);
                 });
@@ -123,10 +115,7 @@ namespace Gauss {
             
             template<typename Assembler>
             inline void getForce(Assembler &assembler, const State<DataType> &state) const {
-                //for(auto element : m_elements) {
-                //    element->getForce(assembler, state);
-                //}
-                
+        
                 forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
                     element->getForce(assemble, state);
                 });
@@ -134,10 +123,7 @@ namespace Gauss {
             
             template<typename Assembler>
             inline void getInternalForce(Assembler &assembler, const State<DataType> &state) const {
-                //for(auto element : m_elements) {
-                //    element->getForce(assembler, state);
-                //}
-                
+  
                 forLoop<IsParallel<Assembler>::value>(m_elements, assembler, [&](auto &assemble, auto &element) {
                     element->getInternalForce(assemble, state);
                 });
@@ -202,12 +188,16 @@ namespace Gauss {
             
             
             //methods for getting current positions and position Jacobians for this system
+            //Per-Vertex
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
                 return getV().row(vertexId).transpose() + mapDOFEigen(m_q[vertexId], state);
             }
             
-            template<typename  Vector, typename ...Params>
-            inline auto getDPDQ(Vector &x, unsigned int vertexId) {
+            inline const auto getVelocity(const State<DataType> &state, unsigned int vertexId) const {
+                return mapDOFEigen(m_qDot[vertexId], state);
+            }
+            
+            inline const auto getDPDQ(const State<DataType> &state, unsigned int vertexId) const {
                 //return index for a particular vertex
                 
                 //I'm assuming that these finite element systems use nodal degrees of freedom which
@@ -215,6 +205,21 @@ namespace Gauss {
                 return Eigen::Matrix33x<DataType>::Identity();
             }
             
+            inline const auto getDVDQ(const State<DataType> &state, unsigned int vertexId) const {
+                return getDPDQ(state, vertexId);
+            }
+            
+            
+            //Per-point in world space (not implemented yet, need to think about making these queries efficient
+           /* template<typename  Vector, typename ...Params>
+            inline auto getDPDQ(Vector &x, unsigned int vertexId) {
+                //return index for a particular vertex
+                
+                //I'm assuming that these finite element systems use nodal degrees of freedom which
+                //store the displacement, that makes dPdQ = I for any vertex
+                return Eigen::Matrix33x<DataType>::Identity();
+            }
+           
             template<typename ...Params, typename  Vector>
             inline auto getVelocity(Vector &pos, Vector &x, unsigned int vertexId) {
                 return mapDOFEigen(m_qDot[vertexId]);
@@ -223,7 +228,7 @@ namespace Gauss {
             template<typename  Vector>
             inline auto getDVDQ(Vector &x, unsigned int vertexId) {
                 return getDPDQ(x, vertexId);
-            }
+            }*/
             
             inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             

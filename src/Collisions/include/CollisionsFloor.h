@@ -81,62 +81,6 @@ namespace Gauss {
         private:
         };
         
-        //got to be a struct because I can't partialize specialize a function template :(
-        /*template<typename DataType, typename Object>
-        struct planeContact {
-            
-            template <typename Geometry>
-            inline static std::pair<Eigen::Vector3x<DataType>, int> check(Object *obj, Eigen::Vector3x<DataType> &normal, Eigen::Vector3x<DataType> &pos) {
-                std::cout<<"Error not implemented \n";
-                assert(1==0);
-                exit(0);
-            }
-            
-            template<>
-            inline static std::pair<Eigen::Vector3x<DataType>, int> check<std::pair<Eigen::MatrixXd &, std::Eigen::MatrixXd &> >(Object *obj, Eigen::Vector3x<DataType> &normal, Eigen::Vector3x<DataType> &pos) {
-                
-                for(unsigned int iv =0; iv < obj->getImpl().getV().rows(); ++iv) {
-                    //if the object is on the wrong side of the floor, mark the collision
-                    double proj = (obj->getImpl().getV().row(iv).transpose() - pos).dot(normal);
-                    
-                    if(proj < 0){
-                        //store collision
-                        //info.push_back(SharedCollisionInfo<DataType>(normal,pos));
-                        //listA.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(type,index), iv));
-                        //listB.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(-1,0), 0));
-                        
-                    }
-            }
-        };
-        
-        //This needs to select based on object type
-        //Plane to object signed distance calculation
-        //returns nearest point and distance to that point
-        //assumes object has getV and getF methods to access polygonal mesh
-        /*template<typename DataType, typename Object, typename ...Types>
-        void planeContact(int type, unsigned int index, const Object *obj,
-                          MultiVector<Types...> &listA, MultiVector<Types...> &listB,
-                          std::vector<SharedCollisionInfo<DataType> > &info,
-                          Eigen::Vector3x<DataType> &normal,
-                          Eigen::Vector3x<DataType> &pos) {
-            
-            for(unsigned int iv =0; iv < obj->getImpl().getV().rows(); ++iv) {
-                //if the object is on the wrong side of the floor, mark the collision
-                double proj = (obj->getImpl().getV().row(iv).transpose() - pos).dot(normal);
-                
-                if(proj < 0){
-                    //store collision
-                    info.push_back(SharedCollisionInfo<DataType>(normal,pos));
-                    listA.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(type,index), iv));
-                    listB.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(-1,0), 0));
-                    
-                }
-                
-            }
-            
-        }*/
-
-        
         //Some useful methods for plane-object collision checking
         template<typename DataType>
         class CollisionFloorImpl {

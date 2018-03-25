@@ -75,12 +75,13 @@ namespace Gauss {
         //some convenience functions for getting various, useful, assembled matrices
         //FEM is assumed to be an FEM system
         //x is a nx3 matrix of points in space, we're going to build the shape function matrix evaluated at each point
-        template<typename Matrix, typename FEM>
-        void getShapeFunctionMatrix(Matrix &N, Eigen::MatrixXd &x, FEM &fem) {
+        //element[i] stores the index of the element containing the ith vertex in the embedded mesh 
+        template<typename Matrix, typename Vector, typename FEM>
+        void getShapeFunctionMatrix(Matrix &N, Vector &element, Eigen::MatrixXd &x, FEM &fem) {
             
             double y[3];
             ConstraintIndex cIndex(0, 0, 3); //ConstraintIndices help the assembler understand how rows are handled globally
-                
+            element.resize(x.rows(),1);
                 
             ASSEMBLEMATINIT(N, 3*x.rows(), fem.getQ().getNumScalarDOF());
         
@@ -97,6 +98,7 @@ namespace Gauss {
                     if (Jmat.minCoeff() >= 0 && Jmat.maxCoeff() > 0) {
                         //use the assembler to add it to the current matrix
                         N.set(std::array<ConstraintIndex,1>{{cIndex}}, fem.getElements()[jj]->q(), Jmat);
+                        element[ii] = jj;
                         break;
                     }
                     

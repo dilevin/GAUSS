@@ -71,7 +71,7 @@ namespace Gauss {
                 m_F = F;
                 
                 AssemblerEigenSparseMatrix<DataType> N;
-                getShapeFunctionMatrix(N,V, fem);
+                getShapeFunctionMatrix(N,m_elements,V, fem);
                 m_N = (*N);
                 
             }
@@ -97,6 +97,9 @@ namespace Gauss {
             
             inline decltype(auto) getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
                 return  Eigen::Matrix33x<DataType>::Identity();//m_N.block(3*vertexId, 0, 3, m_N.cols()); //bug
+                
+                //need to be able to get back DOFs that effect this triangle and build small dense matrix that represents local jacobian
+                //should probably setup  getShapeFunction Matrix to return this as an output.
             }
                                                
             //per spatial point accessors (nothing implemented for these yet)
@@ -107,6 +110,7 @@ namespace Gauss {
            Eigen::MatrixXx<DataType> m_V;
            Eigen::MatrixXi  m_F;
            Eigen::SparseMatrix<DataType, Eigen::RowMajor> m_N; //embedding matrix
+           Eigen::VectorXi m_elements;
             
         private:
             

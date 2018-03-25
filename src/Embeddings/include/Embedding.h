@@ -96,7 +96,7 @@ namespace Gauss {
             }
             
             inline decltype(auto) getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                return m_N.block(3*vertexId, 0, 3, m_N.cols());
+                return  Eigen::Matrix33x<DataType>::Identity();//m_N.block(3*vertexId, 0, 3, m_N.cols()); //bug
             }
                                                
             //per spatial point accessors (nothing implemented for these yet)

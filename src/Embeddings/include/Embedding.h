@@ -81,25 +81,25 @@ namespace Gauss {
                 return std::make_pair(std::ref(m_V), std::ref(m_F));
             }
             
-            inline const auto getPosition(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
-                
+
+            //per vertex accessors
+            inline decltype(auto) getPosition(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
                 return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQ(), state);
             }
             
-                                               
-            inline void getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                std::cout<<"DPDQ Not implemented yet for embedded mesh \n";
-                exit(1);
+            inline decltype(auto) getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
+                return m_N.block(3*vertexId, 0, 3, m_N.cols());
             }
             
             inline void getVelocity(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
                 return m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQDot(), state);
             }
             
-            inline void getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                std::cout<<"DVDQ Not implemented yet for embedded mesh \n";
-                exit(1);
+            inline decltype(auto) getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
+                return m_N.block(3*vertexId, 0, 3, m_N.cols());
             }
+                                               
+            //per spatial point accessors (nothing implemented for these yet)
             
             
         protected:
@@ -140,19 +140,19 @@ namespace Gauss {
                 return m_embedding.getPosition(*this, state, params...);
             }
             
-            template<typename Vector, typename ...Params>
-            inline auto getDPDQ(Vector &x, Params &... params) {
-                return m_embedding.getDPDQ(*this, x, params...);
+            template<typename ...Params>
+            inline decltype(auto) getDPDQ(const State<DataType> &state, Params &...params) {
+                return m_embedding.getDPDQ(*this, state, params...);
             }
             
-            template<typename  Vector, typename ...Params>
-            inline auto getVelocity(Vector &x, Params &...params) {
-                return m_embedding.getVelocity(*this, x, params...);
+            template<typename ...Params>
+            inline decltype(auto) getVelocity(const State<DataType> &state, Params &...params) {
+                return m_embedding.getVelocity(*this, state, params...);
             }
             
-            template<typename  Vector, typename ...Params>
-            inline auto getDVDQ(Vector &x, Params &...params) {
-                return m_embedding.getDVDQ(*this, x, params...);
+            template<typename ...Params>
+            inline decltype(auto) getDVDQ(const State<DataType> &state, Params &...params) {
+                return m_embedding.getDVDQ(*this, state, params...);
             }
             
             inline decltype(auto) getGeometry() { return m_embedding.getGeometry(); }

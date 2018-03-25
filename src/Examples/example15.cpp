@@ -64,12 +64,13 @@ int main(int argc, char **argv) {
     world.finalize();
     
     Eigen::MatrixXd x;
+    Eigen::VectorXi elements;
     x.resize(1,3);
     
     x<< 0.5, 0.5, 0.0;
     
     AssemblerEigenSparseMatrix<double> N;
-    getShapeFunctionMatrix(N, x, test->getImpl());
+    getShapeFunctionMatrix(N, elements, x, test->getImpl());
     
     std::cout<<"Shape function matrix: \n"<<(*N)<<"\n";
     return 0;

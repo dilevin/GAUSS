@@ -24,6 +24,8 @@ namespace Gauss {
                     dof.setIds(localId, localId);
                     localId += dof.getNumScalarDOF();
                 }
+                
+                DOFBase<DataType, PropertyIndex>::m_numScalarDOF = localId;
             }
             
             ~DOFList() { }

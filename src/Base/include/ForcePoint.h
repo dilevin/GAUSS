@@ -22,7 +22,7 @@ namespace Gauss {
         {
         public:
             
-            ForcePointImpl( ParticleSystem::DOFParticle<DataType> *dof, Eigen::Vector3x<DataType> fPoint) : m_dof(0) {
+            ForcePointImpl(DOFBase<DataType> *dof, Eigen::VectorXx<DataType> fPoint) : m_dof(0) {
                 m_dof = dof;
                 m_fPoint = fPoint;
             }
@@ -50,6 +50,10 @@ namespace Gauss {
                 
             }
             
+            template<typename Vector>
+            inline void setForce(Vector &f) {
+                m_fPoint = f;
+            }
             
             template <typename Matrix>
             inline void getStiffnessMatrix(Matrix &H, State<DataType> &state) {
@@ -59,8 +63,8 @@ namespace Gauss {
             
         protected:
             
-            Eigen::Vector3x<DataType> m_fPoint;
-            ParticleSystem::DOFParticle<DataType> *m_dof; //pointer to the thing I'm fixing in space
+            Eigen::VectorXx<DataType> m_fPoint;
+            DOFBase<DataType> *m_dof; //pointer to the thing I'm fixing in space
             
         private:
         };

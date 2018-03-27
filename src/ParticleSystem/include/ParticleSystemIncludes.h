@@ -14,5 +14,6 @@
 
 #include <ForceSpring.h>
 #include <ForceParticleGravity.h>
+#include <ForcePoint.h>
 
 #endif /* ParticleSystemIncludes_h */

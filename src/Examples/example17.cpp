@@ -21,13 +21,16 @@ typedef ConstraintCollisionDetector<double, CollisionFloorImpl> MyCollisionDetec
 
 //World using embedded mesh FEM
 typedef World<double, std::tuple< Embeddings::PhysicalSystemEmbeddedMesh<double, FEMLinearTets> *, PhysicalSystemParticleSingle<double> *>,
-std::tuple<ForceSpringFEMParticle<double> *>,
+std::tuple<ForceSpringFEMParticle<double> *, ForcePoint<double> *>,
 std::tuple<ConstraintFixedPoint<double> *, MyCollisionDetector *> > MyWorld;
 
 typedef TimeStepperEulerImplicitLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
+
+//Per vertex force
+Eigen::VectorXd perVertexForce;
 
 void preStepCallback(MyWorld &world) {
     // This is an example callback
@@ -45,7 +48,6 @@ int main(int argc, char **argv) {
     //surface mesh
     Eigen::MatrixXd Vs;
     Eigen::MatrixXi Fs;
-    
     
     readTetgen(V, F, dataDir()+"/meshesTetgen/Gargoyle/gargNested2.node", dataDir()+"/meshesTetgen/Gargoyle/gargNested2.ele");
     

@@ -163,7 +163,7 @@ namespace Gauss {
                 return m_qDotDofs;
             }
             
-            inline VectorQ q(const State<DataType> &state) {
+            inline VectorQ q(const State<DataType> &state) const {
                 
                 VectorQ tmp;
                 
@@ -229,6 +229,7 @@ namespace Gauss {
         
         //useful differential operators
         //B is the standard matrix form of the engineering linear strain (i.e with cross strains are multiplied by 2)
+        //For lots of element types B is constant
         template<typename ShapeFunction, typename DataType>
         inline typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, double *x, const State<DataType> &state) {
             

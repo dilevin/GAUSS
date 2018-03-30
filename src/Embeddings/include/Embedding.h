@@ -72,7 +72,22 @@ namespace Gauss {
                 
                 AssemblerEigenSparseMatrix<DataType> N;
                 getShapeFunctionMatrix(N,m_elements,V, fem);
-                m_N = (*N);
+            
+                Eigen::Vector3x<DataType> vertex = m_V.row(0);
+                
+                unsigned int numCols = fem.getElements()[0]->N(vertex.data()).cols();
+                unsigned int el;
+                
+                m_N.resize(3*m_V.rows(), numCols);
+                for(unsigned int ii=0; ii<m_elements.size(); ++ii) {
+                    el = m_elements[ii];
+                    vertex = m_V.row(ii);
+                    
+                    auto Jmat = fem.getElements()[el]->N(vertex.data());
+                    
+                    m_N.block(3*ii, 0, 3, numCols) = Jmat;
+                }
+                
                 
             }
             
@@ -84,22 +99,23 @@ namespace Gauss {
 
             //per vertex accessors
             inline decltype(auto) getPosition(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
-                return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQ(), state);
+                //return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQ(), state);
+                return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*fem.getElement(m_elements[vertexId])->q(state);
             }
             
+            //this is also surface J
             inline decltype(auto) getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
                 return m_N.block(3*vertexId, 0, 3, m_N.cols());
             }
             
             inline void getVelocity(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                return m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQDot(), state);
+                return m_N.block(3*vertexId, 0, 3, m_N.cols())*fem.getElement(m_elements[vertexId])->qDot(state);
             }
             
+             //This isn't really dvdq it's surface J
             inline decltype(auto) getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                return  Eigen::Matrix33x<DataType>::Identity();//m_N.block(3*vertexId, 0, 3, m_N.cols()); //bug
                 
-                //need to be able to get back DOFs that effect this triangle and build small dense matrix that represents local jacobian
-                //should probably setup  getShapeFunction Matrix to return this as an output.
+                return m_N.block(3*vertexId, 0, 3, m_N.cols());
             }
                                                
             //per spatial point accessors (nothing implemented for these yet)
@@ -109,9 +125,10 @@ namespace Gauss {
             
            Eigen::MatrixXx<DataType> m_V;
            Eigen::MatrixXi  m_F;
-           Eigen::SparseMatrix<DataType, Eigen::RowMajor> m_N; //embedding matrix
+           Eigen::MatrixXd m_N;
            Eigen::VectorXi m_elements;
-            
+           
+                                               
         private:
             
         };
@@ -133,6 +150,8 @@ namespace Gauss {
             using Embedding::PhysicalSystemImpl::getInternalForce;
             using Embedding::PhysicalSystemImpl::getQ;
             using Embedding::PhysicalSystemImpl::getQDot;
+            
+            //embedding dense matrix size
             
             //contructor
             template<typename ...Params>
@@ -163,6 +182,7 @@ namespace Gauss {
             
         protected:
             Embedding m_embedding;
+            
             
         private:
 

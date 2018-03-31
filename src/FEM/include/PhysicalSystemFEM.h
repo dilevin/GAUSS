@@ -198,37 +198,10 @@ namespace Gauss {
             }
             
             inline const auto getDPDQ(const State<DataType> &state, unsigned int vertexId) const {
-                //return index for a particular vertex
-                
-                //I'm assuming that these finite element systems use nodal degrees of freedom which
-                //store the displacement, that makes dPdQ = I for any vertex
                 return Eigen::Matrix33x<DataType>::Identity();
             }
             
-            inline const auto getDVDQ(const State<DataType> &state, unsigned int vertexId) const {
-                return getDPDQ(state, vertexId);
-            }
-            
-            
-            //Per-point in world space (not implemented yet, need to think about making these queries efficient
-           /* template<typename  Vector, typename ...Params>
-            inline auto getDPDQ(Vector &x, unsigned int vertexId) {
-                //return index for a particular vertex
-                
-                //I'm assuming that these finite element systems use nodal degrees of freedom which
-                //store the displacement, that makes dPdQ = I for any vertex
-                return Eigen::Matrix33x<DataType>::Identity();
-            }
-           
-            template<typename ...Params, typename  Vector>
-            inline auto getVelocity(Vector &pos, Vector &x, unsigned int vertexId) {
-                return mapDOFEigen(m_qDot[vertexId]);
-            }
-            
-            template<typename  Vector>
-            inline auto getDVDQ(Vector &x, unsigned int vertexId) {
-                return getDPDQ(x, vertexId);
-            }*/
+            //want these for elements as well (i.e take an element indec and a point in space and return the right value)
             
             inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             

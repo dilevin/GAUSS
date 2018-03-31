@@ -1,4 +1,4 @@
-//
+ //
 //  ForcePoint.h
 //  Gauss
 //

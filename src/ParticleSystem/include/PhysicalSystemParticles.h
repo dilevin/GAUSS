@@ -55,7 +55,7 @@ namespace Gauss {
             }
             
             template<typename  Vector>
-            inline auto getDVDQ(Vector &x, unsigned int vertexId) {
+            inline auto getDPDQ(Vector &x, unsigned int vertexId) {
                 std::cout<<"DVDQ Particle System not implemented yet\n";
                 exit(0);
                 return 0;
@@ -63,7 +63,7 @@ namespace Gauss {
 
             
             //do nothing for now, fix later
-            inline auto getGeometry() { assert(1==0); return nullptr; }
+            inline auto getGeometry() { std::cout<<"Get Geometry for a Particle System not implemented yet \n";  exit(0); return nullptr; }
             
         protected:
             

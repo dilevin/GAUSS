@@ -93,9 +93,8 @@ namespace Gauss {
         template<typename ...Params>
         inline decltype(auto) getQDot(Params &...params) const { return m_systemImpl.getQDot(params...); }
         
-        
         //get geometry (had to add this for collision detection code)
-        inline auto getGeometry() { return m_systemImpl.getGeometry(); }
+        inline decltype(auto) getGeometry() { return m_systemImpl.getGeometry(); }
         
     protected:
         

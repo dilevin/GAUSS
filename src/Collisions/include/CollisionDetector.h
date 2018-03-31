@@ -70,7 +70,7 @@ namespace Gauss {
                         
                         //Build Jacobian differently for vertex collisions and in element collision events
                         static_if<std::remove_reference<decltype(collisionInfo)>::type::collisionType == 0>([&](auto f){
-                            auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDVDQ(state, collisionInfo.getData(collisionInfo.collisionType));
+                            auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType));
                             assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
                         }).else_([&](auto f) {
                             std::cout<<"getGradient: Shouldn't be here yet, no continous jacobian implemented \n";

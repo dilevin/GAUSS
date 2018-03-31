@@ -112,12 +112,6 @@ namespace Gauss {
                 return m_N.block(3*vertexId, 0, 3, m_N.cols())*fem.getElement(m_elements[vertexId])->qDot(state);
             }
             
-             //This isn't really dvdq it's surface J
-            inline decltype(auto) getDVDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
-                
-                return m_N.block(3*vertexId, 0, 3, m_N.cols());
-            }
-                                               
             //per spatial point accessors (nothing implemented for these yet)
             
             

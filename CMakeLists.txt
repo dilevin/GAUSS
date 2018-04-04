@@ -162,10 +162,11 @@ set(BUILD_TESTING OFF CACHE INTERNAL FORCE "")
 set(OCTOMAP_OMP OFF CACHE INTERNAL ""  FORCE)
 set(FCL_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
 set(FCL_WITH_OCTOMAP OFF CACHE INTERNAL "" FORCE)
+#set(octomap_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/octomap/octomap CACHE INTERNAL  "" FORCE)
 
 #Third Party libraries
 add_subdirectory(${LIBCCD_DIR})
-# Comment out for now add_subdirectory(${OCTOMAP_DIR})
+#add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
 
 

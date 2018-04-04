@@ -99,6 +99,16 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 #libigl include directory
 set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
 
+#directories for FCL and dependencies
+set(FCL_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/fcl)
+set(LIBCCD_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libccd)
+set(OCTOMAP_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/octomap)
+
+#augment GAUSS_INCLUDE_DIRS
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${FCL_DIR}/include)
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
+
 #Eigen
 find_package(Eigen3 REQUIRED)
 
@@ -141,6 +151,26 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Core/include
 include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
 
+#Set parameters for third party libraries
+#libccd
+set(BUILD_DOCUMENTATION OFF CACHE INTERNAL "" FORCE)
+set(BUILD_OCTOVIS_SUBPROJECT  OFF CACHE INTERNAL "" FORCE)
+set(BUILD_GMOCK OFF CACHE INTERNAL "" FORCE)
+set(BUILD_GTEST OFF CACHE INTERNAL ""  FORCE)
+set(BUILD_DYNAMICETD3D_SUBPROJECT OFF CACHE INTERNAL "" FORCE)
+set(BUILD_TESTING OFF CACHE INTERNAL FORCE "")
+set(OCTOMAP_OMP OFF CACHE INTERNAL ""  FORCE)
+set(FCL_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+set(FCL_WITH_OCTOMAP OFF CACHE INTERNAL "" FORCE)
+
+#Third Party libraries
+add_subdirectory(${LIBCCD_DIR})
+# Comment out for now add_subdirectory(${OCTOMAP_DIR})
+add_subdirectory(${FCL_DIR})
+
+
+message(WARNING ${BUILD_GTEST})
+#Main Gauss libraries
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 
 #odd ordering is because implicit solver lives in Base currently

@@ -162,9 +162,14 @@ set(BUILD_TESTING OFF CACHE INTERNAL FORCE "")
 set(OCTOMAP_OMP OFF CACHE INTERNAL ""  FORCE)
 set(FCL_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
 set(FCL_WITH_OCTOMAP OFF CACHE INTERNAL "" FORCE)
+#set ccd include directory 
 #set(octomap_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/octomap/octomap CACHE INTERNAL  "" FORCE)
+set(ccd_FOUND ON  CACHE INTERNAL "" FORCE) 
+set(CCD_INCLUDE_DIR ${LIBCCD_DIR}/src CACHE INTERNAL "" FORCE)
+set(CCD_INCLUDE_DIRS ${LIBCCD_DIR}/src CACHE INTERNAL "" FORCE)
 
-#Third Party libraries
+   set(CCD_LIBRARIES "${CCD_LIBRARY}" "${M_LIBRARY}")
+    set(ccd_FOUND ON)#Third Party libraries
 add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})

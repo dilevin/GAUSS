@@ -1,6 +1,6 @@
 #include "CoreOSSpecific.h"
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
 //WINDOWS INCLUDES
 #else
 //*NIX includes

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #define PATH_SEPARATOR '\\'
 #else
 #define PATH_SEPARATOR '/'

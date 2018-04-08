@@ -134,7 +134,7 @@ namespace Gauss {
     };
    
     //Direct access into a tuple to run a designated function
-    #ifdef _WIN32
+	#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
         //Slow version that doesn't break Visual Studio Compiler
         template<unsigned int CheckIndex>
         class ApplyTuple {

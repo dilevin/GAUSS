@@ -11,13 +11,13 @@
 #include <assert.h> 
 #include <iostream>
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
     #define MEMCPY(dst, size, src, num) (memcpy_s((dst), (size), (src), (num)))
 #else
     #define MEMCPY(dst, size, src, num) (memcpy((dst), (src), (num)))
 #endif
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
     #define MEMSET
 #else
     #define MEMSET(dst, val, num) (memset((dst), (val), (num)))

@@ -97,7 +97,7 @@ add_definitions(-DGAUSS_DATA_DIR=${PROJECT_SOURCE_DIR}/data)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #libigl include directory
-set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/extern/libigl/include CACHE FILEPATH "Root include directory for libigl")
+set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
 
 #Eigen
 find_package(Eigen3 REQUIRED)

@@ -1,9 +1,3 @@
 [submodule "extern/libigl"]
 	path = ThirdParty/libigl
     url = https://github.com/libigl/libigl.git
-[submodule "ThirdParty/fcl"]
-	path = ThirdParty/fcl
-	url = https://github.com/dilevin/fcl.git
-[submodule "ThirdParty/libccd"]
-	path = ThirdParty/libccd
-	url = https://github.com/danfis/libccd.git

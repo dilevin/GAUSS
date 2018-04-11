@@ -1,4 +1,4 @@
-/*
+n/*
  This file is part of the VRender library.
  Copyright (C) 2005 Cyril Soler (Cyril.Soler@imag.fr)
  Version 1.0.0, released on June 27, 2005.

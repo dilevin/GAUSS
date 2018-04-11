@@ -29,13 +29,44 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V0, V1;
     Eigen::MatrixXi F0, F1;
     
-    readTetgen(V0, F0, dataDir()+"/meshesTetgen/Gargoyle/gargNested2.node", dataDir()+"/meshesTetgen/Gargoyle/gargNested2.ele");
+    //Read mesh to embed
+    if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", V0, F0))
+        std::cout<<"Failed to read embedded mesh \n";
     
-    readTetgen(V1, F1, dataDir()+"/meshesTetgen/Gargoyle/gargNested2.node", dataDir()+"/meshesTetgen/Gargoyle/gargNested2.ele");
+    //Read mesh to embed
+    if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", V1, F1))
+        std::cout<<"Failed to read embedded mesh \n";
     
     //add to fcl BVH's using KDOPS
+    fcl::BVHModel<fcl::KDOP<double, 24> > m0;
+    fcl::BVHModel<fcl::KDOP<double, 24> > m1;
+    
+    //copy verts and
+    m0.beginModel();
+    m0.addSubModel(V0, F0);
+    m0.endModel();
+    
+    m1.beginModel();
+    m1.addSubModel(V1, F1);
+    m1.endModel();
+    
+    fcl::Transform3<double> pose = fcl::Transform3<double>::Identity();
     
     //do collision detection
+    fcl::CollisionRequest<double> request(1000, true);
+    fcl::CollisionResult<double> result;
+    int numContacts = fcl::collide(&m0,pose,&m1, pose, request, result);
     
+    std::cout<<"Num Contacts: "<<numContacts<<"\n";
+    
+    std::vector<fcl::Contact<double>> contacts;
+    result.getContacts(contacts);
+    
+    for(int i = 0; i < numContacts; ++i)
+    {
+        std::cout<<"Contact "<<i<<" "<<contacts[i].pos[0]<<" "<<contacts[i].pos[1]<<" "<<contacts[i].pos[2]<<"\n";
+    }
+    
+    std::cout<<"Done \n";
     
 }

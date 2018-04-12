@@ -184,12 +184,11 @@ set(CCD_LIBRARIES "${CCD_LIBRARY}" "${M_LIBRARY}")
 set(ccd_FOUND ON)
 
 #Third Party libraries
+#fix for odd build behavior of libccd on windows when using static linking.
+add_definitions("-DCCD_STATIC_DEFINE")
 add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
-
-#fix for odd build behavior of libccd on windows when using static linking.
-add_definitions("-DCCD_STATIC_DEFINE")
 
 message(WARNING ${BUILD_GTEST})
 #Main Gauss libraries

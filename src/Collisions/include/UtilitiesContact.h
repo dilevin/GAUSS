@@ -21,7 +21,7 @@ namespace Gauss {
                 
             }
             
-            inline SharedCollisionInfo(Eigen::Vector3x<DataType> &normal, Eigen::Vector3x<DataType> position) {
+            inline SharedCollisionInfo(const Eigen::Vector3x<DataType> &normal, const Eigen::Vector3x<DataType> position) {
                 m_normal = normal;
                 m_contactPoint = position;
             }

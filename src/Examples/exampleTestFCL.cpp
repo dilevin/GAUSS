@@ -37,6 +37,11 @@ std::tuple<ConstraintFixedPoint<double> *,MyCollisionDetector *> > MyWorld;
 typedef TimeStepperEulerImplicitLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
+typedef Scene<MyWorld, MyTimeStepper> MyScene;
+
+void preStepCallback(MyWorld &world) {
+    // This is an example callback
+}
 
 int main(int argc, char **argv) {
 
@@ -67,38 +72,12 @@ int main(int argc, char **argv) {
     
     MyTimeStepper stepper(0.01);
     
-    //add to fcl BVH's using KDOPS
-    //fcl::BVHModel<fcl::KDOP<double, 24> > m0;
-    //fcl::BVHModel<fcl::KDOP<double, 24> > m1;
+    //Display
+    QGuiApplication app(argc, argv);
     
-    //copy verts and
-    /*m0.beginModel();
-    m0.addSubModel(V0, F0);
-    m0.endModel();
+    MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
+    GAUSSVIEW(scene);
     
-    m1.beginModel();
-    m1.addSubModel(V1, F1);
-    m1.endModel();
-    
-    fcl::Transform3<double> pose = fcl::Transform3<double>::Identity();
-    
-    //do collision detection
-    fcl::CollisionRequest<double> request(1000, true);
-    fcl::CollisionResult<double> result;
-    int numContacts = fcl::collide(&m0,pose,&m1, pose, request, result);
-    
-    std::cout<<"Num Contacts: "<<numContacts<<"\n";
-    
-    std::vector<fcl::Contact<double>> contacts;
-    result.getContacts(contacts);
-    
-    for(int i = 0; i < numContacts; ++i)
-    {
-        std::cout<<"Contact "<<i<<" "<<contacts[i].pos[0]<<" "<<contacts[i].pos[1]<<" "<<contacts[i].pos[2]<<"\n";
-    }
-    
-    std::cout<<"Done \n";*/
-    
-    
-    
+    return app.exec();
+
 }

@@ -82,7 +82,7 @@ namespace Gauss {
             inline ~QuadratureExact() { }
             
             //integral rules for things that I wan
-            inline double getValue(const State<DataType> &state) {
+            inline DataType getValue(const State<DataType> &state) {
             
                 Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDotDofs[0], state);
                 Eigen::Map<Eigen::VectorXd> v1 = mapDOFEigen(*m_qDotDofs[1], state);
@@ -219,7 +219,7 @@ namespace Gauss {
             
             //integral rules for things that I want
             template<typename DOFList>
-            inline double getValue(const State<DataType> &state) {
+            inline DataType getValue(const State<DataType> &state) {
                 
                 //Do nothing for now
                 //returning the force which is really the negative gradient

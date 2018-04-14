@@ -8,13 +8,10 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitLinear.h>
+#include <CollisionDetector.h>
+#include <CollisionsFCL.h>
+#include <TimeStepperEulerImplicitLinearCollisions.h>
 #include <Embedding.h>
-
-using namespace Gauss;
-using namespace FEM;
-using namespace ParticleSystem; //For Force Spring
-
 
 //FCL
 #include "fcl/math/bv/utility.h"
@@ -23,26 +20,59 @@ using namespace ParticleSystem; //For Force Spring
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 
+//Setup namespaces
+using namespace Gauss;
+using namespace FEM;
+using namespace ParticleSystem; //For Force Spring
+using namespace Collisions;
+
+//Define convenient types
+typedef ConstraintCollisionDetector<double, CollisionFCLImpl> MyCollisionDetector;
+typedef PhysicalSystemFEM<double, NeohookeanTet> FEMNeohookeanTets;
+
+typedef World<double, std::tuple< Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *>,
+std::tuple<ForceSpringFEMParticle<double> *>,
+std::tuple<ConstraintFixedPoint<double> *,MyCollisionDetector *> > MyWorld;
+
+typedef TimeStepperEulerImplicitLinearCollisions<double, AssemblerEigenSparseMatrix<double>,
+AssemblerEigenVector<double> > MyTimeStepper;
+
+
 int main(int argc, char **argv) {
 
     //load two tet meshes
-    Eigen::MatrixXd V0, V1;
-    Eigen::MatrixXi F0, F1;
+    Eigen::MatrixXd V, Vs;
+    Eigen::MatrixXi F, Fs;
     
-    //Read mesh to embed
-    if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", V0, F0))
-        std::cout<<"Failed to read embedded mesh \n";
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
     
-    //Read mesh to embed
-    if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", V1, F1))
-        std::cout<<"Failed to read embedded mesh \n";
+    //Extract boundary triangles
+    Vs = V;
+    
+    //get the boundary facets for my data then write everything to disk
+    igl::boundary_facets(F, Fs);
+    Fs = Fs.rowwise().reverse().eval(); //igl boundary facets returns facet indices in reverse order
+    
+    //Embed
+    Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(Vs,Fs, V, F);
+    MyWorld world;
+
+    world.addSystem(embeddedFEM);
+    MyCollisionDetector cd(std::ref(world)); // this has to happen here, but I need to get rid of the circular dependence between collision detectors and the world
+    world.addInequalityConstraint(&cd);
+    world.finalize();
+    
+    auto q = mapStateEigen(world);
+    q.setZero();
+    
+    MyTimeStepper stepper(0.01);
     
     //add to fcl BVH's using KDOPS
-    fcl::BVHModel<fcl::KDOP<double, 24> > m0;
-    fcl::BVHModel<fcl::KDOP<double, 24> > m1;
+    //fcl::BVHModel<fcl::KDOP<double, 24> > m0;
+    //fcl::BVHModel<fcl::KDOP<double, 24> > m1;
     
     //copy verts and
-    m0.beginModel();
+    /*m0.beginModel();
     m0.addSubModel(V0, F0);
     m0.endModel();
     
@@ -67,6 +97,8 @@ int main(int argc, char **argv) {
         std::cout<<"Contact "<<i<<" "<<contacts[i].pos[0]<<" "<<contacts[i].pos[1]<<" "<<contacts[i].pos[2]<<"\n";
     }
     
-    std::cout<<"Done \n";
+    std::cout<<"Done \n";*/
+    
+    
     
 }

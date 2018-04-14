@@ -186,7 +186,7 @@ namespace Gauss {
             inline const auto & getV() const { return m_V; }
             inline const auto & getF() const { return m_F; }
             
-            
+           
             //methods for getting current positions and position Jacobians for this system
             //Per-Vertex
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
@@ -202,6 +202,7 @@ namespace Gauss {
             }
             
             //want these for elements as well (i.e take an element indec and a point in space and return the right value)
+            
             
             inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             

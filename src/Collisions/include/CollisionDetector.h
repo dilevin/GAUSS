@@ -41,8 +41,6 @@ namespace Gauss {
             template<typename World>
             inline void detectCollisions(World &world) {
                 m_impl.detectCollisions(world);
-                
-                //update the constraint numberings in the world here
             }
             
             inline unsigned int getNumRows() {

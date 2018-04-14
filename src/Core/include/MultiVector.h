@@ -95,9 +95,6 @@ namespace Gauss {
             }); 
     }
 
-
-
-        
     protected:
            std::tuple<std::vector<Types>...> m_vectorTuple;
         

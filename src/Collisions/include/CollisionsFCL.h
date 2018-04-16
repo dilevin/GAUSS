@@ -11,8 +11,9 @@
 //GAUSS Stuff
 #include <GaussIncludes.h>
 #include <UtilitiesContact.h>
+#define MAX_CONTACTS 1000
 
-// Collision detector for triangle meshes using the flexibile collision library (https://github.com/flexible-collision-library/fcl)
+// Collision detector fo    r triangle meshes using the flexibile collision library (https://github.com/flexible-collision-library/fcl)
 namespace Gauss {
     namespace Collisions {
         
@@ -26,19 +27,10 @@ namespace Gauss {
             CollisionFCLImpl(World &world) {
                 
                 //scan through the world and put all the object into FCL collision structures
-                std::vector< fcl::BVHModel<fcl::KDOP<DataType, 24> > *> &bvhList = m_bvhList;
-                std::vector< SystemIndex> &indexList = m_indexList;
+                //std::vector< fcl::BVHModel<fcl::OBBRSS<DataType> > *> &bvhList = m_bvhList;
+                //std::vector< SystemIndex> &indexList = m_indexList;
+                m_firstTime = true;
                 
-                forEachIndex(world.get().getSystemList(), [&bvhList, &indexList](auto type, auto index, auto &a) {
-                    fcl::BVHModel<fcl::KDOP<DataType, 24> > *bvh = new fcl::BVHModel<fcl::KDOP<DataType, 24> >();
-                    
-                    bvh->beginModel();
-                    bvh->addSubModel(a->getGeometry().first, a->getGeometry().second);
-                    bvh->endModel();
-                    
-                    bvhList.push_back(bvh);
-                    indexList.push_back(SystemIndex(type, index));
-                });
                              
             }
             
@@ -69,8 +61,10 @@ namespace Gauss {
             std::vector<SharedCollisionInfo<DataType>> m_sharedList; //normals and world space positions;
             
             //FCL collision data structures
-            std::vector< fcl::BVHModel<fcl::KDOP<DataType, 24> > * > m_bvhList;
+            std::vector< fcl::BVHModel<fcl::OBBRSS<DataType> > > m_bvhList;
             std::vector< SystemIndex > m_indexList; 
+            
+            bool m_firstTime;
             
         private:
             
@@ -90,38 +84,76 @@ void Gauss::Collisions::CollisionFCLImpl<DataType>::detectCollisions(World &worl
     //MultiVector<Gauss::Collisions::ObjectCollisionInfo<DataType, 0> > &objBList = m_objBList;
     //std::vector<Gauss::Collisions::SharedCollisionInfo<DataType> > &sharedList = m_sharedList;
     
-    //update bvhs
-    std::vector< fcl::BVHModel<fcl::KDOP<DataType, 24> > *> &bvhList = m_bvhList;
+    std::vector< fcl::BVHModel<fcl::OBBRSS<DataType> > > &bvhList = m_bvhList;
+    std::vector< SystemIndex > &indexList = m_indexList;
     
-    unsigned int bvhIndex = 0;
+    if(m_firstTime) {
+        
+        m_bvhList.clear();
+        m_indexList.clear();
+        
+        forEachIndex(world.getSystemList(), [&world, &bvhList, &indexList](auto type, auto index, auto &a) {
+            
+            Eigen::MatrixXx<DataType> positions;
+            positions.resize(a->getGeometry().first.rows(),3);
+            
+            for(unsigned int ii=0; ii<a->getGeometry().first.rows(); ++ii) {
+                positions.row(ii) = a->getPosition(world.getState(),ii);
+            }
+            
+            bvhList.push_back(fcl::BVHModel<fcl::OBBRSS<DataType> >());
+            
+            bvhList[bvhList.size()-1].beginModel();
+            bvhList[bvhList.size()-1].addSubModel(positions, a->getGeometry().second);
+            bvhList[bvhList.size()-1].endModel();
+            
+            
+            //bvhList.push_back(bvh);
+            indexList.push_back(SystemIndex(type, index));
+        });
+        
+        m_firstTime = false;
+    }
+    
+    //update bvhs
+     unsigned int bvhIndex = 0;
     //fill in collision data using retrived indices and collision data
     forEachIndex(world.getSystemList(), [&bvhList, &bvhIndex, &world](auto type, auto index, auto &a) {
-        bvhList[bvhIndex]->beginReplaceModel();
+        
+        bvhList[bvhIndex].beginUpdateModel();
         for(unsigned int ii=0; ii<a->getGeometry().first.rows(); ++ii) {
-            bvhList[bvhIndex]->replaceVertex(a->getPosition(world.getState(), ii));
+            bvhList[bvhIndex].updateVertex(a->getPosition(world.getState(), ii));
         }
-        bvhList[bvhIndex]->endReplaceModel(true, true);
+        
+        bvhList[bvhIndex].endUpdateModel(true, true);
+        
         bvhIndex++;
+            
     });
     
-    
     //n^2 collision detection
-    fcl::Transform3<double> pose = fcl::Transform3<double>::Identity();
-    fcl::CollisionRequest<double> request;
-    fcl::CollisionResult<double> result;
+    fcl::Transform3<DataType> pose0 = fcl::Transform3<DataType>::Identity();
+    fcl::Transform3<DataType> pose1 = fcl::Transform3<DataType>::Identity();
+    fcl::CollisionRequest<DataType> request(MAX_CONTACTS,true);
+    fcl::CollisionResult<DataType> result;
     
     for(unsigned int obj0=0; obj0<m_bvhList.size(); ++obj0) {
-        for(unsigned int obj1=obj0; obj1<m_bvhList.size(); ++obj1) {
+        for(unsigned int obj1=obj0+1; obj1<m_bvhList.size(); ++obj1) {
             
             //do collision detection
-            int numContacts = fcl::collide(m_bvhList[obj0],pose,m_bvhList[obj1], pose, request, result);
+            fcl::collide(&m_bvhList[obj0],pose0, &m_bvhList[obj1], pose1, request, result);
+            
+            int numContacts = result.numContacts();
             
             for(unsigned int ii=0; ii<numContacts; ++ii) {
+                
             //add each new contact to the contact list here
             //b1, b2 = collision primitive in obj1 and obj2
             //normal = contact normal
             //x = world space contact position
-                m_sharedList.push_back(SharedCollisionInfo<DataType>(result.getContact(ii).normal,result.getContact(ii).pos));
+                
+                //std::cout<<"Position: \n"<<result.getContact(ii).pos<<", \nNormal: \n"<<result.getContact(ii).normal<<"\n";
+                m_sharedList.push_back(SharedCollisionInfo<DataType>(-result.getContact(ii).normal,result.getContact(ii).pos));
                 m_objAList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj0], result.getContact(ii).b1));
                 m_objBList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj1], result.getContact(ii).b2));
             }

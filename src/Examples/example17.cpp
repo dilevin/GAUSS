@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     //Embeddings::EmbeddingFunction<double, FEMLinearTets> embeddingFunction;
     Embeddings::PhysicalSystemEmbeddedMesh<double, FEMLinearTets> *test = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMLinearTets>(Vs,Fs, V, F);
     
-    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(-0.2,1.0,0.0), Eigen::Vector3d(0.0,-5.0,0.0));
+    MyCollisionDetector cd(std::ref(world), Eigen::Vector3d(-1,1.0,0.0), Eigen::Vector3d(0.0, -5,0.0));
     world.addSystem(test);
     world.addInequalityConstraint(&cd);
     world.finalize();

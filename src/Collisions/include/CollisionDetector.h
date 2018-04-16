@@ -68,20 +68,52 @@ namespace Gauss {
                         
                         //Build Jacobian differently for vertex collisions and in element collision events
                         static_if<std::remove_reference<decltype(collisionInfo)>::type::collisionType == 0>([&](auto f){
-                            auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType));
+                            
+                            auto J = (sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType))).eval();
                             assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
                         }).else_([&](auto f) {
-                            std::cout<<"getGradient: Shouldn't be here yet, no continous jacobian implemented \n";
-                            exit(1);
-                            //auto J = sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDVDQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
-                            //assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
+                        
+                            //something is wrong here
+                            auto J = (sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType),sharedInfo[collisionInfo.getShared()].getPosition())).eval();
+                            auto q = a->getQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
+                            //std::cout<<"Q SIZE: "<<q.size()<<"\n";
+                            assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},q);
                         });
                         
                         
                     });
-                        
+                    
+                    //need another loop of objectB
                     indexInc.offsetGlobalId(1);
                 
+                });
+                
+                indexInc = index;
+                indexInc.setNumRows(1);
+                
+                //forEach loop for multivector
+                forEach(objBList, [&assembler, &sharedInfo, &indexInc,&world, &state](auto &collisionInfo) {
+                    apply(world.getSystemList(), collisionInfo.getObject(), [&assembler, &collisionInfo, &indexInc, &world, &sharedInfo, &state](auto &a) {
+                        
+                        //Build Jacobian differently for vertex collisions and in element collision events
+                        static_if<std::remove_reference<decltype(collisionInfo)>::type::collisionType == 0>([&](auto f){
+                            auto J = (-sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType))).eval();
+                            assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQ(collisionInfo.getData(collisionInfo.collisionType)));
+                        }).else_([&](auto f) {
+                            
+                            //something is wrong here
+                            auto J = (-sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType),sharedInfo[collisionInfo.getShared()].getPosition())).eval();
+                            auto q = a->getQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
+                            //std::cout<<"Q SIZE: "<<q.size()<<"\n";
+                            assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},q);
+                        });
+                        
+                        
+                    });
+                    
+                    //need another loop of objectB
+                    indexInc.offsetGlobalId(1);
+                    
                 });
                 
                 //forLoop<IsParallel<Assembler>::value>(objAList, assembler, [&world, &index, &cd](auto &assemble, auto &constraint) {

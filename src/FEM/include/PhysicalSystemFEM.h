@@ -161,12 +161,20 @@ namespace Gauss {
 
             //get function supporting a vertex (these return arrays in order to slot directly into assemblers)
             inline auto getQ(unsigned int vertexId) {
-                std::array<DOFBase<DataType,0> *, 1> toReturn = {&m_q[vertexId]};
+                std::array<DOFBase<DataType,0> *, 1> toReturn = {{&m_q[vertexId]}};
                 return toReturn;
             }
                 
             inline const auto getQ(unsigned int vertexId) const {
                 std::array<DOFBase<DataType,0> *,1> toReturn = {&m_q[vertexId]};
+                return toReturn;
+            }
+           
+            template<typename Vector>
+            inline decltype(auto) getQ(const Vector &pos, unsigned int vertexId) const {
+                std::cout<<"HERE\n"<<"\n";
+                exit(0);
+                std::array<DOFBase<DataType,0> *,1> toReturn;
                 return toReturn;
             }
             
@@ -178,6 +186,31 @@ namespace Gauss {
             inline const auto getQDot(unsigned int vertexId) const {
                 std::array<DOFBase<DataType,1> *,1> toReturn = {&m_qDot[vertexId]};
                 return toReturn;
+            }
+            
+            //Get function supporing point in space
+            template<typename Vector>
+            inline auto getQ(Vector &x, unsigned int elementId) const {
+                std::cout<<"Error not implemented \n";
+                exit(0);
+            }
+            
+            template<typename Vector>
+            inline const auto getQ(Vector &x, unsigned int elementId) const {
+                std::cout<<"Error not implemented \n";
+                exit(0);
+            }
+            
+            template<typename Vector>
+            inline auto getQDot(Vector &x, unsigned int elementId) {
+                std::cout<<"Error not implemented \n";
+                exit(0);
+            }
+            
+            template<typename Vector>
+            inline const auto getQDot(Vector &x, unsigned int elementId) const {
+                std::cout<<"Error not implemented \n";
+                exit(0);
             }
             
             inline auto & getV() { return m_V; }
@@ -198,6 +231,11 @@ namespace Gauss {
             }
             
             inline const auto getDPDQ(const State<DataType> &state, unsigned int vertexId) const {
+                return Eigen::Matrix33x<DataType>::Identity();
+            }
+            
+            inline const auto getDPDQ(const State<DataType> &state, unsigned int elementId, const Eigen::Vector3x<DataType> &pos) const {
+                exit(0);
                 return Eigen::Matrix33x<DataType>::Identity();
             }
             

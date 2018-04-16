@@ -3,6 +3,7 @@
 
 #include "PhysicalSystem.h"
 #include "DOFParticle.h"
+#include "UtilitiesEigen.h"
 #include <array>
 
 //Simple test which is a single particle (just to shake out bugs in the design
@@ -54,13 +55,30 @@ namespace Gauss {
                 return toReturn;
             }
             
+            template<typename Vector>
+            inline const auto getQ(const Vector &pos, unsigned int vertexId)  {
+                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_xDot}};
+                return toReturn;
+            }
+        
+            inline const auto getQ(unsigned int vertexId)  {
+                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_xDot}};
+                return toReturn;
+            }
+            
             template<typename  Vector>
             inline auto getDPDQ(Vector &x, unsigned int vertexId) {
                 std::cout<<"DVDQ Particle System not implemented yet\n";
                 exit(0);
                 return 0;
             }
-
+            
+          
+            template<typename Vector>
+            inline const auto getDPDQ(const State<DataType> &state, unsigned int elementId, const Vector &pos) const {
+                exit(0);
+                return Eigen::Matrix33x<DataType>::Identity();
+            }
             
             //do nothing for now, fix later
             inline auto getGeometry() { std::cout<<"Get Geometry for a Particle System not implemented yet \n";  exit(0); return nullptr; }

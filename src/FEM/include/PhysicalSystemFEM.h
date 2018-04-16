@@ -170,14 +170,6 @@ namespace Gauss {
                 return toReturn;
             }
            
-            template<typename Vector>
-            inline decltype(auto) getQ(const Vector &pos, unsigned int vertexId) const {
-                std::cout<<"HERE\n"<<"\n";
-                exit(0);
-                std::array<DOFBase<DataType,0> *,1> toReturn;
-                return toReturn;
-            }
-            
             inline auto getQDot(unsigned int vertexId) {
                 std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[vertexId]}};
                 return toReturn;
@@ -188,17 +180,19 @@ namespace Gauss {
                 return toReturn;
             }
             
-            //Get function supporing point in space
-            template<typename Vector>
-            inline auto getQ(Vector &x, unsigned int elementId) const {
-                std::cout<<"Error not implemented \n";
-                exit(0);
-            }
             
             template<typename Vector>
             inline const auto getQ(Vector &x, unsigned int elementId) const {
                 std::cout<<"Error not implemented \n";
                 exit(0);
+            }
+            
+            template<typename Vector>
+            inline decltype(auto) getQ(const Vector &pos, unsigned int vertexId) {
+                std::cout<<"HERE\n"<<"\n";
+                exit(0);
+                std::array<DOFBase<DataType,0> *,1> toReturn;
+                return toReturn;
             }
             
             template<typename Vector>

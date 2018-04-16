@@ -73,7 +73,6 @@ namespace Gauss {
                             assign(assembler, J, std::array<ConstraintIndex,1>{{indexInc}},a->getQDot(collisionInfo.getData(collisionInfo.collisionType)));
                         }).else_([&](auto f) {
                         
-                            //something is wrong here
                             auto J = (sharedInfo[collisionInfo.getShared()].getNormal().transpose()*a->getDPDQ(state, collisionInfo.getData(collisionInfo.collisionType),sharedInfo[collisionInfo.getShared()].getPosition())).eval();
                             auto q = a->getQ(sharedInfo[collisionInfo.getShared()].getPosition(), collisionInfo.getData(collisionInfo.collisionType));
                             //std::cout<<"Q SIZE: "<<q.size()<<"\n";

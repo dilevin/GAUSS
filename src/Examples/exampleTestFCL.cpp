@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     igl::boundary_facets(F2, Fs2);
     Fs2 = Fs2.rowwise().reverse().eval(); //igl boundary facets returns facet indices in reverse order
     
-    V2.col(0) = (V2.col(0) + 2*Eigen::VectorXd::Ones(V2.rows())).eval(); //translate to the right by 5 m
+    V2.col(0) = (V2.col(0) + 1*Eigen::VectorXd::Ones(V2.rows())).eval(); //translate to the right by 5 m
     
     //Embed
     Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM0 = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(V,Fs, V, F);

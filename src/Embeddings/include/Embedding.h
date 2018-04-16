@@ -131,7 +131,7 @@ namespace Gauss {
            }
             
            template<typename Vector>
-           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, Vector &x, unsigned int elementId) const {
+           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, Vector &x, unsigned int elementId)  {
                
                std::array<DOFBase<DataType> *, 3*NUM> q;
                unsigned int kk=0;
@@ -214,7 +214,7 @@ namespace Gauss {
             
             //Get function supporing point in space
             template<typename Vector>
-            inline  decltype(auto) getQ(const Vector &x, unsigned int elementId) const {
+            inline  decltype(auto) getQ(const Vector &x, unsigned int elementId)  {
                 return m_embedding.getQ(*this, x, elementId);
             }
             

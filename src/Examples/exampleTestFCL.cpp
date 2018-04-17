@@ -46,7 +46,7 @@ void preStepCallback(MyWorld &world) {
 int main(int argc, char **argv) {
 
     //load two tet meshes
-    Eigen::MatrixXd V, V2, Vs;
+    Eigen::MatrixXd V, V2, Vs, Vs2;
     Eigen::MatrixXi F, F2, Fs, Fs2;
     
     //readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
@@ -65,11 +65,23 @@ int main(int argc, char **argv) {
     igl::boundary_facets(F2, Fs2);
     Fs2 = Fs2.rowwise().reverse().eval(); //igl boundary facets returns facet indices in reverse order
     
-    V2.col(0) = (V2.col(0) + 1*Eigen::VectorXd::Ones(V2.rows())).eval(); //translate to the right by 5 m
+    //if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", Vs, Fs))
+      //  std::cout<<"Failed to read embedded mesh \n";
+    
+    //if(!igl::readOBJ(dataDir()+"/meshes/OBJ/garg.obj", Vs2, Fs2))
+      //  std::cout<<"Failed to read embedded mesh \n";
+    V2.col(0) = (V2.col(0) + 2*Eigen::VectorXd::Ones(V2.rows())).eval();
+    V2.col(1) = (V2.col(1) + 0.1*Eigen::VectorXd::Ones(V2.rows())).eval();
+    Vs2 = V2;
+    
+   // Vs2.col(0) = (Vs2.col(0) + 2*Eigen::VectorXd::Ones(Vs2.rows())).eval();
+    //Vs2.col(1) = (Vs2.col(1) + 0.1*Eigen::VectorXd::Ones(Vs2.rows())).eval();
+    
+    
     
     //Embed
-    Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM0 = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(V,Fs, V, F);
-    Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM1 = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(V2,Fs2, V2, F2);
+    Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM0 = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(Vs,Fs, V, F);
+    Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets> *embeddedFEM1 = new Embeddings::PhysicalSystemEmbeddedMesh<double, FEMNeohookeanTets>(Vs2,Fs2, V2, F2);
     MyWorld world;
 
     world.addSystem(embeddedFEM0);

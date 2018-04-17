@@ -2,6 +2,7 @@
 #define _EMBEDDINGS_H
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
+#include <igl/barycentric_coordinates.h>
 
 namespace Gauss {
     namespace Embeddings {
@@ -117,8 +118,6 @@ namespace Gauss {
                
                 //Eigen::MatrixXx<DataType> J;
                 //J.resize(3, 3*m_N.cols());
-                
-                //need barycnetric coords for contact point
                 Eigen::MatrixXx<DataType> J;
                 J.resize(3, 3*m_N.cols());
                 
@@ -131,7 +130,7 @@ namespace Gauss {
            }
             
            template<typename Vector>
-           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, Vector &x, unsigned int elementId)  {
+           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, Vector &x, unsigned int elementId)  const {
                
                std::array<DOFBase<DataType> *, 3*NUM> q;
                unsigned int kk=0;
@@ -150,7 +149,7 @@ namespace Gauss {
                return fem.getElement(m_elements[vertexId])->q();
            }
                                                
-           inline decltype(auto) getQDot(const PhysicalSystemImpl &fem, unsigned int vertexId)  {
+           inline  decltype(auto) getQDot(const PhysicalSystemImpl &fem, unsigned int vertexId) const  {
                
                return fem.getElement(m_elements[vertexId])->qDot();
            }
@@ -214,20 +213,21 @@ namespace Gauss {
             
             //Get function supporing point in space
             template<typename Vector>
-            inline  decltype(auto) getQ(const Vector &x, unsigned int elementId)  {
+            inline  decltype(auto) getQ(const Vector &x, unsigned int elementId) const {
                 return m_embedding.getQ(*this, x, elementId);
             }
             
             //Get function supporing vertex in space
-            inline decltype(auto) getQ(unsigned int elementId) const {
+            inline  decltype(auto) getQ(unsigned int elementId) const {
                 return m_embedding.getQ(*this, elementId);
             }
             
             //Get function supporing vertex in space
-            inline decltype(auto) getQDot(unsigned int elementId)  {
+            inline  decltype(auto) getQDot(unsigned int elementId)  const {
                 
                 return m_embedding.getQDot(*this, elementId);
             }
+            
             inline decltype(auto) getGeometry() { return m_embedding.getGeometry(); }
             
         protected:

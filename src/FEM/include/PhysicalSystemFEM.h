@@ -160,51 +160,31 @@ namespace Gauss {
             inline const auto & getQDot() const { return m_qDot; }
 
             //get function supporting a vertex (these return arrays in order to slot directly into assemblers)
-            inline auto getQ(unsigned int vertexId) {
-                std::array<DOFBase<DataType,0> *, 1> toReturn = {{&m_q[vertexId]}};
-                return toReturn;
-            }
-                
-            inline const auto getQ(unsigned int vertexId) const {
-                std::array<DOFBase<DataType,0> *,1> toReturn = {&m_q[vertexId]};
+            inline decltype(auto) getQ(unsigned int vertexId) const {
+                std::array<const DOFBase<DataType,0> *,0> toReturn = {&m_q[vertexId]};
                 return toReturn;
             }
            
-            inline auto getQDot(unsigned int vertexId) {
-                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[vertexId]}};
-                return toReturn;
-            }
-            
-            inline const auto getQDot(unsigned int vertexId) const {
-                std::array<DOFBase<DataType,1> *,1> toReturn = {&m_qDot[vertexId]};
+            inline decltype(auto) getQDot(unsigned int vertexId) const {
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {&m_qDot[vertexId]};
                 return toReturn;
             }
             
             
             template<typename Vector>
-            inline const auto getQ(Vector &x, unsigned int elementId) const {
+            inline decltype(auto) getQ(Vector &x, unsigned int elementId) const {
                 std::cout<<"Error not implemented \n";
                 exit(0);
-            }
-            
-            template<typename Vector>
-            inline decltype(auto) getQ(const Vector &pos, unsigned int vertexId) {
-                std::cout<<"HERE\n"<<"\n";
-                exit(0);
-                std::array<DOFBase<DataType,0> *,1> toReturn;
+                std::array<const DOFBase<DataType,0> *,0> toReturn = {&m_q[elementId]};
                 return toReturn;
             }
             
             template<typename Vector>
-            inline auto getQDot(Vector &x, unsigned int elementId) {
+            inline decltype(auto) getQDot(Vector &x, unsigned int elementId) const {
                 std::cout<<"Error not implemented \n";
                 exit(0);
-            }
-            
-            template<typename Vector>
-            inline const auto getQDot(Vector &x, unsigned int elementId) const {
-                std::cout<<"Error not implemented \n";
-                exit(0);
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {&m_qDot[elementId]};
+                return toReturn;
             }
             
             inline auto & getV() { return m_V; }

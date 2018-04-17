@@ -69,7 +69,7 @@ namespace Gauss {
                         //store collision
                         info.push_back(SharedCollisionInfo<DataType>(normal,obj->getPosition(state, iv)));
                         listA.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(type,index), iv));
-                        //listB.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(-1,0), 0));
+                        listB.add(ObjectCollisionInfo<DataType,0>(info.size()-1, SystemIndex(-1,0), 0));
                         
                     }
                 }

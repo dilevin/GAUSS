@@ -127,7 +127,7 @@ namespace Gauss {
         Eigen::VectorXd lx;
         Eigen::VectorXd ux;
         igl::active_set_params params;
-        params.max_iter = 0;
+        //params.max_iter = 0;
         Eigen::VectorXd qDotTmp = qDot;
         active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
         qDot = qDotTmp;

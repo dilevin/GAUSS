@@ -11,7 +11,7 @@
 //GAUSS Stuff
 #include <GaussIncludes.h>
 #include <UtilitiesContact.h>
-#define MAX_CONTACTS 1000
+#define MAX_CONTACTS 100000
 
 // Collision detector fo    r triangle meshes using the flexibile collision library (https://github.com/flexible-collision-library/fcl)
 namespace Gauss {
@@ -56,8 +56,8 @@ namespace Gauss {
         protected:
             
             //only vertex collisions for now
-            MultiVector<ObjectCollisionInfo<DataType, 1> > m_objAList; //collision info for object A
-            MultiVector<ObjectCollisionInfo<DataType, 1> > m_objBList; //collision info for object B
+            MultiVector<ObjectCollisionInfo<DataType, 0> > m_objAList; //collision info for object A
+            MultiVector<ObjectCollisionInfo<DataType, 0> > m_objBList; //collision info for object B
             std::vector<SharedCollisionInfo<DataType>> m_sharedList; //normals and world space positions;
             
             //FCL collision data structures
@@ -134,7 +134,9 @@ void Gauss::Collisions::CollisionFCLImpl<DataType>::detectCollisions(World &worl
     //n^2 collision detection
     fcl::Transform3<DataType> pose0 = fcl::Transform3<DataType>::Identity();
     fcl::Transform3<DataType> pose1 = fcl::Transform3<DataType>::Identity();
-    fcl::CollisionRequest<DataType> request(MAX_CONTACTS,true);
+    
+    //size_t num_max_contacts_=1, bool enable_contact_=false, size_t num_max_cost_sources_=1, bool enable_cost_=false, bool use_approximate_cost_=true, GJKSolverType gjk_solver_type_=GST_LIBCCD)
+    fcl::CollisionRequest<DataType> request(MAX_CONTACTS,true, 1, false, true);
     fcl::CollisionResult<DataType> result;
     
     for(unsigned int obj0=0; obj0<m_bvhList.size(); ++obj0) {
@@ -152,10 +154,17 @@ void Gauss::Collisions::CollisionFCLImpl<DataType>::detectCollisions(World &worl
             //normal = contact normal
             //x = world space contact position
                 
-                //std::cout<<"Position: \n"<<result.getContact(ii).pos<<", \nNormal: \n"<<result.getContact(ii).normal<<"\n";
-                m_sharedList.push_back(SharedCollisionInfo<DataType>(-result.getContact(ii).normal,result.getContact(ii).pos));
-                m_objAList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj0], result.getContact(ii).b1));
-                m_objBList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj1], result.getContact(ii).b2));
+                //add contrait for each vertex in triangle
+                for(unsigned int jj=0; jj< 3; ++jj){
+                    //m_sharedList.push_back(SharedCollisionInfo<DataType>(-result.getContact(ii).normal,result.getContact(ii).pos, result.getContact(ii).penetration_depth));
+                    //m_objAList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj0], result.getContact(ii).b1));
+                    //m_objBList.add(ObjectCollisionInfo<DataType,1>(m_sharedList.size()-1,m_indexList[obj1], result.getContact(ii).b2));
+                    unsigned int iv0 = m_bvhList[obj0].tri_indices[result.getContact(ii).b1][jj];
+                    unsigned int iv1 = m_bvhList[obj1].tri_indices[result.getContact(ii).b2][jj];
+                    m_sharedList.push_back(SharedCollisionInfo<DataType>(-result.getContact(ii).normal,Eigen::Vector3x<DataType>(0,0,0)));
+                    m_objAList.add(ObjectCollisionInfo<DataType,0>(m_sharedList.size()-1, m_indexList[obj0], iv0));
+                    m_objBList.add(ObjectCollisionInfo<DataType,0>(m_sharedList.size()-1, m_indexList[obj1], iv1));
+                }
             }
         }
     }

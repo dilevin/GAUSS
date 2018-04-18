@@ -9,6 +9,7 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 ### Included Submodules (Installed Automatically) ###
 1. Libigl https://github.com/libigl/libigl
 2. Spectra Eigenproblem Solver (https://spectralib.org)
+3. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
 
 ### "Easy" Install Scripts ###
 Clone this repository with 

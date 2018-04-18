@@ -143,6 +143,11 @@ find_package(Eigen3 REQUIRED)
 #Google test ends here
 
 #Individual feature directories
+
+if(not(Eigen3_FOUND) 
+    set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3") 
+endif(Eigen3_FOUND)
+
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})
 #include_directories(/usr/local/opt/llvm/lib/clang/4.0.0/include)

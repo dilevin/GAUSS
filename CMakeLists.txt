@@ -16,7 +16,6 @@ endif(APPLE)
 
 #do you want to use Pardiso
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
-set(USE_SPECTRA CACHE BOOL "Use Spectra to solve eigenvalue problems (if available)")
 set(USE_MATLAB CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
 
 if(APPLE)
@@ -36,9 +35,6 @@ if(USE_PARDISO)
     endif (UNIX)
 endif(USE_PARDISO)
 
-if(USE_SPECTRA)
-    set(SPECTRA_INCLUDE_DIR CACHE STRING "Spectra Root Directory")
-endif(USE_SPECTRA)
 
 #find_package(OpenMP REQUIRED)
 #Global variables to configure other projects
@@ -89,11 +85,6 @@ if(USE_PARDISO)
     add_definitions(-DGAUSS_PARDISO)
 endif(USE_PARDISO)
 
-if(USE_SPECTRA)
-    set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${SPECTRA_INCLUDE_DIR}/include CACHE INTERNAL "")
-    add_definitions(-DGAUSS_SPECTRA)
-endif(USE_SPECTRA)
-
 #Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
@@ -107,6 +98,10 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #libigl include directory
 set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
+
+#Spectra
+set(SPECTRA_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/Spectra/include CACHE FILEPATH "Root include directory for SPECTRA")
+set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${SPECTRA_INCLUDE_DIR}/include CACHE INTERNAL "")
 
 #directories for FCL and dependencies
 set(FCL_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/fcl)

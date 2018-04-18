@@ -113,8 +113,6 @@ namespace Gauss {
 
             template<typename Matrix>
             inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
-                //H = -ShapeFunction::B(x,state).transpose()*m_C*ShapeFunction::B(x,state);
-
                 H = -B(this, x, state).transpose()*m_C*B(this, x, state);
 
             }

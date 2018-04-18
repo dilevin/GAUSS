@@ -120,7 +120,7 @@ namespace Gauss {
             int idx = 0;
             int vertexId = 0;
             int tetId = 0;
-            const auto & V = m_fem->getImpl().getV();
+            //const auto & V = m_fem->getImpl().getV();
             const auto & F = m_fem->getImpl().getF();
             
             

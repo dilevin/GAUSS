@@ -160,23 +160,30 @@ namespace Gauss {
             inline const auto & getQDot() const { return m_qDot; }
 
             //get function supporting a vertex (these return arrays in order to slot directly into assemblers)
-            inline auto getQ(unsigned int vertexId) {
-                std::array<DOFBase<DataType,0> *, 1> toReturn = {&m_q[vertexId]};
+            inline decltype(auto) getQ(unsigned int vertexId) const {
+                std::array<const DOFBase<DataType,0> *,1> toReturn = {{&m_q[vertexId]}};
                 return toReturn;
             }
-                
-            inline const auto getQ(unsigned int vertexId) const {
-                std::array<DOFBase<DataType,0> *,1> toReturn = {&m_q[vertexId]};
-                return toReturn;
-            }
-            
-            inline auto getQDot(unsigned int vertexId) {
-                std::array<DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[vertexId]}};
+           
+            inline decltype(auto) getQDot(unsigned int vertexId) const {
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[vertexId]}};
                 return toReturn;
             }
             
-            inline const auto getQDot(unsigned int vertexId) const {
-                std::array<DOFBase<DataType,1> *,1> toReturn = {&m_qDot[vertexId]};
+            
+            template<typename Vector>
+            inline decltype(auto) getQ(Vector &x, unsigned int elementId) const {
+                std::cout<<"Error not implemented \n";
+                exit(0);
+                std::array<const DOFBase<DataType,0> *, 1> toReturn = {{&m_q[elementId]}};
+                return toReturn;
+            }
+            
+            template<typename Vector>
+            inline decltype(auto) getQDot(Vector &x, unsigned int elementId) const {
+                std::cout<<"Error not implemented \n";
+                exit(0);
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {{&m_qDot[elementId]}};
                 return toReturn;
             }
             
@@ -186,7 +193,7 @@ namespace Gauss {
             inline const auto & getV() const { return m_V; }
             inline const auto & getF() const { return m_F; }
             
-            
+           
             //methods for getting current positions and position Jacobians for this system
             //Per-Vertex
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
@@ -201,7 +208,13 @@ namespace Gauss {
                 return Eigen::Matrix33x<DataType>::Identity();
             }
             
+            inline const auto getDPDQ(const State<DataType> &state, unsigned int elementId, const Eigen::Vector3x<DataType> &pos) const {
+                exit(0);
+                return Eigen::Matrix33x<DataType>::Identity();
+            }
+            
             //want these for elements as well (i.e take an element indec and a point in space and return the right value)
+            
             
             inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             

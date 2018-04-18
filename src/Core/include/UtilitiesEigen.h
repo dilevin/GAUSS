@@ -207,7 +207,7 @@ namespace Gauss {
         
         // Initialize and compute
         eigs.init();
-        int nconv = eigs.compute();
+        //int nconv = eigs.compute();
         
         // Retrieve results
         if(eigs.info() == Spectra::SUCCESSFUL) {
@@ -244,7 +244,7 @@ namespace Gauss {
         
         // Initialize and compute
         eigs.init();
-        int nconv = eigs.compute();
+        //int nconv = eigs.compute();
         Eigen::VectorXx<DataType> eigsCorrected;
         Eigen::MatrixXx<DataType> evsCorrected; //magnitude of eigenvectors can be wrong in this formulation
         eigsCorrected.resize(eigs.eigenvalues().rows());

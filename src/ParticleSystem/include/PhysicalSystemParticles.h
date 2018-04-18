@@ -51,24 +51,24 @@ namespace Gauss {
             const DOFParticle<DataType,1> & getQDot() const { return m_xDot; }
             
             inline const auto getQDot(unsigned int vertexId) const {
-                std::array<const DOFBase<DataType,1> *,1> toReturn = {&m_xDot};
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {{&m_xDot}};
                 return toReturn;
             }
             
             template<typename Vector>
             inline const auto getQDot(const Vector &pos, unsigned int vertexId)  const {
-                std::array<const DOFBase<DataType,1> *,1> toReturn = {&m_xDot};
+                std::array<const DOFBase<DataType,1> *,1> toReturn = {{&m_xDot}};
                 return toReturn;
             }
             
             inline const auto getQ(unsigned int vertexId) const {
-                std::array<const DOFBase<DataType,0> *,0> toReturn = {&m_x};
+                std::array<const DOFBase<DataType,0> *,0> toReturn = {{&m_x}};
                 return toReturn;
             }
             
             template<typename Vector>
             inline const auto getQ(const Vector &pos, unsigned int vertexId)  const {
-                std::array<const DOFBase<DataType,0> *,0> toReturn = {&m_x};
+                std::array<const DOFBase<DataType,0> *,0> toReturn = {{&m_x}};
                 return toReturn;
             }
         

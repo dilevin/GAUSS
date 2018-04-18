@@ -144,9 +144,9 @@ find_package(Eigen3 REQUIRED)
 
 #Individual feature directories
 
-if(not(Eigen3_FOUND) 
+if(NOT Eigen3_FOUND)
     set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3") 
-endif(Eigen3_FOUND)
+endif(NOT Eigen3_FOUND)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})

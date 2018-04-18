@@ -114,7 +114,7 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
 #Eigen
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 QUIET)
 
 #GTest (From Masha Shugrina)
 # Google Test (Not using this right now and its causing build problems so comment out)

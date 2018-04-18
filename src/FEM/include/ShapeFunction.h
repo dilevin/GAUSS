@@ -155,11 +155,11 @@ namespace Gauss {
             
             
             //get DOFs
-            inline std::array<DOFBase<DataType,0> *, 4> & q() {
+            inline const std::array<DOFBase<DataType,0> *, 4> & q() const {
                 return m_qDofs;
             }
             
-            inline std::array<DOFBase<DataType,1> *, 4> & qDot() {
+            inline const std::array<DOFBase<DataType,1> *, 4> & qDot() const {
                 return m_qDotDofs;
             }
             

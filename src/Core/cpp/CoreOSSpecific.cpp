@@ -1,13 +1,13 @@
 #include "CoreOSSpecific.h"
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
 //WINDOWS INCLUDES
 #else
 //*NIX includes
 #include <dirent.h>
 #endif
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
 
 int Core::getDirectoryListing(std::vector<std::string> &list, const std::string &directoryName)
 {

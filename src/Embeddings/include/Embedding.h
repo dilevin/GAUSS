@@ -2,6 +2,7 @@
 #define _EMBEDDINGS_H
 #include <GaussIncludes.h>
 #include <FEMIncludes.h>
+#include <igl/barycentric_coordinates.h>
 
 namespace Gauss {
     namespace Embeddings {
@@ -98,23 +99,61 @@ namespace Gauss {
             
 
             //per vertex accessors
-            inline decltype(auto) getPosition(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
+            inline Eigen::Vector3x<DataType> getPosition(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
                 //return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQ(), state);
                 return m_V.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*fem.getElement(m_elements[vertexId])->q(state);
             }
             
             //this is also surface J
-            inline decltype(auto) getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
+            inline Eigen::MatrixXx<DataType>  getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) const {
                 return m_N.block(3*vertexId, 0, 3, m_N.cols());
             }
             
-            inline void getVelocity(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
+            inline Eigen::Vector3x<DataType> getVelocity(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int vertexId) {
                 return m_N.block(3*vertexId, 0, 3, m_N.cols())*fem.getElement(m_elements[vertexId])->qDot(state);
             }
             
             //per spatial point accessors (nothing implemented for these yet)
+            inline Eigen::MatrixXx<DataType> getDPDQ(const PhysicalSystemImpl &fem, const State<DataType> &state, unsigned int elementId, const Eigen::Vector3x<DataType> &x) const {
+               
+                //Eigen::MatrixXx<DataType> J;
+                //J.resize(3, 3*m_N.cols());
+                Eigen::MatrixXx<DataType> J;
+                J.resize(3, 3*m_N.cols());
+                
+                J.block(0,0, 3, m_N.cols()) = getDPDQ(fem, state, m_F(elementId, 0));
+                J.block(0,m_N.cols(), 3, m_N.cols()) = getDPDQ(fem, state, m_F(elementId, 1));
+                J.block(0,2*m_N.cols(), 3, m_N.cols()) = getDPDQ(fem, state, m_F(elementId, 2));
+                
+                return J;
+                
+           }
             
-            
+           template<typename Vector>
+           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, Vector &x, unsigned int elementId)  const {
+               
+               std::array<DOFBase<DataType> *, 3*NUM> q;
+               unsigned int kk=0;
+               for(unsigned int ii=0; ii< 3; ++ii) {
+                   auto e = fem.getElement(m_elements[m_F(elementId, ii)])->q();
+                   for(unsigned int jj=0 ;jj< e.size(); ++jj) {
+                       q[kk] = e[jj];
+                       kk++;
+                   }
+               }
+               return q;
+           }
+                                               
+           inline decltype(auto) getQ(const PhysicalSystemImpl &fem, unsigned int vertexId) const {
+
+               return fem.getElement(m_elements[vertexId])->q();
+           }
+                                               
+           inline  decltype(auto) getQDot(const PhysicalSystemImpl &fem, unsigned int vertexId) const  {
+               
+               return fem.getElement(m_elements[vertexId])->qDot();
+           }
+                
         protected:
             
            Eigen::MatrixXx<DataType> m_V;
@@ -170,6 +209,23 @@ namespace Gauss {
             template<typename ...Params>
             inline decltype(auto) getDVDQ(const State<DataType> &state, Params &...params) {
                 return m_embedding.getDVDQ(*this, state, params...);
+            }
+            
+            //Get function supporing point in space
+            template<typename Vector>
+            inline  decltype(auto) getQ(const Vector &x, unsigned int elementId) const {
+                return m_embedding.getQ(*this, x, elementId);
+            }
+            
+            //Get function supporing vertex in space
+            inline  decltype(auto) getQ(unsigned int elementId) const {
+                return m_embedding.getQ(*this, elementId);
+            }
+            
+            //Get function supporing vertex in space
+            inline  decltype(auto) getQDot(unsigned int elementId)  const {
+                
+                return m_embedding.getQDot(*this, elementId);
             }
             
             inline decltype(auto) getGeometry() { return m_embedding.getGeometry(); }

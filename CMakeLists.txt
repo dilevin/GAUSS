@@ -59,8 +59,16 @@ if(APPLE)
     endif(USE_OPENMP)
 else()
     find_package(OpenMP REQUIRED)
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fopenmp)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fopenmp)    
+
+    if(WIN32) 
+        set (CMAKE_C_FLAGS /openmp ${CMAKE_C_FLAGS})
+        set (CMAKE_CXX_FLAGS /openmp ${CMAKE_CXX_FLAGS})
+		add_definitions(-DWIN32)
+    ELSE()
+        set (CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS})
+        set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
+        set (CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
+    ENDIF()
     add_definitions(-DGAUSS_OPENMP)
 endif(APPLE)
 
@@ -89,6 +97,7 @@ endif(USE_SPECTRA)
 #Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 
 #add define for data directory
 add_definitions(-DGAUSS_DATA_DIR=${PROJECT_SOURCE_DIR}/data)
@@ -98,6 +107,16 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #libigl include directory
 set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
+
+#directories for FCL and dependencies
+set(FCL_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/fcl)
+set(LIBCCD_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libccd)
+set(OCTOMAP_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/octomap)
+
+#augment GAUSS_INCLUDE_DIRS
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${FCL_DIR}/include)
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
+set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
 #Eigen
 find_package(Eigen3 REQUIRED)
@@ -141,6 +160,39 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Core/include
 include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
 
+#Set parameters for third party libraries
+#libccd
+set(BUILD_DOCUMENTATION OFF CACHE INTERNAL "" FORCE)
+set(BUILD_OCTOVIS_SUBPROJECT  OFF CACHE INTERNAL "" FORCE)
+set(BUILD_GMOCK OFF CACHE INTERNAL "" FORCE)
+set(BUILD_GTEST OFF CACHE INTERNAL ""  FORCE)
+set(BUILD_DYNAMICETD3D_SUBPROJECT OFF CACHE INTERNAL "" FORCE)
+set(BUILD_TESTING OFF CACHE INTERNAL FORCE "")
+set(OCTOMAP_OMP OFF CACHE INTERNAL ""  FORCE)
+set(FCL_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+set(FCL_WITH_OCTOMAP OFF CACHE INTERNAL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE) 
+set(FCL_STATIC_LIBRARY ON CACHE INTERNAL "" FORCE)
+set(ENABLE_DOUBLE_PRECISION ON CACHE INTERNAL "" FORCE)
+#set ccd include directory 
+#set(octomap_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/octomap/octomap CACHE INTERNAL  "" FORCE)
+
+set(CMAKE_DISABLE_FIND_PACKAGE_ccd ON CACHE INTERNAL "" FORCE)
+set(ccd_FOUND ON  CACHE INTERNAL "" FORCE) 
+set(CCD_INCLUDE_DIR ${LIBCCD_DIR}/src CACHE INTERNAL "" FORCE)
+set(CCD_INCLUDE_DIRS ${LIBCCD_DIR}/src CACHE INTERNAL "" FORCE)
+set(CCD_LIBRARIES "${CCD_LIBRARY}" "${M_LIBRARY}")
+set(ccd_FOUND ON)
+
+#Third Party libraries
+#fix for odd build behavior of libccd on windows when using static linking.
+add_definitions("-DCCD_STATIC_DEFINE")
+add_subdirectory(${LIBCCD_DIR})
+#add_subdirectory(${OCTOMAP_DIR})
+add_subdirectory(${FCL_DIR})
+
+message(WARNING ${BUILD_GTEST})
+#Main Gauss libraries
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 
 #odd ordering is because implicit solver lives in Base currently

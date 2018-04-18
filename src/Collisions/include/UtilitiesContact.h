@@ -21,17 +21,25 @@ namespace Gauss {
                 
             }
             
-            inline SharedCollisionInfo(Eigen::Vector3x<DataType> &normal, Eigen::Vector3x<DataType> position) {
+            inline SharedCollisionInfo(const Eigen::Vector3x<DataType> &normal, const Eigen::Vector3x<DataType> position) {
                 m_normal = normal;
                 m_contactPoint = position;
+                m_depth = 0;
+            }
+            
+            inline SharedCollisionInfo(const Eigen::Vector3x<DataType> &normal, const Eigen::Vector3x<DataType> position, DataType depth) {
+                m_normal = normal;
+                m_contactPoint = position;
+                m_depth = depth;
             }
             
             inline const Eigen::Vector3x<DataType> & getNormal() const { return m_normal; }
             inline const Eigen::Vector3x<DataType> & getPosition() const { return m_contactPoint; }
-            
+            inline const DataType & getDepth() const {return m_depth; }
             //important data (I borrowed the idea of this stucture from the flexible-collision-library)
             Eigen::Vector3x<DataType> m_normal; //as a rule m_normal is pointing away from object A
             Eigen::Vector3x<DataType> m_contactPoint;
+            DataType m_depth; //penetration depth
 
         };
         

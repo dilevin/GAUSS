@@ -86,7 +86,7 @@ namespace Gauss {
     };
     
     //Modal Analysis using Spectra
-#ifdef GAUSS_SPECTRA
+
     //Temp test Spectre
     #include <GenEigsComplexShiftSolver.h>
     #include <SymGEigsSolver.h>
@@ -269,16 +269,6 @@ namespace Gauss {
         }
         
     }
-#else
-    template<class ...Params>
-    auto generalizedEigenvalueProblem(Params ...params) {
-        std::cout<<"Spectra not installed\n";
-        Eigen::MatrixXd eV, ev;
-        eV.resize(0,0);
-        ev.resize(0,0);
-        return std::make_pair(eV, ev);
-    }
-#endif
 
 }
 #endif /* UtilitiesEigen_h */

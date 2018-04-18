@@ -114,7 +114,8 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
 #Eigen
-find_package(Eigen3 QUIET)
+set(Eigen3_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen/cmake CACHE FILEPATH "Root include directory for Eigen3" FORCE)
+find_package(Eigen3 REQUIRED)
 
 #GTest (From Masha Shugrina)
 # Google Test (Not using this right now and its causing build problems so comment out)
@@ -143,11 +144,6 @@ find_package(Eigen3 QUIET)
 #Google test ends here
 
 #Individual feature directories
-
-if(NOT Eigen3_FOUND)
-    set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3" FORCE) 
-    set(Eigen3_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3" FORCE)
-endif(NOT Eigen3_FOUND)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})

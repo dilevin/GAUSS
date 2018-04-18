@@ -161,7 +161,7 @@ namespace Gauss {
 
             //get function supporting a vertex (these return arrays in order to slot directly into assemblers)
             inline decltype(auto) getQ(unsigned int vertexId) const {
-                std::array<const DOFBase<DataType,0> *,0> toReturn = {{&m_q[vertexId]}};
+                std::array<const DOFBase<DataType,0> *,1> toReturn = {{&m_q[vertexId]}};
                 return toReturn;
             }
            
@@ -175,7 +175,7 @@ namespace Gauss {
             inline decltype(auto) getQ(Vector &x, unsigned int elementId) const {
                 std::cout<<"Error not implemented \n";
                 exit(0);
-                std::array<const DOFBase<DataType,0> *,0> toReturn = {{&m_q[elementId]}};
+                std::array<const DOFBase<DataType,0> *, 1> toReturn = {{&m_q[elementId]}};
                 return toReturn;
             }
             

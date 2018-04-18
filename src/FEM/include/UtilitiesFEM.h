@@ -20,7 +20,7 @@
 
 namespace Gauss {
     namespace FEM {
-        #ifdef GAUSS_SPECTRA
+        
         //linear modal analysis
         //returns a pair wherein the first value is a matrix of eigenvectors and the second is vector of corresponding vibrational frequencies
         template<typename World>
@@ -33,7 +33,7 @@ namespace Gauss {
             getMassMatrix(mass, world);
             getStiffnessMatrix(stiffness, world);
             
-            auto eigs = generalizedEigenvalueProblem((*stiffness), (*mass), numModes,   1e-9);
+            auto eigs = generalizedEigenvalueProblem((*stiffness), (*mass), numModes,   1e-3);
             
             //convert to vibrational frequencies
             //hack because generalised eignvalue solver only returns real values
@@ -43,7 +43,6 @@ namespace Gauss {
             
             return eigs;
         }
-        #endif
         
         //functor for getting position of a DOF
         template <typename DataType, typename DOF>

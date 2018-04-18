@@ -7,7 +7,7 @@
 //
 
 #ifndef ForceGravity_h
-#define ForceSpring_h
+#define ForceGravity_h
 
 #include <ForceExternal.h>
 #include <DOFParticle.h>

@@ -4,6 +4,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 project (Gauss)
 
 set(CMAKE_CXX_STANDARD 14)
+set($CMAKE_PREFIX_PATH {CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen/cmake)
+
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 
@@ -114,8 +116,17 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
 #Eigen
-set(Eigen3_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen/cmake CACHE FILEPATH "Root include directory for Eigen3" FORCE)
+
 find_package(Eigen3 REQUIRED)
+
+#if(TARGET Eigen3::Eigen)
+  # If an imported target already exists, use it
+ # target_link_libraries(Gauss INTERFACE Eigen3::Eigen)
+#else()
+ # target_include_directories(Gauss SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen)
+ # set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3" FORCE)
+#endif()
+
 
 #GTest (From Masha Shugrina)
 # Google Test (Not using this right now and its causing build problems so comment out)

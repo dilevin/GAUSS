@@ -4,6 +4,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 project (Gauss)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE PATH "Root include directory for Eigen3" FORCE) 
+
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 
@@ -113,8 +115,8 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${FCL_DIR}/include)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
-#Eigen
 find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 #GTest (From Masha Shugrina)
 # Google Test (Not using this right now and its causing build problems so comment out)
@@ -143,7 +145,6 @@ find_package(Eigen3 REQUIRED)
 #Google test ends here
 
 #Individual feature directories
-include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})
 #include_directories(/usr/local/opt/llvm/lib/clang/4.0.0/include)
 
@@ -154,6 +155,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Core/include
 #link_directories(/usr/local/opt/llvm/lib)
 include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
+
 
 #Set parameters for third party libraries
 #libccd
@@ -185,6 +187,7 @@ add_definitions("-DCCD_STATIC_DEFINE")
 add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
+
 
 message(WARNING ${BUILD_GTEST})
 #Main Gauss libraries

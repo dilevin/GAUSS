@@ -156,6 +156,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Core/include
 include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
 
+
 #Set parameters for third party libraries
 #libccd
 set(BUILD_DOCUMENTATION OFF CACHE INTERNAL "" FORCE)

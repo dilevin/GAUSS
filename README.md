@@ -7,7 +7,7 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 
 ### Included Submodules (Installed Automatically) ###
 1. Libigl https://github.com/libigl/libigl
-2. Eigen >= 3.2 (By Default GAUSS uses the libigl eigen install)
+2. Eigen >= 3.2 (By Default GAUSS uses the libigl Eigen install)
 3. Spectra Eigenproblem Solver (https://spectralib.org)
 4. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
 

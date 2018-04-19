@@ -145,6 +145,7 @@ find_package(Eigen3 QUIET)
 #Individual feature directories
 
 if(NOT Eigen3_FOUND)
+    set(Eigen3_FOUND 3.2 CACHE STRING "Eigen3 is found" FORCE)
     set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE FILEPATH "Root include directory for Eigen3") 
 endif(NOT Eigen3_FOUND)
 

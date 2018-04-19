@@ -186,7 +186,15 @@ add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
 
+#Gurobi stuff here
+add_subdirectory(${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi)
+include_directories(${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi/src)
+include_directories(${GUROBI_INCLUDE_DIR})
+set(GAUSS_LIBS ${GAUSS_LIBS} ${GUROBI_DIR}/lib/${GUROBI_LIBRARY}  ${GUROBI_DIR}/lib/${GUROBI_CXX_LIBRARY} CACHE INTERNAL "")
+
+message(WARNING ${GAUSS_LIBS})
 message(WARNING ${BUILD_GTEST})
+
 #Main Gauss libraries
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 

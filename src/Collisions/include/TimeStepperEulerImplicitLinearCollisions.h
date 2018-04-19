@@ -9,6 +9,7 @@
 #ifndef TimeStepperEulerImplicitLinearCollisions_h
 #define TimeStepperEulerImplicitLinearCollisions_h
 
+#include <Gurobi.h>
 #include <CollisionDetector.h>
 #include <CollisionsFloor.h>
 #include <World.h>
@@ -55,7 +56,7 @@ namespace Gauss {
             MatrixAssembler m_stiffnessMatrix;
             MatrixAssembler m_collisionConstraints;
             VectorAssembler m_forceVector;
-            
+            Eigen::GurobiSparse qp;
             //storage for lagrange multipliers
             typename VectorAssembler::MatrixType m_lagrangeMultipliers;
             
@@ -129,8 +130,18 @@ namespace Gauss {
         igl::active_set_params params;
         //params.max_iter = 0;
         Eigen::VectorXd qDotTmp = qDot;
-        active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
-        qDot = qDotTmp;
+        //active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
+        
+        lx.resize(qDot.rows());
+        ux.resize(qDot.rows());
+        lx.setConstant(-100000);
+        ux.setConstant(1000000);
+        
+        qp.displayOutput(false);
+        qp.problem(qDot.rows(), Aeq.rows(), Aineq.rows());
+        qp.solve(systemMatrix, (*forceVector).sparseView(), Aeq, beq.sparseView(), Aineq, b.sparseView(), lx.sparseView(), ux.sparseView());
+        
+        qDot = qp.result();
         q = q + dt*qDot;
         
         

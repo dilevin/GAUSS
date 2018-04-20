@@ -104,7 +104,7 @@ namespace Gauss {
         
         template <typename World, typename Vector>
         inline void getDbDt(Vector &g,  World &world, const State<DataType> &state) {
-            m_impl.template getDbDt<World, Matrix,Operation>(g, world, state, m_index);
+            m_impl.template getDbDt<World, Vector>(g, world, state, m_index);
         }
         
         template <typename World, typename Matrix, unsigned int Operation=0>

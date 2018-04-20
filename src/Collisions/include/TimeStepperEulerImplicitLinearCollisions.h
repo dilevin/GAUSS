@@ -57,14 +57,15 @@ namespace Gauss {
             MatrixAssembler m_collisionConstraints;
             VectorAssembler m_forceVector;
             Eigen::GurobiSparse qp;
-            //storage for lagrange multipliers
-            typename VectorAssembler::MatrixType m_lagrangeMultipliers;
             
 #ifdef GAUSS_PARDISO
-            
             SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
-            
+#else
+            Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > m_eigensolver;
 #endif
+            
+            //storage for lagrange multipliers
+            typename VectorAssembler::MatrixType m_lagrangeMultipliers;
             
         private:
         };
@@ -110,10 +111,10 @@ namespace Gauss {
         Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
         
         //setup RHS
-        (*forceVector) = -((*massMatrix)*qDot + dt*(*forceVector));
+        (*forceVector) = ((*massMatrix)*qDot + dt*(*forceVector));
         
         Eigen::VectorXd x0;
-        Eigen::SparseMatrix<DataType> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+        //Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
         
         
         //solve using libigl active set solver
@@ -127,21 +128,67 @@ namespace Gauss {
         b.setZero();
         Eigen::VectorXd lx;
         Eigen::VectorXd ux;
-        igl::active_set_params params;
-        //params.max_iter = 0;
-        Eigen::VectorXd qDotTmp = qDot;
-        //active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
         
-        lx.resize(qDot.rows());
-        ux.resize(qDot.rows());
-        lx.setConstant(-100000);
-        ux.setConstant(1000000);
+        if(Aineq.rows() == 0 && Aeq.rows() == 0) {
+            Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+            
+#ifdef GAUSS_PARDISO
+            m_pardiso.symbolicFactorization(systemMatrix);
+            m_pardiso.numericalFactorization();
+            
+            m_pardiso.solve(*forceVector);
+            x0 = m_pardiso.getX();
+            //m_pardiso.cleanup();
+#else
+            //solve system (Need interface for solvers but for now just use Eigen LLt)
+            Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+            
+            if(m_refactor || !m_factored) {
+                solver.compute(systemMatrix);
+            }
+            
+            if(solver.info()!=Eigen::Success) {
+                // decomposition failed
+                assert(1 == 0);
+                std::cout<<"Decomposition Failed \n";
+                exit(1);
+            }
+            
+            if(solver.info()!=Eigen::Success) {
+                // solving failed
+                assert(1 == 0);
+                std::cout<<"Solve Failed \n";
+                exit(1);
+            }
+            
+            
+            x0 = solver.solve((*forceVector));
+#endif
+            qDot = x0;
+        } else {
+            Eigen::SparseMatrix<DataType> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+            (*forceVector) *= -1.0;
+#ifndef GAUSS_GUROBI
+            igl::active_set_params params;
+            //params.max_iter = 0;
+            Eigen::VectorXd qDotTmp = qDot;
+            active_set(systemMatrix, (*forceVector), known, bKnown, Aeq, beq, Aineq, b, lx, ux, params, qDotTmp);
+            qDot = qDotTmp;
+#else
+            lx.resize(qDot.rows());
+            ux.resize(qDot.rows());
+            lx.setConstant(-100000);
+            ux.setConstant(1000000);
+            
+            qp.displayOutput(false);
+            qp.warmStart(Eigen::GurobiCommon::WarmStatus::PRIMAL);
+            qp.problem(qDot.rows(), Aeq.rows(), Aineq.rows());
+            qp.solve(systemMatrix, (*forceVector).sparseView(), Aeq, beq.sparseView(), Aineq, b.sparseView(), lx.sparseView(), ux.sparseView());
+            
+            qDot = qp.result();
+#endif
+        }
         
-        qp.displayOutput(false);
-        qp.problem(qDot.rows(), Aeq.rows(), Aineq.rows());
-        qp.solve(systemMatrix, (*forceVector).sparseView(), Aeq, beq.sparseView(), Aineq, b.sparseView(), lx.sparseView(), ux.sparseView());
-        
-        qDot = qp.result();
         q = q + dt*qDot;
         
         

@@ -26,6 +26,10 @@ namespace Gauss {
             m_dpdt = v;
         }
         
+        void setFixedPoint(Eigen::VectorXx<DataType> pos) {
+            m_p0 = pos;
+        }
+        
         void setFixedPoint(Eigen::VectorXx<DataType> pos, Eigen::VectorXx<DataType> vel) {
             m_p0 = pos;
             m_dpdt = vel;

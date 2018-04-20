@@ -48,11 +48,8 @@ void preStepCallback(MyWorld &world) {
 
     for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
         if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
-            
-            // Eigen::Vector3d u = movingConstraints[jj]->getImpl().getFixedPoint();
             Eigen::Vector3d v = V.row(movingVerts[jj]);
             Eigen::Vector3d new_u = rot * v - v - mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
-            std::cout << (rot * v).norm() << std::endl;
             movingConstraints[jj]->getImpl().setFixedPoint(rot*v, new_u/0.01);
         }
     }

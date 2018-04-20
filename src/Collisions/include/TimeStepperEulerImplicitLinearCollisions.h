@@ -9,7 +9,10 @@
 #ifndef TimeStepperEulerImplicitLinearCollisions_h
 #define TimeStepperEulerImplicitLinearCollisions_h
 
-#include <Gurobi.h>
+#ifdef GAUSS_GUROBI
+    #include <Gurobi.h>
+#endif
+
 #include <CollisionDetector.h>
 #include <CollisionsFloor.h>
 #include <World.h>

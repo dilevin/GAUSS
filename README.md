@@ -4,7 +4,7 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 ### External Dependencies ###
 1. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
 2. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
-3. OPTIONAL (But reccomended for contact problems): Gurobi Solver (http://www.gurobi.com)
+3. OPTIONAL: Gurobi Solver (http://www.gurobi.com)
 
 ### Included Submodules (Installed Automatically) ###
 1. Libigl https://github.com/libigl/libigl

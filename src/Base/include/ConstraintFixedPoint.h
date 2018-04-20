@@ -34,10 +34,12 @@ namespace Gauss {
         }
         ~ConstraintFixedPointImpl() { }
         
+        //get
         constexpr unsigned int getNumRows() { return 3; }
         //value of constraint (supports vector valued constraint functions for points and what not)
+        
         template<typename Vector>
-        inline void getFunction(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
+        inline void getError(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
             
             Eigen::Vector3d func = m_p0 - mapDOFEigen(*m_dofFixed, state);
             assign(f, func, std::array<ConstraintIndex,1>{{index}});

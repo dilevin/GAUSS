@@ -62,6 +62,10 @@ namespace Gauss {
     private:
     };
     
+    //Constraints are in the form f(q(t)) = b(t) where b is the constant term in the constraint function.
+    //q are the degrees of freedom of the system
+    //q and b can be parameterized by time.
+    //Constraints need to be able to return f, b, dF/dq, db/dt and the constraint error (f(q(t)) - b(t)).
     template<typename DataType, typename Impl >
     class Constraint
     {
@@ -89,14 +93,25 @@ namespace Gauss {
         unsigned int getNumDOF() { return m_impl.getNumDOF(); }
         
         template <typename World, typename Matrix>
-        inline void getFunction(Matrix &g,  World &world, const State<DataType> &state) {
-            m_impl.getFunction(g, state, m_index);
+        inline void getError(Matrix &g,  World &world, const State<DataType> &state) {
+            m_impl.getError(g, state, m_index);
+        }
+        
+        template <typename World, typename Vector>
+        inline void getB(Vector &b,  World &world, const State<DataType> &state) {
+            m_impl.getB(b, state, m_index);
+        }
+        
+        template <typename World, typename Vector>
+        inline void getDbDt(Vector &g,  World &world, const State<DataType> &state) {
+            m_impl.template getDbDt<World, Matrix,Operation>(g, world, state, m_index);
         }
         
         template <typename World, typename Matrix, unsigned int Operation=0>
         inline void getGradient(Matrix &g,  World &world, const State<DataType> &state) {
             m_impl.template getGradient<World, Matrix,Operation>(g, world, state, m_index);
         }
+        
         
         template<typename World>
         inline void update(World &world) {

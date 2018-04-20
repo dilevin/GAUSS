@@ -202,4 +202,4 @@ namespace Gauss {
     }
 }
 #endif /* TimeStepperEulerImplicitLinearCollisions_h */
-q
+

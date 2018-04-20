@@ -109,7 +109,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
     ASSEMBLELIST(forceVector, world.getForceList(), getForce);
     ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
-    ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getFunction, world.getNumQDotDOFs(), 0);
+    ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getDbDt, world.getNumQDotDOFs(), 0);
     ASSEMBLEEND(forceVector);
 
     //Grab the state

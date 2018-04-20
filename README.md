@@ -11,6 +11,7 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 2. Eigen >= 3.2 (By Default GAUSS uses the libigl Eigen install)
 3. Spectra Eigenproblem Solver (https://spectralib.org)
 4. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
+5. Eigen-Gurobi Interface (https://github.com/jrl-umi3218/eigen-gurobi/)
 
 ### "Easy" Install Scripts ###
 Clone this repository with 

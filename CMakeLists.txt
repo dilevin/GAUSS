@@ -18,7 +18,8 @@ endif(APPLE)
 
 #do you want to use Pardiso
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
-set(USE_MATLAB CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
+set(USE_MATLAB CACHE BOOL "Build GAUSS MATLAB Interface via homebrew llvm on OSX")
+set(USE_GUROBI CACHE BOOL "USE GUROBI QP Solver")
 
 if(APPLE)
     if(USE_OPENMP)
@@ -188,8 +189,14 @@ add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
 
+#Gurobi stuff here
+if(USE_GUROBI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi)
+    set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi/src ${GUROBI_INCLUDE_DIR} CACHE INTERNAL "")
+    set(GAUSS_LIBS ${GAUSS_LIBS} ${GUROBI_DIR}/lib/${GUROBI_LIBRARY}  ${GUROBI_DIR}/lib/${GUROBI_CXX_LIBRARY} eigen-gurobi CACHE INTERNAL "")
+    add_definitions(-DGAUSS_GUROBI)
+endif(USE_GUROBI)
 
-message(WARNING ${BUILD_GTEST})
 #Main Gauss libraries
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 

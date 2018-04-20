@@ -59,7 +59,9 @@ namespace Gauss {
             MatrixAssembler m_stiffnessMatrix;
             MatrixAssembler m_collisionConstraints;
             VectorAssembler m_forceVector;
+#ifdef GAUSS_GUROBI
             Eigen::GurobiSparse qp;
+#endif
             
 #ifdef GAUSS_PARDISO
             SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;

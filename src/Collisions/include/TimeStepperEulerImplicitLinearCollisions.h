@@ -145,10 +145,8 @@ namespace Gauss {
 #else
             //solve system (Need interface for solvers but for now just use Eigen LLt)
             Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+            solver.compute(systemMatrix);
             
-            if(m_refactor || !m_factored) {
-                solver.compute(systemMatrix);
-            }
             
             if(solver.info()!=Eigen::Success) {
                 // decomposition failed

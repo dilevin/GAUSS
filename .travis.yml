@@ -12,13 +12,12 @@ matrix:
         - git submodule update --recursive --remote
         - brew update
         - brew upgrade cmake
-        - brew install eigen
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-mac-x64-5.9.0.dmg
         - sudo hdiutil attach -noverify ./qt-opensource-mac-x64-5.9.0.dmg 
         - /Volumes/qt-opensource-mac-x64-5.9.0/qt-opensource-mac-x64-5.9.0.app/Contents/MacOS/qt-opensource-mac-x64-5.9.0 --platform minimal --script qt_script_osx.qs
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DEigen3_DIR=/usr/local/Cellar/eigen/3.3.4/include/eigen3
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake
         - make all 
     - os: linux
       group: deprecated-2017Q4
@@ -32,7 +31,7 @@ matrix:
         - ./qt-opensource-linux-x64-5.9.0.run --platform minimal --script qt_script.qs
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake -DEigen3_DIR=/usr/include/eigen3
+        - cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/gcc_64/lib/cmake
         - make all 
       addons:
         apt:

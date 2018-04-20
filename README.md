@@ -2,14 +2,16 @@
 OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/GAUSS.svg?branch=master)](https://travis-ci.org/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
 ### External Dependencies ###
-1. Eigen >= 3.2
-3. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
-4. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
+1. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
+2. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
+3. OPTIONAL: Gurobi Solver (http://www.gurobi.com)
 
 ### Included Submodules (Installed Automatically) ###
 1. Libigl https://github.com/libigl/libigl
-2. Spectra Eigenproblem Solver (https://spectralib.org)
-3. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
+2. Eigen >= 3.2 (By Default GAUSS uses the libigl Eigen install)
+3. Spectra Eigenproblem Solver (https://spectralib.org)
+4. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
+5. Eigen-Gurobi Interface (https://github.com/jrl-umi3218/eigen-gurobi/)
 
 ### "Easy" Install Scripts ###
 Clone this repository with 

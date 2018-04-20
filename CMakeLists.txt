@@ -4,6 +4,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 project (Gauss)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE PATH "Root include directory for Eigen3" FORCE) 
+
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 
@@ -16,7 +18,8 @@ endif(APPLE)
 
 #do you want to use Pardiso
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
-set(USE_MATLAB CACHE BOOL "Use OpenMP via homebrew llvm on OSX")
+set(USE_MATLAB CACHE BOOL "Build GAUSS MATLAB Interface via homebrew llvm on OSX")
+set(USE_GUROBI CACHE BOOL "USE GUROBI QP Solver")
 
 if(APPLE)
     if(USE_OPENMP)
@@ -113,8 +116,8 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${FCL_DIR}/include)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
-#Eigen
 find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 #GTest (From Masha Shugrina)
 # Google Test (Not using this right now and its causing build problems so comment out)
@@ -143,7 +146,6 @@ find_package(Eigen3 REQUIRED)
 #Google test ends here
 
 #Individual feature directories
-include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${LIBIGL_INCLUDE_PATH})
 #include_directories(/usr/local/opt/llvm/lib/clang/4.0.0/include)
 
@@ -154,6 +156,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Core/include
 #link_directories(/usr/local/opt/llvm/lib)
 include_directories(${GAUSS_INCLUDE_DIR})
 link_directories(${GAUSS_LINK_DIR})
+
 
 #Set parameters for third party libraries
 #libccd
@@ -186,7 +189,14 @@ add_subdirectory(${LIBCCD_DIR})
 #add_subdirectory(${OCTOMAP_DIR})
 add_subdirectory(${FCL_DIR})
 
-message(WARNING ${BUILD_GTEST})
+#Gurobi stuff here
+if(USE_GUROBI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi)
+    set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/eigen-gurobi/src ${GUROBI_INCLUDE_DIR} CACHE INTERNAL "")
+    set(GAUSS_LIBS ${GAUSS_LIBS} ${GUROBI_DIR}/lib/${GUROBI_LIBRARY}  ${GUROBI_DIR}/lib/${GUROBI_CXX_LIBRARY} eigen-gurobi CACHE INTERNAL "")
+    add_definitions(-DGAUSS_GUROBI)
+endif(USE_GUROBI)
+
 #Main Gauss libraries
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 

@@ -10,3 +10,6 @@
 [submodule "ThirdParty/Spectra"]
 	path = ThirdParty/Spectra
 	url = https://github.com/yixuan/spectra.git
+[submodule "ThirdParty/eigen-gurobi"]
+	path = ThirdParty/eigen-gurobi
+	url = https://github.com/dilevin/eigen-gurobi.git

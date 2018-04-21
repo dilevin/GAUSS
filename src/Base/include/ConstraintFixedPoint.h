@@ -20,13 +20,19 @@ namespace Gauss {
     {
     public:
         
-        ConstraintFixedPointImpl(ParticleSystem::DOFParticle<DataType> *q0, Eigen::Vector3d x) {
+        ConstraintFixedPointImpl(ParticleSystem::DOFParticle<DataType> *q0, Eigen::Vector3x<DataType> x, Eigen::Vector3x<DataType> v = Eigen::Vector3x<DataType>::Zero()) {
             m_dofFixed = q0;
             m_p0 = x;
+            m_dpdt = v;
         }
         
-        void setFixedPoint(Eigen::VectorXd pos) {
+        void setFixedPoint(Eigen::VectorXx<DataType> pos) {
             m_p0 = pos;
+        }
+        
+        void setFixedPoint(Eigen::VectorXx<DataType> pos, Eigen::VectorXx<DataType> vel) {
+            m_p0 = pos;
+            m_dpdt = vel;
         }
         
         auto & getFixedPoint() {
@@ -34,12 +40,28 @@ namespace Gauss {
         }
         ~ConstraintFixedPointImpl() { }
         
+        //get
         constexpr unsigned int getNumRows() { return 3; }
         //value of constraint (supports vector valued constraint functions for points and what not)
+        
         template<typename Vector>
-        inline void getFunction(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
+        inline void getError(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
             
             Eigen::Vector3d func = m_p0 - mapDOFEigen(*m_dofFixed, state);
+            assign(f, func, std::array<ConstraintIndex,1>{{index}});
+        }
+        
+        template<typename Vector>
+        inline void getB(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
+            
+            Eigen::Vector3d func = m_p0;
+            assign(f, func, std::array<ConstraintIndex,1>{{index}});
+        }
+        
+        template<typename Vector>
+        inline void getDbDt(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
+            
+            Eigen::Vector3d func = m_dpdt;
             assign(f, func, std::array<ConstraintIndex,1>{{index}});
         }
         
@@ -62,6 +84,7 @@ namespace Gauss {
         
     protected:
         
+        Eigen::VectorXd m_dpdt;
         Eigen::VectorXd m_p0; //position to fix point at
         ParticleSystem::DOFParticle<DataType> *m_dofFixed; //pointer to the thing I'm fixing in space
         

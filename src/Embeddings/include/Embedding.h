@@ -72,6 +72,7 @@ namespace Gauss {
                 m_F = F;
                 
                 AssemblerEigenSparseMatrix<DataType> N;
+                //element[i] is a n-vector that stores the index of the element containing the ith vertex in the embedded mesh
                 getShapeFunctionMatrix(N,m_elements,V, fem);
             
                 Eigen::Vector3x<DataType> vertex = m_V.row(0);
@@ -159,6 +160,7 @@ namespace Gauss {
            Eigen::MatrixXx<DataType> m_V;
            Eigen::MatrixXi  m_F;
            Eigen::MatrixXd m_N;
+           //m_elements[i] is a n-vector that stores the index of the element containing the ith vertex in the embedded mesh
            Eigen::VectorXi m_elements;
            
                                                
@@ -189,6 +191,11 @@ namespace Gauss {
             //contructor
             template<typename ...Params>
             PhysicalSystemEmbeddedMeshImpl(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F, Params ...params) : Embedding::PhysicalSystemImpl(params...), m_embedding(V,F, *this) { }
+            
+            // First two parameters V and F are for the embedded high res mesh in the constructor for m_embedding, line 68 of Embedding.h
+            // the next two parameters are V and F from the coarse mesh, packed in ...Params and unpacked in ...params, which is than
+            // passed to the constructor for Embedding::PhysicalSystemImpl, which is actually Embedding::FEM::PhysicalSystemFEMImpl, and its constructor is
+            // on line 35 of PhysicalSystemFEM.h
             
             //Geometry stuff
             template<typename ...Params>

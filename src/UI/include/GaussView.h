@@ -22,7 +22,8 @@ class Gauss3DWindow: public Qt3DExtras::Qt3DWindow
 public:
     Gauss3DWindow(QScreen *screen=nullptr):Qt3DExtras::Qt3DWindow(screen)
     {
-        
+        m_screenshot = false;
+        m_shotId = 0;
     }
     
     ~Gauss3DWindow()
@@ -34,19 +35,50 @@ public:
         m_timer = sceneTimer;
     }
     
-    void startScene() { m_timer->start(); }
+    void startScene() {
+        m_timer->start();
+    }
+    
     void stopScene() { m_timer->stop(); }
+    
+public slots:
+    
+    void screenShot() {
+        
+        if(m_screenshot) {
+            QScreen *screen = this->screen();
+            
+            double screenRatio = screen->devicePixelRatio();
+            QPixmap pixmap = screen->grabWindow(0);
+            QRect rect(this->position().x()*screenRatio,this->position().y()*screenRatio, this->width()*screenRatio, this->height()*screenRatio);
+            QPixmap cropped = pixmap.copy(rect);
+            std::string filename = "./GaussScreenShot"+std::to_string(m_shotId)+".png";
+            cropped.save(QString::fromUtf8(filename.c_str()));
+            
+            m_shotId++;
+        }
+    }
     
 protected:
     
     
     QTimer *m_timer;
+    bool m_screenshot;
+    unsigned int m_shotId;
     
     void keyPressEvent(QKeyEvent *ev)
     {
         switch (ev->key()) {
             case Qt::Key_P:
-                m_timer->start();
+                startScene();
+                break;
+            default:
+                break;
+        }
+        
+        switch (ev->key()) {
+            case Qt::Key_S:
+                m_screenshot = !m_screenshot;
                 break;
             default:
                 break;
@@ -65,7 +97,7 @@ namespace Gauss {
         public:
             GaussView(Gauss3DWindow  &view, SceneType *scene) : m_view(view) {
                 
-                m_scene=scene;
+                m_scene=scene; //going to need to send scene a callback for scfeen shots ... reference to some boolean or something
                 m_scene->takeStep(); //fix for the fact that my initialization doesn't seem to be kicking in.
                 Qt3DCore::QEntity *sceneEntity = m_scene->getEntity();
                 
@@ -87,7 +119,8 @@ namespace Gauss {
                 
                 //Simple Timer to Play the simulation
                 QTimer *timer = new QTimer();
-                QObject::connect(timer, SIGNAL(timeout()), scene, SLOT(takeStep()));
+                QObject::connect(timer, SIGNAL(timeout()), scene, SLOT(takeStep())); //connect to screen shot slot
+                QObject::connect(timer, SIGNAL(timeout()), &m_view, SLOT(screenShot())); //connect to screen shot slot
                 m_view.setSceneTimer(timer);
                 
                 
@@ -113,6 +146,7 @@ namespace Gauss {
             Qt3DExtras::QOrbitCameraController *m_camController;
             Gauss3DWindow &m_view;
 
+            
             
         private:
         };

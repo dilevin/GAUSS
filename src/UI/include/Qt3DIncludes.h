@@ -43,7 +43,6 @@
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QBuffer>
 
-
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
 #include <Qt3DExtras/qphongmaterial.h>

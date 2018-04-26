@@ -29,7 +29,7 @@ namespace Gauss {
             inline QuadraturePlaneTri1 (Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             Energy(V,F,qDOFList, qDotDOFList) { }
 
-            inline void getValue(DataType &f, State<DataType> &state) {
+            inline DataType getValue(const State<DataType> &state) {
 
                 DataType w = static_cast<DataType>(Energy::volume());
 

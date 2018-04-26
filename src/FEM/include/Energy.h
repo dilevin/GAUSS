@@ -98,7 +98,7 @@ namespace Gauss {
 
             inline DataType getValue(double *x, const State<DataType> &state) {
 
-                auto q = ShapeFunction::q();
+                auto q = ShapeFunction::q(state);
 
                 return -0.5*q.transpose()*B(this, x, state).transpose()*m_C*B(this, x, state)*q;
             }
@@ -119,7 +119,13 @@ namespace Gauss {
 
             template<typename Matrix>
             inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
-                S = m_C*B(this,x,state)*ShapeFunction::q(state);
+                
+                Eigen::Matrix<DataType, 6, 1> s = m_C*B(this,x,state)*ShapeFunction::q(state);
+                
+                S(0,0) = s(0); S(0,1) = s(5); S(0,2) = s(4);
+                S(1,0) = s(5); S(1,1) = s(1); S(1,2) = s(3);
+                S(2,0) = s(4); S(2,1) = s(3); S(2,2) = s(2);
+                
             }
 
             inline const DataType & getE() const { return m_E; }

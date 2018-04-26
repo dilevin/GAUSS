@@ -57,6 +57,7 @@ void getForceVector(Matrix &forceVector, World &world) {
     ASSEMBLEEND(forceVector);
 }
 
+
 template<typename Matrix, typename System, typename World>
 void getForceVector(Matrix &forceVector, System &system, World &world) {
     ASSEMBLEVECINIT(forceVector, system.getQ().getNumScalarDOF());
@@ -77,6 +78,20 @@ void getInternalForceVector(Matrix &forceVector, System &system, World &world) {
     //ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
     ASSEMBLEEND(forceVector);
 }
+
+//get strain energy
+template<typename World>
+ double getStrainEnergy(World &world) {
+    
+     double energy = 0.0;
+     
+     forEach(world.getSystemList(), [&energy, &world](auto a) {
+         energy += a->getStrainEnergy(world.getState());
+     });
+     
+     return energy;
+}
+
 
 
 //add in the constraints

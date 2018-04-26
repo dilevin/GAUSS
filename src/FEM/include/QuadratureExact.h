@@ -218,7 +218,6 @@ namespace Gauss {
             inline ~QuadratureExact() { }
             
             //integral rules for things that I want
-            template<typename DOFList>
             inline DataType getValue(const State<DataType> &state) {
                 
                 //Do nothing for now

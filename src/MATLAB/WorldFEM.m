@@ -20,6 +20,11 @@ classdef WorldFEM < handle
             [varargout{1:nargout}] = WorldFEM_Interface('state', this.objectHandle, varargin{:});
         end
 
+        %% setState - set the current state of the world
+        function varargout = setState(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('setState', this.objectHandle, varargin{:});
+        end
+
         %% Mass - get the world mass matrix 
         function varargout = mass(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('M', this.objectHandle, varargin{:});
@@ -30,7 +35,12 @@ classdef WorldFEM < handle
             [varargout{1:nargout}] = WorldFEM_Interface('K', this.objectHandle, varargin{:});
         end
         
-        %% Force - get the world foce 
+        %% strainEnergy - get the strain energy
+         function varargout = strainEnergy(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('strener', this.objectHandle, varargin{:});
+         end
+         
+         %% Force - get the world foce
         function varargout = force(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('f', this.objectHandle, varargin{:});
         end

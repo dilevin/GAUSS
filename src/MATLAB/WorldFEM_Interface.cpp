@@ -154,6 +154,74 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
+    //set position level DOFs
+    if (!strcmp("setQ", cmd)) {
+        
+        // Check parameters
+        if (nlhs < 0 || nrhs < 3)
+            mexErrMsgTxt("Not enough parameters to state.");
+        
+        double* A = 0;
+        size_t  m = 0;
+        size_t  n = 0;
+        
+        A = mxGetPr(prhs[2]);
+        // get the dimensions of the first parameter
+        m = mxGetM(prhs[2]);
+        n = mxGetN(prhs[2]);
+        
+        Eigen::Map<Eigen::VectorXd> state = mapStateEigen<0>(*dummy_instance);
+        
+        if(m != state.rows()) {
+            mexPrintf("Input vector is of size %i x %i but state is of size %i \n", m,n, state.rows(), 1);
+        }
+        
+        state = Eigen::Map<Eigen::VectorXd>(A, state.rows());
+        
+        //copy state into matlab vector
+        //mwSize dims[2];
+        //dims[0] = state.rows();
+        //dims[1] = 1;
+        //mxArray *returnData = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        //memcpy(mxGetPr(returnData), state.data(), sizeof(double)*state.rows());
+        //plhs[0] = returnData;
+        return;
+    }
+    
+    //set velocity level DOFs
+    if (!strcmp("setQDot", cmd)) {
+        
+        // Check parameters
+        if (nlhs < 0 || nrhs < 3)
+            mexErrMsgTxt("Not enough parameters to state.");
+        
+        double* A = 0;
+        size_t  m = 0;
+        size_t  n = 0;
+        
+        A = mxGetPr(prhs[2]);
+        // get the dimensions of the first parameter
+        m = mxGetM(prhs[2]);
+        n = mxGetN(prhs[2]);
+        
+        Eigen::Map<Eigen::VectorXd> state = mapStateEigen<1>(*dummy_instance);
+        
+        if(m != state.rows()) {
+            mexPrintf("Input vector is of size %i x %i but state is of size %i \n", m,n, state.rows(), 1);
+        }
+        
+        state = Eigen::Map<Eigen::VectorXd>(A, state.rows());
+        
+        //copy state into matlab vector
+        //mwSize dims[2];
+        //dims[0] = state.rows();
+        //dims[1] = 1;
+        //mxArray *returnData = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        //memcpy(mxGetPr(returnData), state.data(), sizeof(double)*state.rows());
+        //plhs[0] = returnData;
+        return;
+    }
+    
     // get mass matrix of the world
     if (!strcmp("M", cmd)) {
         // Check parameters
@@ -195,6 +263,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
+    // get force vector
+    if (!strcmp("if", cmd)) {
+        // Check parameters
+        if (nlhs < 0 || nrhs < 2)
+            mexErrMsgTxt("if: not enough arguments.");
+        // Call the method
+        //dummy_instance->test();
+        AssemblerEigenVector<double> force;
+        getInternalForceVector(force, *dummy_instance);
+        plhs[0] = eigenDenseToMATLAB(*force);
+        return;
+    }
     // get stiffness matrix of the world
     if (!strcmp("strener", cmd)) {
         // Check parameters

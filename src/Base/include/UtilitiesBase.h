@@ -79,6 +79,14 @@ void getInternalForceVector(Matrix &forceVector, System &system, World &world) {
     ASSEMBLEEND(forceVector);
 }
 
+template<typename Matrix, typename World>
+void getInternalForceVector(Matrix &forceVector, World &world) {
+    ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
+    ASSEMBLELIST(forceVector, world.getSystemList(), getInternalForce);
+    ASSEMBLEEND(forceVector);
+}
+
+
 //get strain energy
 template<typename World>
  double getStrainEnergy(World &world) {

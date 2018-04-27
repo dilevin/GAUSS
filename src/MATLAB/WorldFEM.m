@@ -24,7 +24,14 @@ classdef WorldFEM < handle
         function varargout = setState(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('setState', this.objectHandle, varargin{:});
         end
-
+        %% setQ - set the current positional state of the world
+        function varargout = setQ(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('setQ', this.objectHandle, varargin{:});
+        end
+        %% setState - set the current state of the world
+        function varargout = setQDot(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('setQDot', this.objectHandle, varargin{:});
+        end
         %% Mass - get the world mass matrix 
         function varargout = mass(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('M', this.objectHandle, varargin{:});
@@ -39,15 +46,24 @@ classdef WorldFEM < handle
          function varargout = strainEnergy(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('strener', this.objectHandle, varargin{:});
          end
-         
+               
          %% Force - get the world foce
         function varargout = force(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('f', this.objectHandle, varargin{:});
         end
-        
+        %% Internal Force - get the world internal (strain) force
+        function varargout = internalForce(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('if', this.objectHandle, varargin{:});
+        end
          %% Stress - get the stress on each element 
         function varargout = stress(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('stress', this.objectHandle, varargin{:});
+        end
+        
+        %% convenience functions
+        function c = strainEnergyFromQ(this, q)
+            setQ(this,q);
+            c = strainEnergy(this);
         end
     end
 end

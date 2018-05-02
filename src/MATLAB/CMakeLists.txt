@@ -15,7 +15,7 @@ if(NOT Matlab_MX_LIBRARY)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         set(Matlab_MX_LIBRARY ${MATLAB_PATH_DIR}/libmx.dll)
     elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        set(Matlab_MX_LIBRARY ${MATLAB_PATH_DIR}/libmx.a)
+        set(Matlab_MX_LIBRARY ${MATLAB_PATH_DIR}/libmx.so)
     elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         if(APPLE)
             set(Matlab_MX_LIBRARY ${MATLAB_PATH_DIR}/libmx.dylib)
@@ -24,10 +24,17 @@ if(NOT Matlab_MX_LIBRARY)
 
 endif()
 
-matlab_add_mex(
-    NAME Gauss_MATLAB 
-    SRC class_handle.hpp WorldFEM_Interface.cpp UtilitiesEigenMex.h
-LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM  ${LLVM_LIB}/libiomp5.dylib
-    OUTPUT_NAME WorldFEM_Interface
-)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+     matlab_add_mex(
+        NAME Gauss_MATLAB
+        SRC class_handle.hpp WorldFEM_Interface.cpp UtilitiesEigenMex.h
+        LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM /opt/matlab/matlab-R2017a/sys/os/glnxa64/libiomp5.so
+        OUTPUT_NAME WorldFEM_Interface)
+else()
+    matlab_add_mex(
+        NAME Gauss_MATLAB 
+        SRC class_handle.hpp WorldFEM_Interface.cpp UtilitiesEigenMex.h
+    LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM  ${LLVM_LIB}/libiomp5.dylib
+        OUTPUT_NAME WorldFEM_Interface)
+endif()
 

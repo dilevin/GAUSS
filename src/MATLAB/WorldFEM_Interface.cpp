@@ -286,6 +286,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
+    if (!strcmp("strenertet", cmd)) {
+        // Check parameters
+        if (nlhs < 0 || nrhs < 2)
+            mexErrMsgTxt("strainEnergy: not enough arguments.");
+        // Get the per tet strain energy
+        Eigen::VectorXd strainEnergy;
+        State<double> &state = dummy_instance->getState();
+        
+        forEach(dummy_instance->getSystemList(), [&strainEnergy, &state](auto a) {
+                strainEnergy.resize(impl(a).getF().rows(), 1);
+                strainEnergy = impl(a).getStrainEnergyPerElement(state);
+        });
+        
+        plhs[0] = eigenDenseToMATLAB(strainEnergy);
+
+        return;
+    }
+    
     //get cauchy stresses for all elements
     if(!strcmp("stress",cmd)) {
         if (nlhs < 0 || nrhs < 3)

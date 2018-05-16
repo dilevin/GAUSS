@@ -507,11 +507,11 @@ namespace Gauss {
                 
                 for(unsigned int ii=0; ii<m_fem->getImpl().getF().cols(); ++ii) {
                     vertexId = m_fem->getImpl().getF()(elId, ii);
-                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId());
                     idx++;
-                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                     idx++;
-                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+2);
+                    rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+2);
                     idx++;
                 }
                 

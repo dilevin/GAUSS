@@ -26,16 +26,9 @@ namespace Gauss {
                 
             }
             
-            
-            //The t parameter is optional and is used for spacetime degrees of freedom
             inline unsigned int getNumScalarDOF() const {
                 return 4;
             }
-            
-            //get dataPtr for this DOF
-            //inline std::tuple<DataType *, unsigned int> getPtr(State<DataType> &state, unsigned int offset) {
-            //   return state. template getStatePtr<Property>(offset);
-            //}
             
         protected:
             

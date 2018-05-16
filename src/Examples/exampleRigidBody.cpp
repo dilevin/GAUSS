@@ -34,7 +34,7 @@ void preStepCallback(MyWorld &world) {
 }
 
 int main(int argc, char **argv) {
-    std::cout<<"Test Neohookean FEM \n";
+    std::cout<<"Test Rigid Bodies\n";
     
     //Setup Physics
     MyWorld world;

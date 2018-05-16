@@ -225,10 +225,13 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     //update DOF global indices
     unsigned int currentOffsetQ = 0;
     unsigned int currentOffsetQDot = 0;
-    forEach(m_systems, [&currentOffsetQ, &currentOffsetQDot, &totalQDOFs](auto a){a->getQ().offsetGlobalId(currentOffsetQ);
+    forEach(m_systems, [&currentOffsetQ, &currentOffsetQDot, &totalQDOFs](auto a){
+                                                a->getQ().offsetGlobalId(currentOffsetQ);
                                                 a->getQDot().offsetGlobalId(currentOffsetQDot);
                                                 currentOffsetQ += a->getQ().getNumScalarDOF();
-                                                currentOffsetQDot += a->getQDot().getNumScalarDOF(); });
+                                                currentOffsetQDot += a->getQDot().getNumScalarDOF();
+        
+    });
     
     //done
     

@@ -20,7 +20,7 @@ namespace Gauss {
     {
     public:
         
-        ConstraintFixedPointImpl(ParticleSystem::DOFParticle<DataType> *q0, Eigen::Vector3x<DataType> x, Eigen::Vector3x<DataType> v = Eigen::Vector3x<DataType>::Zero()) {
+        ConstraintFixedPointImpl(DOFParticle<DataType> *q0, Eigen::Vector3x<DataType> x, Eigen::Vector3x<DataType> v = Eigen::Vector3x<DataType>::Zero()) {
             m_dofFixed = q0;
             m_p0 = x;
             m_dpdt = v;
@@ -86,7 +86,7 @@ namespace Gauss {
         
         Eigen::VectorXd m_dpdt;
         Eigen::VectorXd m_p0; //position to fix point at
-        ParticleSystem::DOFParticle<DataType> *m_dofFixed; //pointer to the thing I'm fixing in space
+        DOFParticle<DataType> *m_dofFixed; //pointer to the thing I'm fixing in space
         
     private:
     };

@@ -7,9 +7,9 @@
 //Some useful eigen maps
 //Quaternions
 template<typename DataType, unsigned int Property>
-inline Eigen::Map<Eigen::Quaternion<DataType> > mapDOFEigen(Gauss::RigidBodies::DOFRotation<DataType, Property> &dof, const State<DataType> &state) {
+inline Eigen::Map<Eigen::Quaternion<DataType> > mapDOFEigenQuat(const DOFRotation<DataType, Property> &dof, const State<DataType> &state) {
     std::tuple<double *, unsigned int> qPtr = dof.getPtr(state);
-    Eigen::Map<Eigen::VectorXd>(std::get<0>(qPtr), dof.getNumScalarDOF());
+    return Eigen::Map<Eigen::Quaternion<DataType> >(std::get<0>(qPtr));
 }
 
 //Taken from SCISIM https://github.com/breannansmith/scisim/ and adapted to take Libigl format mesh input/output
@@ -59,8 +59,6 @@ template<typename DataType>
 inline DataType computeMoments(Eigen::Vector3x<DataType> &center, Eigen::Vector3x<DataType> &I, Eigen::Matrix33x<DataType> &R,
                                Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F) {
     
-    assert( ( F.array() < unsigned( V.cols() ) ).all() );
-    
     constexpr DataType oneDiv6{ 1.0 / 6.0 };
     constexpr DataType oneDiv24{ 1.0 / 24.0 };
     constexpr DataType oneDiv60{ 1.0 / 60.0 };
@@ -71,12 +69,12 @@ inline DataType computeMoments(Eigen::Vector3x<DataType> &center, Eigen::Vector3
     // order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
     Eigen::VectorXx<DataType> integral{ Eigen::VectorXx<DataType>::Zero( 10 ) };
     
-    for( int i = 0; i < F.cols(); ++i )
+    for( int i = 0; i < F.rows(); ++i )
     {
         // Copy the vertices of triangle i
-        const Eigen::Vector3x<DataType> v0{ V.col( F( 0, i ) ) };
-        const Eigen::Vector3x<DataType> v1{ V.col( F( 1, i ) ) };
-        const Eigen::Vector3x<DataType> v2{ V.col( F( 2, i ) ) };
+        const Eigen::Vector3x<DataType> v0{ V.row( F( i, 0 ) ) };
+        const Eigen::Vector3x<DataType> v1{ V.row( F( i, 1 ) ) };
+        const Eigen::Vector3x<DataType> v2{ V.row( F( i, 2 ) ) };
         
         // Compute a normal for the current triangle
         const Eigen::Vector3x<DataType> N{ ( v1 - v0 ).cross( v2 - v0 ) };

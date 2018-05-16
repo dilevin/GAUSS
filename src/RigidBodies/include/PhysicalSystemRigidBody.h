@@ -45,6 +45,16 @@ namespace Gauss {
                 m_massMatrix.setConstant(m_mass);
                 m_massMatrix.segment(0,3) = inertia;
                 
+                //subtract center of mass off of vertex positions
+                #pragma omp parallel for
+                for(unsigned int ii = 0; ii < V.rows(); ++ii)
+                {
+                    m_V.row(ii) -= m_com.transpose();
+                }
+                
+                //fine I'll rotate the stupid mesh
+                m_V = (m_R0.transpose()*m_V.transpose()).transpose();
+                
             }
             
             ~PhysicalSystemRigidBodyImpl() {
@@ -64,7 +74,7 @@ namespace Gauss {
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 
                 //Rigid body mass matrix
-                assign(assembler, m_massMatrix.asDiagonal(), getQDot(0), getQDot(0));
+                assign(assembler, m_massMatrix.asDiagonal().toDenseMatrix().eval(), getQDot(0), getQDot(0));
             }
             
             //the rigid body jacobian
@@ -93,8 +103,10 @@ namespace Gauss {
                 //gravity goes here
                 Eigen::Matrix<DataType, 6,1> g;
                 g << 0,0,0, 0, m_mass*(-9.8), 0.0;
-                g.segment(3,3) = mapDOFEigen(m_q.first(), state).toRotationMatrix().transpose()*m_R0.transpose()*g.segment(3,3);
-                assign(assembler, g, getQ(0));
+                g.segment(3,3) = mapDOFEigenQuat(m_q.first(), state).toRotationMatrix().transpose()*m_R0.transpose()*g.segment(3,3);
+                std::cout<<"W: "<<mapDOFEigenQuat(m_q.first(), state).x()<<" "<<mapDOFEigenQuat(m_q.first(), state).y()<<" "<<mapDOFEigenQuat(m_q.first(), state).z()<<" "<<mapDOFEigenQuat(m_q.first(), state).w()<<"\n";
+                std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
+                assign(assembler, g, getQDot(0));
             }
             
             //Degree-of-freedom access
@@ -134,7 +146,7 @@ namespace Gauss {
             
             //Geometry
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
-                return  mapDOFEigen(m_q.first(), state).toRotationMatrix()*m_V.row(vertexId).transpose() + mapDOFEigen(m_q.second(), state);
+                return  mapDOFEigen(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose() + mapDOFEigen(m_q.second(), state));
             }
             
             inline const auto getVelocity(const State<DataType> &state, unsigned int vertexId) const {
@@ -148,7 +160,7 @@ namespace Gauss {
                 
                 gamma.block(0,0,3,3) << 0, m_V(vertexId,2), -m_V(vertexId,1), -m_V(vertexId,2), 0, m_V(vertexId,0), m_V(vertexId,1), -m_V(vertexId,0), 0;
                 gamma.block(0,3,3,3).setIdentity();
-                return mapDOFEigen(m_q.first(), state).toRotationMatrix()*gamma;
+                return mapDOFEigen(m_q.first(), state).toRotationMatrix()*m_R0*gamma;
             }
             
             //Rigid body Jacobian goes here
@@ -169,14 +181,14 @@ namespace Gauss {
             
             DataType m_mass;
             Eigen::Matrix33x<DataType> m_R0; //initial rotation from inertia frame to initial state
-            Eigen::Vector3x<DataType> m_com; //center of mass;
+            Eigen::Vector3x<DataType> m_com; //center of mass in body frame
             Eigen::Vector6x<DataType> m_massMatrix; //mass matrix is diagonal for rigid bodies (yay!)
             
-            //positions are a rotation and a particle (for the translation)
-            DOFPair<DataType, DOFRotation, ParticleSystem::DOFParticle, 0> m_q;
+            //positions are a rotation and a particle (for the translation) -- stored in body frame
+            DOFPair<DataType, DOFRotation, DOFParticle, 0> m_q;
             
-            //velocities are an angular velocity (particle) and a linear velocity (particle)
-            DOFPair<DataType, ParticleSystem::DOFParticle, ParticleSystem::DOFParticle, 1> m_qDot;
+            //velocities are an angular velocity (particle) and a linear velocity (particle) -- stored in body frame
+            DOFPair<DataType, DOFParticle, DOFParticle, 1> m_qDot;
             
             
         private:

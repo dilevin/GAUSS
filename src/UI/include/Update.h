@@ -53,11 +53,11 @@ namespace Gauss {
 
     //Renderable for a Single Particle DOF
     template<typename DataType, unsigned int PropertyIndex>
-    class Renderable<ParticleSystem::DOFParticle<DataType, PropertyIndex> > : public Renderable<DataType>
+    class Renderable<DOFParticle<DataType, PropertyIndex> > : public Renderable<DataType>
     {
     
     public:
-        Renderable(ParticleSystem::DOFParticle<DataType, PropertyIndex> &dof) : Renderable<DataType>() {
+        Renderable(DOFParticle<DataType, PropertyIndex> &dof) : Renderable<DataType>() {
             m_r = 1.0;
             m_dof = &dof;
         }
@@ -105,7 +105,7 @@ namespace Gauss {
         Qt3DCore::QEntity *m_entity;
         Qt3DCore::QTransform *m_transform;
         Qt3DExtras::QSphereMesh *m_sphere;
-        ParticleSystem::DOFParticle<DataType, PropertyIndex> *m_dof;
+        DOFParticle<DataType, PropertyIndex> *m_dof;
         
     private:
     };

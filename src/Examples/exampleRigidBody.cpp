@@ -43,17 +43,31 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    //Load surface mesh for rigid body
+    if(!igl::readOBJ(dataDir()+"/meshes/OBJ/bunny.obj", V, F)) {
+        std::cout<<"Failed to load mesh \n";
+    }
     
     RigidBody *test = new RigidBody(V,F);
     
     world.addSystem(test);
     //fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
-    
+    initializeDOFs(world);
     auto q = mapStateEigen(world);
-    q.setZero();
+    std::cout<<"STATE: \n"<<q<<"\n";
     
+    //q.setZero();
+
+    AssemblerEigenSparseMatrix<double> matrix;
+    AssemblerEigenVector<double> force;
+    
+    getMassMatrix(matrix, world);
+    getForceVector(force, world);
+    
+    std::cout<<"Mass matrix: \n"<<(*matrix)<<"\n";
+    std::cout<<"Forces: \n"<<(*force)<<"\n";
+    //first things first, check 
     //MyTimeStepper stepper(0.01);
     
     //Display

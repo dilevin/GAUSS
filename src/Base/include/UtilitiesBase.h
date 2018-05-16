@@ -9,6 +9,10 @@
 #define UtilitiesBase_h
 
 #include <Assembler.h>
+#include <DOFParticle.h>
+#include <DOFRotation.h>
+#include <DOFPair.h>
+#include <DOFList.h>
 #include <PhysicalSystem.h>
 #include <igl/boundary_facets.h>
 #include <igl/writeOBJ.h>
@@ -211,7 +215,75 @@ inline void writeWorldToOBJ(std::string folder, std::string simName, World &worl
         
        
     });
+}
+
+//Initializers for DOFS
+//Default Initializers just zeros things out
+template<typename DOFType>
+class InitializeDOFClass
+{
     
+public:
+    template<typename State>
+    explicit inline InitializeDOFClass(DOFType &dof, State &state) {
+        std::cout<<"Should not be here \n";
+        exit(0);
+    }
+};
+
+template<typename DataType, unsigned int PropertyIndex>
+class InitializeDOFClass<DOFRotation<DataType,PropertyIndex> >
+{
     
+public:
+    template<typename State>
+    explicit inline InitializeDOFClass(DOFRotation<DataType,PropertyIndex> &dof, State &state) {
+        std::cout<<"Rotation \n";
+        
+        auto statePtr = dof.getPtr(state);
+        std::memset(std::get<0>(statePtr), 0, sizeof(DataType)*std::get<1>(statePtr));
+        std::get<0>(statePtr)[3] = 1.0;
+    }
+};
+
+template<typename DataType, unsigned int PropertyIndex>
+class InitializeDOFClass<DOFParticle<DataType,PropertyIndex> >
+{
+    
+public:
+    template<typename State>
+    explicit inline InitializeDOFClass(DOFParticle<DataType,PropertyIndex> &dof, State &state) {
+        std::cout<<"Position \n";
+        //standard initializer sets everything to zero
+        auto statePtr = dof.getPtr(state);
+        std::memset(std::get<0>(statePtr), 0, sizeof(DataType)*std::get<1>(statePtr));
+    }
+};
+
+template<typename DataType, unsigned int PropertyIndex, template<typename A, unsigned int B> class DOF1, template<typename A, unsigned int B> class DOF2>
+class InitializeDOFClass< DOFPair<DataType, DOF1, DOF2, PropertyIndex> >
+{
+    
+public:
+    template<typename State>
+    explicit inline InitializeDOFClass(DOFPair<DataType,DOF1, DOF2, PropertyIndex> &dof, State &state) {
+        std::cout<<"DOFPair \n";
+        InitializeDOFClass<DOF1<DataType, PropertyIndex> >(dof.first(), state);
+        InitializeDOFClass<DOF2<DataType, PropertyIndex>>(dof.second(), state);
+    }
+};
+
+template<typename DOF, typename DataType>
+inline void InitializeDOF(DOF &dof, State<DataType> &state) {
+    InitializeDOFClass<DOF>(dof, state);
+}
+
+//Initialize everything
+template<typename World>
+void initializeDOFs(World &world) {
+    forEach(world.getSystemList(), [&world](auto a){
+        InitializeDOF(a->getQ(), world.getState());
+        InitializeDOF(a->getQDot(), world.getState());
+    });
 }
 #endif /* UtilitiesBase_h */

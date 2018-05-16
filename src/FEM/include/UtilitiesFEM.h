@@ -66,7 +66,7 @@ namespace Gauss {
         
         //FEM-PARTICLE SPRING
         template<typename DataType>
-        using PosFEM = PositionFEMEigen<DataType, ParticleSystem::DOFParticle<DataType> >;
+        using PosFEM = PositionFEMEigen<DataType, DOFParticle<DataType> >;
         
         template<typename DataType>
         using ForceSpringFEMParticle = Force<DataType, ParticleSystem::ForceSpringImpl<DataType, PosFEM<DataType>, ParticleSystem::PosParticle<DataType> > >;

@@ -8,6 +8,8 @@
 #ifndef DOFPair_h
 #define DOFPair_h
 
+#include <DOF.h>
+
 namespace Gauss {
     
     template<typename DataType, template<typename A, unsigned int B> class DOF1, template<typename C, unsigned int D> class DOF2, unsigned int PropertyIndex=0>

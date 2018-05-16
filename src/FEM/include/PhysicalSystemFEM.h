@@ -226,8 +226,8 @@ namespace Gauss {
             long m_numVerts;
             long m_numElements;
            
-            DOFList<DataType, ParticleSystem::DOFParticle, 0> m_q;
-            DOFList<DataType, ParticleSystem::DOFParticle, 1> m_qDot;
+            DOFList<DataType, DOFParticle, 0> m_q;
+            DOFList<DataType, DOFParticle, 1> m_qDot;
             std::vector<ElementType *> m_elements;
             //DataType m_mass; //mass of particle
             //DOFParticle<DataType,0> m_x;

@@ -64,6 +64,7 @@ namespace Gauss {
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {
                 
                 //Rigid body mass matrix
+                assign(assembler, m_massMatrix.asDiagonal(), getQDot(0), getQDot(0));
             }
             
             //the rigid body jacobian
@@ -77,13 +78,13 @@ namespace Gauss {
             template<typename Assembler>
             inline void getForce(Assembler &assembler, const State<DataType> &state) const {
                 
-                //centripedal force and coriolis force 
+                getBodyForce(assembler, state);
             }
             
             template<typename Assembler>
             inline void getInternalForce(Assembler &assembler, const State<DataType> &state) const {
                 
-                //no internal forces in a rigid body
+                //centripedal force and coriolis force
             }
             
             template<typename Assembler>
@@ -92,7 +93,8 @@ namespace Gauss {
                 //gravity goes here
                 Eigen::Matrix<DataType, 6,1> g;
                 g << 0,0,0, 0, m_mass*(-9.8), 0.0;
-                assign(assembler, g, getQ());
+                g.segment(3,3) = mapDOFEigen(m_q.first(), state).toRotationMatrix().transpose()*m_R0.transpose()*g.segment(3,3);
+                assign(assembler, g, getQ(0));
             }
             
             //Degree-of-freedom access

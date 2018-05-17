@@ -349,27 +349,27 @@ namespace Gauss {
             for(unsigned int ii=0;  ii < m_fem->getImpl().getF().rows(); ++ii) {
                 
                 vertexId = m_fem->getImpl().getF()(ii, 0);
-                rawData[idx] = rawOriginalData[idx];// + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                rawData[idx] = rawOriginalData[idx]  + pos(m_fem->getImpl().getQ()[vertexId].getLocalId());
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
                 rawData[idx] = 0;
                 idx++;
                 
                 //vertex 2
                 vertexId = m_fem->getImpl().getF()(ii, 1);
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId());
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
                 rawData[idx] = 0;
                 idx++;
                 
                 //vertex 3
                 vertexId = m_fem->getImpl().getF()(ii, 2);
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId());
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId());
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getGlobalId()+1);
+                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
                 rawData[idx] = 0;
                 idx++;

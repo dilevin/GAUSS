@@ -6,7 +6,7 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitLinear.h>
+#include <TimeStepperEigenFitSMW.h>
 #include <EigenFit.h>
 
 using namespace Gauss;
@@ -20,13 +20,23 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
-                      std::tuple<ForceSpringFEMParticle<double> *>,
-                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>,
+typedef World<double, std::tuple<FEMLinearTets *>,
+std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
+std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+
+//typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
+//                      std::tuple<ForceSpringFEMParticle<double> *>,
+//                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef TimeStepperEigenFitSMW<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
+
+
+//typedef TimeStepperEigenFitSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+//AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
+
+//typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 
 void preStepCallback(MyWorld &world) {
@@ -48,13 +58,18 @@ int main(int argc, char **argv) {
     EigenFit *test = new EigenFit(V,F,V,F);
 
     world.addSystem(test);
-     fixDisplacementMin(world, test);
-     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+    fixDisplacementMin(world, test);
+    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
      auto q = mapStateEigen(world);
      q.setZero();
     
-     MyTimeStepper stepper(0.01);
+    
+    Eigen::VectorXi indices = minVertices(test, 0);
+    Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
+    
+    
+     MyTimeStepper stepper(0.01,P);
     
     //Display
     QGuiApplication app(argc, argv);

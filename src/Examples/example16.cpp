@@ -20,9 +20,9 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple< Embeddings::PhysicalSystemEmbeddedMesh<double, FEMLinearTets> *, PhysicalSystemParticleSingle<double> *>,
-std::tuple<ForceSpringFEMParticle<double> *>,
-std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+typedef World<double,   std::tuple< Embeddings::PhysicalSystemEmbeddedMesh<double, FEMLinearTets> *, PhysicalSystemParticleSingle<double> *>,
+                        std::tuple<ForceSpringFEMParticle<double> *>,
+                        std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 

@@ -353,7 +353,7 @@ namespace Gauss {
                 idx++;
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+2);;
+                rawData[idx] = 0;
                 idx++;
                 
                 //vertex 2
@@ -362,7 +362,7 @@ namespace Gauss {
                 idx++;
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+2);;
+                rawData[idx] = 0;
                 idx++;
                 
                 //vertex 3
@@ -371,7 +371,7 @@ namespace Gauss {
                 idx++;
                 rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+1);
                 idx++;
-                rawData[idx] = rawOriginalData[idx] + pos(m_fem->getImpl().getQ()[vertexId].getLocalId()+2);
+                rawData[idx] = 0;
                 idx++;
                 
             }

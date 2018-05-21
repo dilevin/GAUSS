@@ -158,7 +158,7 @@ namespace Gauss {
         protected:
             
            Eigen::MatrixXx<DataType> m_V;
-           Eigen::MatrixXi  m_F;
+           Eigen::MatrixXi m_F;
            Eigen::MatrixXd m_N;
            //m_elements[i] is a n-vector that stores the index of the element containing the ith vertex in the embedded mesh
            Eigen::VectorXi m_elements;

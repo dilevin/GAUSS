@@ -130,11 +130,9 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     (*forceVector) = m_P*(*forceVector);
 
     //Eigendecomposition
-    m_coarseUs = generalizedEigenvalueProblem((*stiffnessMatrix), (*massMatrix), m_numModes, 0.0);
+//    m_coarseUs = generalizedEigenvalueProblem((*stiffnessMatrix), (*massMatrix), m_numModes, 0.0);
   
-    static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(Y,Z,m_fineUs,m_coarseUs);
-    //Eigendecomposition
-
+    static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
     
 //    Correct Forces
     (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector) + m_P*(*fExt);

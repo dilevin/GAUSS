@@ -161,7 +161,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     
     //update state
     q = q + dt*qDot;
-    
+
     //std::cout<<"Q: "<<q<<"\n";
 }
 

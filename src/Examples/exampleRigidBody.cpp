@@ -67,6 +67,9 @@ int main(int argc, char **argv) {
     
     std::cout<<"Mass matrix: \n"<<(*matrix)<<"\n";
     std::cout<<"Forces: \n"<<(*force)<<"\n";
+    
+    updateState(world, world.getState(), 0.1);
+    
     //first things first, check 
     //MyTimeStepper stepper(0.01);
     

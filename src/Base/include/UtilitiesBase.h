@@ -217,6 +217,13 @@ inline void writeWorldToOBJ(std::string folder, std::string simName, World &worl
     });
 }
 
+//Specific map for rotations
+template<typename DataType, unsigned int Property>
+inline Eigen::Map<Eigen::Quaternion<DataType> > mapDOFEigenQuat(const DOFRotation<DataType, Property> &dof, const State<DataType> &state) {
+    std::tuple<double *, unsigned int> qPtr = dof.getPtr(state);
+    return Eigen::Map<Eigen::Quaternion<DataType> >(std::get<0>(qPtr));
+}
+
 //Initializers for DOFS
 //Default Initializers just zeros things out
 template<typename DOFType>
@@ -285,5 +292,67 @@ void initializeDOFs(World &world) {
         InitializeDOF(a->getQ(), world.getState());
         InitializeDOF(a->getQDot(), world.getState());
     });
+}
+
+
+
+
+//incrementing DOFs
+template<typename QDOF, typename QDOTDOF, typename DataType>
+class IncrementDOFClass
+{
+    
+public:
+    template<typename State>
+    explicit inline IncrementDOFClass(QDOF &q, QDOTDOF &qDot, DataType a, State &state) {
+        
+        //normal addition
+        #pragma omp parallel for
+        for(unsigned int ii=0; ii<q.getNumScalarDOF(); ++ii) {
+            std::get<0>(q.getPtr(state))[ii] += a*std::get<0>(qDot.getPtr(state))[ii];
+        }
+    }
+};
+
+//deal with rotations (standard addition doesn't work)
+template<unsigned int PropertyIndex, typename DataType>
+class IncrementDOFClass<DOFRotation<DataType,PropertyIndex>, DOFParticle<DataType,PropertyIndex>, DataType >
+{
+    
+public:
+    template<typename State>
+    explicit inline IncrementDOFClass(DOFRotation<DataType,PropertyIndex> &q, DOFParticle<DataType,PropertyIndex> &qDot, DataType a, State &state) {
+        
+        std::cout<<"Update Rotation \n";
+        
+        //convert angular velocity to quaternion and post multiply to update current rotation
+        mapEigenDOFEigenQuat(q, state) = Eigen::Quaternion<DataType>(Eigen::AngleAxis<DataType>(a*mapEigenDOF(qDot, state).norm(), mapEigenDOF(qDot, state).normalized()))*mapEigenDOFEigenQuat(q, state);
+    }
+};
+
+template<typename QDOF, typename QDOTDOF, typename DataType, typename State>
+inline void incrementDOF(QDOF &q, QDOTDOF &qDot, DataType a, State &state) {
+    IncrementDOFClass<QDOF, QDOTDOF, DataType>(q, qDot, a, state);
+}
+
+//Update is a covenience method to do the following operation that occurs all the time
+// q = q + dt*qDot where + is approriate to the particular DOF
+template<typename World, typename State, typename DataType>
+inline void updateState(World &world, State & state, DataType dt) {
+    
+    std::cout<<"UPDATE STATE\n";
+    //update position in state
+    forEach(world.getSystemList(), [&world, &state, &dt](auto a) {
+       
+        #pragma omp task shared(world, state)
+        {
+            //iterate through dofs in this system and do the update
+            incrementDOF(a->getQ(), a->getQDot(), dt, state);
+        }
+        
+    });
+    
+    std::cout<<"DONE UPDATE STATE\n";
+    
 }
 #endif /* UtilitiesBase_h */

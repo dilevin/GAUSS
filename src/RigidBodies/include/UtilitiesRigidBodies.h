@@ -4,14 +4,6 @@
 #include <UtilitiesEigen.h>
 #include <DOFRotation.h>
 
-//Some useful eigen maps
-//Quaternions
-template<typename DataType, unsigned int Property>
-inline Eigen::Map<Eigen::Quaternion<DataType> > mapDOFEigenQuat(const DOFRotation<DataType, Property> &dof, const State<DataType> &state) {
-    std::tuple<double *, unsigned int> qPtr = dof.getPtr(state);
-    return Eigen::Map<Eigen::Quaternion<DataType> >(std::get<0>(qPtr));
-}
-
 //Taken from SCISIM https://github.com/breannansmith/scisim/ and adapted to take Libigl format mesh input/output
 template<typename DataType>
 inline void diagonalizeInertiaTensor( const Eigen::Matrix33x<DataType> & I, Eigen::Matrix33x<DataType> & R0, Eigen::Vector3x<DataType> &I0)

@@ -146,7 +146,7 @@ namespace Gauss {
             
             //Geometry
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
-                return  mapDOFEigen(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose() + mapDOFEigen(m_q.second(), state));
+                return  mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose() + mapDOFEigen(m_q.second(), state));
             }
             
             inline const auto getVelocity(const State<DataType> &state, unsigned int vertexId) const {

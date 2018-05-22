@@ -68,16 +68,13 @@ int main(int argc, char **argv) {
     std::cout<<"Mass matrix: \n"<<(*matrix)<<"\n";
     std::cout<<"Forces: \n"<<(*force)<<"\n";
     
-    updateState(world, world.getState(), 0.1);
-    
-    //first things first, check 
-    //MyTimeStepper stepper(0.01);
-    
+    MyTimeStepper stepper(0.1);
+
     //Display
-    //QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     
-    //MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
-    //GAUSSVIEW(scene);
+    MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
+    GAUSSVIEW(scene);
     
-    //return app.exec();
+    return app.exec();
 }

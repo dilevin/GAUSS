@@ -355,7 +355,7 @@ public:
     template<typename State>
     explicit inline IncrementDOFClass(DOFPair<DataType, DOF1, DOF2, 0> &q, DOFPair<DataType, DOF3, DOF4, 1> &qDot, DataType a, State &state) {
         
-        #pragma omp task shared(a, state)
+        #pragma omp task shared(a, state, q, qDot)
         {
             IncrementDOFClass<DOF1<DataType, 0>, DOF2<DataType, 1>, DataType >(q.first(), qDot.first(), a, state);
             IncrementDOFClass<DOF3<DataType, 0>, DOF4<DataType, 1>, DataType>(q.second(), qDot.second(), a, state);

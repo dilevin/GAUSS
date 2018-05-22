@@ -104,8 +104,8 @@ namespace Gauss {
                 Eigen::Matrix<DataType, 6,1> g;
                 g << 0,0,0, 0, m_mass*(-9.8), 0.0;
                 g.segment(3,3) = mapDOFEigenQuat(m_q.first(), state).toRotationMatrix().transpose()*m_R0.transpose()*g.segment(3,3);
-                std::cout<<"W: "<<mapDOFEigenQuat(m_q.first(), state).x()<<" "<<mapDOFEigenQuat(m_q.first(), state).y()<<" "<<mapDOFEigenQuat(m_q.first(), state).z()<<" "<<mapDOFEigenQuat(m_q.first(), state).w()<<"\n";
-                std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
+                //std::cout<<"W: "<<mapDOFEigenQuat(m_q.first(), state).x()<<" "<<mapDOFEigenQuat(m_q.first(), state).y()<<" "<<mapDOFEigenQuat(m_q.first(), state).z()<<" "<<mapDOFEigenQuat(m_q.first(), state).w()<<"\n";
+                //std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
                 assign(assembler, g, getQDot(0));
             }
             
@@ -146,7 +146,9 @@ namespace Gauss {
             
             //Geometry
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
-                return  mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose() + mapDOFEigen(m_q.second(), state));
+                return  (mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose()+mapDOFEigen(m_q.second(), state)) + m_com).eval();
+                //std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
+                
             }
             
             inline const auto getVelocity(const State<DataType> &state, unsigned int vertexId) const {

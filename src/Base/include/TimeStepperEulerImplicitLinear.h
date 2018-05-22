@@ -161,8 +161,6 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     
     //update state
     updateState(world, world.getState(), dt);
-
-    //std::cout<<"Q: "<<q<<"\n";
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

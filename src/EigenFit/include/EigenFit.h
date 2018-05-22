@@ -16,6 +16,7 @@
 #include <State.h>
 #include <ParticleSystemIncludes.h>
 #include <ConstraintFixedPoint.h>
+#include <unsupported/Eigen/SparseExtra>
 
 using namespace Gauss;
 using namespace FEM;
@@ -178,10 +179,12 @@ public:
 
         //Eigendecomposition for the embedded fine mesh
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-        m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 0.0);
+            saveMarket(*fineStiffnessMatrix, "stiffness.mtx");
+            saveMarket(*m_fineMassMatrix, "mass.mtx");
+        m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
         // Eigendecomposition for the coarse mesh
-        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 0.0);
+        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 1e-3);
             
         for(int i = 0; i < m_numModes; ++i)
             {

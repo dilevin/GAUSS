@@ -53,9 +53,17 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh5.node", dataDir()+"/meshesTetgen/bar/barmesh5.ele");
 
-    EigenFit *test = new EigenFit(V,F,V,F);
+    //new code -- load tetgen files
+    Eigen::MatrixXd Vf;
+    Eigen::MatrixXi Ff;
+    
+    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
+
+    
+    
+    EigenFit *test = new EigenFit(Vf,Ff,Vf,Ff);
 
     world.addSystem(test);
     fixDisplacementMin(world, test);

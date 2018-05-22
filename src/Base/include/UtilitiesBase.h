@@ -245,7 +245,6 @@ class InitializeDOFClass<DOFRotation<DataType,PropertyIndex> >
 public:
     template<typename State>
     explicit inline InitializeDOFClass(DOFRotation<DataType,PropertyIndex> &dof, State &state) {
-        std::cout<<"Rotation \n";
         
         auto statePtr = dof.getPtr(state);
         std::memset(std::get<0>(statePtr), 0, sizeof(DataType)*std::get<1>(statePtr));
@@ -260,7 +259,7 @@ class InitializeDOFClass<DOFParticle<DataType,PropertyIndex> >
 public:
     template<typename State>
     explicit inline InitializeDOFClass(DOFParticle<DataType,PropertyIndex> &dof, State &state) {
-        std::cout<<"Position \n";
+        
         //standard initializer sets everything to zero
         auto statePtr = dof.getPtr(state);
         std::memset(std::get<0>(statePtr), 0, sizeof(DataType)*std::get<1>(statePtr));
@@ -274,9 +273,27 @@ class InitializeDOFClass< DOFPair<DataType, DOF1, DOF2, PropertyIndex> >
 public:
     template<typename State>
     explicit inline InitializeDOFClass(DOFPair<DataType,DOF1, DOF2, PropertyIndex> &dof, State &state) {
-        std::cout<<"DOFPair \n";
+        
         InitializeDOFClass<DOF1<DataType, PropertyIndex> >(dof.first(), state);
         InitializeDOFClass<DOF2<DataType, PropertyIndex>>(dof.second(), state);
+    }
+};
+
+//Initialize DOF List
+template<typename DataType, unsigned int PropertyIndex, template<typename A, unsigned int B> class DOF>
+class InitializeDOFClass< DOFList<DataType, DOF, PropertyIndex> >
+{
+    
+public:
+    template<typename State>
+    explicit inline InitializeDOFClass(DOFList<DataType,DOF, PropertyIndex> &dof, State &state) {
+        
+        //parallelize
+        #pragma omp parallel for
+        for(unsigned int ii=0; ii< dof.getNumDOFs(); ++ii) {
+            InitializeDOF(dof[ii], state);
+        }
+        
     }
 };
 
@@ -315,18 +332,52 @@ public:
 };
 
 //deal with rotations (standard addition doesn't work)
-template<unsigned int PropertyIndex, typename DataType>
-class IncrementDOFClass<DOFRotation<DataType,PropertyIndex>, DOFParticle<DataType,PropertyIndex>, DataType >
+template<typename DataType>
+class IncrementDOFClass<DOFRotation<DataType,0>, DOFParticle<DataType,1>, DataType >
 {
     
 public:
     template<typename State>
-    explicit inline IncrementDOFClass(DOFRotation<DataType,PropertyIndex> &q, DOFParticle<DataType,PropertyIndex> &qDot, DataType a, State &state) {
-        
-        std::cout<<"Update Rotation \n";
+    explicit inline IncrementDOFClass(DOFRotation<DataType,0> &q, DOFParticle<DataType,1> &qDot, DataType a, State &state) {
         
         //convert angular velocity to quaternion and post multiply to update current rotation
-        mapEigenDOFEigenQuat(q, state) = Eigen::Quaternion<DataType>(Eigen::AngleAxis<DataType>(a*mapEigenDOF(qDot, state).norm(), mapEigenDOF(qDot, state).normalized()))*mapEigenDOFEigenQuat(q, state);
+        mapDOFEigenQuat(q, state) = Eigen::Quaternion<DataType>(Eigen::AngleAxis<DataType>(a*mapDOFEigen(qDot, state).norm(), mapDOFEigen(qDot, state).normalized()))*mapDOFEigenQuat(q, state);
+    }
+};
+
+//Pair
+template<typename DataType, template<typename A, unsigned int B> class DOF1, template<typename A, unsigned int B> class DOF2,
+                            template<typename A, unsigned int B> class DOF3, template<typename A, unsigned int B> class DOF4>
+class IncrementDOFClass<DOFPair<DataType, DOF1, DOF2, 0>, DOFPair<DataType, DOF3, DOF4, 1>, DataType >
+{
+    
+public:
+    template<typename State>
+    explicit inline IncrementDOFClass(DOFPair<DataType, DOF1, DOF2, 0> &q, DOFPair<DataType, DOF3, DOF4, 1> &qDot, DataType a, State &state) {
+        
+        #pragma omp task shared(a, state, a)
+        {
+            IncrementDOFClass<DOF1<DataType, 0>, DOF2<DataType, 1>, DataType >(q.first(), qDot.first(), a, state);
+            IncrementDOFClass<DOF3<DataType, 0>, DOF4<DataType, 1>, DataType>(q.second(), qDot.second(), a, state);
+        }
+    }
+};
+
+//List
+template<template<typename A, unsigned int B> class DOF0, template<typename A, unsigned int B> class DOF1, typename DataType>
+class IncrementDOFClass<DOFList<DataType, DOF0, 0>,  DOFList<DataType, DOF1, 1>, DataType>
+{
+    
+public:
+    template<typename State>
+    explicit inline IncrementDOFClass(DOFList<DataType,DOF0, 0> &q, DOFList<DataType,DOF1, 1> &qDot, DataType a, State &state) {
+        
+        //parallelize
+        #pragma omp parallel for
+        for(unsigned int ii=0; ii< q.getNumDOFs(); ++ii) {
+            IncrementDOFClass<DOF0<DataType,0>, DOF1<DataType,1>, DataType>(q[ii], qDot[ii], a, state);
+        }
+        
     }
 };
 
@@ -340,19 +391,16 @@ inline void incrementDOF(QDOF &q, QDOTDOF &qDot, DataType a, State &state) {
 template<typename World, typename State, typename DataType>
 inline void updateState(World &world, State & state, DataType dt) {
     
-    std::cout<<"UPDATE STATE\n";
     //update position in state
     forEach(world.getSystemList(), [&world, &state, &dt](auto a) {
        
-        #pragma omp task shared(world, state)
+        #pragma omp task shared(world, state, dt)
         {
             //iterate through dofs in this system and do the update
             incrementDOF(a->getQ(), a->getQDot(), dt, state);
         }
         
     });
-    
-    std::cout<<"DONE UPDATE STATE\n";
     
 }
 #endif /* UtilitiesBase_h */

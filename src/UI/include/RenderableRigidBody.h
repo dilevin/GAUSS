@@ -297,7 +297,7 @@ namespace Gauss {
             unsigned int vertexId, idx;
             idx = 0;
             
-            for(unsigned int elId=0;  elId < m_mesh->getGeometry().second.rows(); ++elId) {
+           for(unsigned int elId=0;  elId < m_mesh->getGeometry().second.rows(); ++elId) {
                 
                 for(unsigned int ii=0; ii<m_mesh->getGeometry().second.cols(); ++ii) {
                     

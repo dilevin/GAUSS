@@ -65,7 +65,7 @@ namespace Gauss {
             }
         }
         
-        inline unsigned int &getNumDOFs() { return m_dofList.size(); }
+        inline  unsigned int getNumDOFs() { return m_dofList.size(); }
 
     protected:
         std::vector<DOF<DataType, PropertyIndex> > m_dofList;

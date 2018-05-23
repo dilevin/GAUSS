@@ -33,7 +33,7 @@ namespace Gauss {
             getMassMatrix(mass, world);
             getStiffnessMatrix(stiffness, world);
             
-            auto eigs = generalizedEigenvalueProblem((*stiffness), (*mass), numModes,   1e-3);
+            auto eigs = generalizedEigenvalueProblem((*stiffness), (*mass), numModes,   1e-6);
             
             //convert to vibrational frequencies
             //hack because generalised eignvalue solver only returns real values

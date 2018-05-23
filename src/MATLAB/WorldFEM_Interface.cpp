@@ -73,7 +73,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             FEMPlaneStrainTri *FEM = new FEMPlaneStrainTri(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
         } else if(strcmp(femType, "neohookean_linear_tetrahedra")==0) {
-            mexPrintf("Initialize Initialize Neohookean Elastic Tetrahedra\n");
+            mexPrintf("Initialize Neohookean Elastic Tetrahedra\n");
             FEMNeohookeanTets *FEM = new FEMNeohookeanTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
         } else {

@@ -54,10 +54,11 @@ int main(int argc, char **argv) {
     //fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     initializeDOFs(world);
-    auto q = mapStateEigen(world);
-    std::cout<<"STATE: \n"<<q<<"\n";
+    auto q = mapStateEigen<1>(world);
+    q(0) = 0;
+    q(1) = 0;
+    q(2) = 5;
     
-    //q.setZero();
 
     AssemblerEigenSparseMatrix<double> matrix;
     AssemblerEigenVector<double> force;
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
     std::cout<<"Mass matrix: \n"<<(*matrix)<<"\n";
     std::cout<<"Forces: \n"<<(*force)<<"\n";
     
-    MyTimeStepper stepper(0.1);
+    MyTimeStepper stepper(0.001);
 
     //Display
     QGuiApplication app(argc, argv);

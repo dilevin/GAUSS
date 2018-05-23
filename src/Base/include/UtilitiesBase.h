@@ -363,6 +363,30 @@ public:
     }
 };
 
+//Rigid bodies (my rigid body velocities are in body space so we need to convert to world space)
+template<typename DataType>
+class IncrementDOFClass<DOFPair<DataType, DOFRotation, DOFParticle, 0>, DOFPair<DataType, DOFParticle, DOFParticle, 1>, DataType >
+{
+    
+public:
+    template<typename State>
+    explicit inline IncrementDOFClass(DOFPair<DataType, DOFRotation, DOFParticle, 0> &q, DOFPair<DataType, DOFParticle, DOFParticle, 1> &qDot, DataType a, State &state) {
+
+            //update center of mass position in the world space
+            auto R0 = mapDOFEigenQuat(q.first(), state).toRotationMatrix();
+    
+            //update the rotation
+            IncrementDOFClass<DOFRotation<DataType, 0>, DOFParticle<DataType, 1>, DataType >(q.first(), qDot.first(), a, state);
+        
+            //update position
+            mapDOFEigen(q.second(), state) += a*R0*mapDOFEigen(qDot.second(), state);
+        
+            //update body space velocity
+            mapDOFEigen(qDot.second(), state) = mapDOFEigenQuat(q.first(), state).toRotationMatrix().transpose()*R0*mapDOFEigen(qDot.second(), state);
+        }
+};
+
+
 //List
 template<template<typename A, unsigned int B> class DOF0, template<typename A, unsigned int B> class DOF1, typename DataType>
 class IncrementDOFClass<DOFList<DataType, DOF0, 0>,  DOFList<DataType, DOF1, 1>, DataType>
@@ -386,6 +410,7 @@ inline void incrementDOF(QDOF &q, QDOTDOF &qDot, DataType a, State &state) {
     IncrementDOFClass<QDOF, QDOTDOF, DataType>(q, qDot, a, state);
 }
 
+//build one that specifically works for the rigid body DOF pair 
 //Update is a covenience method to do the following operation that occurs all the time
 // q = q + dt*qDot where + is approriate to the particular DOF
 template<typename World, typename State, typename DataType>

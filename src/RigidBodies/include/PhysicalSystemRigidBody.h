@@ -52,9 +52,6 @@ namespace Gauss {
                     m_V.row(ii) -= m_com.transpose();
                 }
                 
-                //fine I'll rotate the stupid mesh
-                m_V = (m_R0.transpose()*m_V.transpose()).transpose();
-                
             }
             
             ~PhysicalSystemRigidBodyImpl() {
@@ -103,7 +100,7 @@ namespace Gauss {
                 //gravity goes here
                 Eigen::Matrix<DataType, 6,1> g;
                 g << 0,0,0, 0, m_mass*(-9.8), 0.0;
-                g.segment(3,3) = mapDOFEigenQuat(m_q.first(), state).toRotationMatrix().transpose()*m_R0.transpose()*g.segment(3,3);
+                g.segment(3,3) = mapDOFEigenQuat(m_q.first(), state).toRotationMatrix().transpose()*g.segment(3,3);
                 //std::cout<<"W: "<<mapDOFEigenQuat(m_q.first(), state).x()<<" "<<mapDOFEigenQuat(m_q.first(), state).y()<<" "<<mapDOFEigenQuat(m_q.first(), state).z()<<" "<<mapDOFEigenQuat(m_q.first(), state).w()<<"\n";
                 //std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
                 assign(assembler, g, getQDot(0));
@@ -146,9 +143,7 @@ namespace Gauss {
             
             //Geometry
             inline const auto getPosition(const State<DataType> &state, unsigned int vertexId) const {
-                return  (mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()*m_R0*(m_V.row(vertexId).transpose()+mapDOFEigen(m_q.second(), state)) + m_com).eval();
-                //std::cout<<"ROTATION MATRIX: \n"<<mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()<<"\n";
-                
+                return  (mapDOFEigenQuat(m_q.first(), state).toRotationMatrix()*(m_V.row(vertexId).transpose()) + m_com + mapDOFEigen(m_q.second(), state)).eval();
             }
             
             inline const auto getVelocity(const State<DataType> &state, unsigned int vertexId) const {
@@ -162,7 +157,7 @@ namespace Gauss {
                 
                 gamma.block(0,0,3,3) << 0, m_V(vertexId,2), -m_V(vertexId,1), -m_V(vertexId,2), 0, m_V(vertexId,0), m_V(vertexId,1), -m_V(vertexId,0), 0;
                 gamma.block(0,3,3,3).setIdentity();
-                return mapDOFEigen(m_q.first(), state).toRotationMatrix()*m_R0*gamma;
+                return mapDOFEigen(m_q.first(), state).toRotationMatrix()*gamma;
             }
             
             //Rigid body Jacobian goes here

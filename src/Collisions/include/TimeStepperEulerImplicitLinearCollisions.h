@@ -58,6 +58,8 @@ namespace Gauss {
             MatrixAssembler m_massMatrix;
             MatrixAssembler m_stiffnessMatrix;
             MatrixAssembler m_collisionConstraints;
+            MatrixAssembler m_equalityConstraints;
+            VectorAssembler m_dBdT;
             VectorAssembler m_forceVector;
 #ifdef GAUSS_GUROBI
             Eigen::GurobiSparse qp;
@@ -82,11 +84,13 @@ namespace Gauss {
         //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
         MatrixAssembler &massMatrix = m_massMatrix;
         MatrixAssembler &collisions = m_collisionConstraints;
+        MatrixAssembler &equality = m_equalityConstraints;
         MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
         VectorAssembler &forceVector = m_forceVector;
+        VectorAssembler &dbdt = m_dBdT;
         
         //get mass matrix
-        ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs()+world.getNumConstraints());
+        ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
         ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
         ASSEMBLEEND(massMatrix);
         
@@ -109,7 +113,14 @@ namespace Gauss {
         ASSEMBLEMATINIT(collisions, world.getNumInequalityConstraints(), world.getNumQDotDOFs());
         ASSEMBLELISTCONSTRAINT(collisions, world.getInequalityConstraintList(), getGradient);
         ASSEMBLEEND(collisions);
+        
+        ASSEMBLEMATINIT(equality, world.getNumConstraints(), world.getNumQDotDOFs());
+        ASSEMBLELISTCONSTRAINT(equality, world.getConstraintList(), getGradient);
+        ASSEMBLEEND(equality);
     
+        ASSEMBLEVECINIT(dbdt, world.getNumConstraints());
+        ASSEMBLELISTCONSTRAINT(dbdt, world.getConstraintList(), getDbDt);
+        ASSEMBLEEND(dbdt);
         
         //Grab the state
         Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
@@ -125,8 +136,8 @@ namespace Gauss {
         //solve using libigl active set solver
         Eigen::VectorXi known;
         Eigen::VectorXd bKnown;
-        Eigen::SparseMatrix<DataType> Aeq;
-        Eigen::VectorXd beq;
+        Eigen::SparseMatrix<DataType> Aeq = (*equality);
+        Eigen::VectorXd beq = (*dbdt);
         Eigen::VectorXd b;
         Eigen::SparseMatrix<DataType> Aineq = -(*collisions);
         b.resize((*collisions).rows(),1);

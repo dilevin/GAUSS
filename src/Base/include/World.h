@@ -265,7 +265,7 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     World &world = *this;
     
     forEach(m_constraints, [&totalConstraints](auto a) {
-        a->getIndex().offsetGlobalId(totalConstraints);
+        a->getIndex().setGlobalId(totalConstraints);
         totalConstraints += a->getNumRows();
     });
     

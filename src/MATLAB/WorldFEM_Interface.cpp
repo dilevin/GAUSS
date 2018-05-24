@@ -63,6 +63,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         WorldFEM *world = new WorldFEM();
         
         char * femType = mxArrayToString(prhs[1]);
+        
+        if(!femType) {
+            mexPrintf("Invalid Parameter: FEM Type not a string. Please clear and reinitialize FEM object. \n");
+            return;
+        }
+        
         mexPrintf("%s\n", femType);
         if(strcmp(femType, "elastic_linear_tetrahedra") == 0) {
             mexPrintf("Initialize Linear Elastic Tetrahedra\n");

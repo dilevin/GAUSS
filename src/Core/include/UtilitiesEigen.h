@@ -22,6 +22,9 @@ namespace Eigen {
     using Vector3x = Eigen::Matrix<DataType, 3,1>;
     
     template<typename DataType>
+    using Vector6x = Eigen::Matrix<DataType, 6,1>;
+    
+    template<typename DataType>
     using VectorXx = Eigen::Matrix<DataType, Eigen::Dynamic, 1>;
     
     template<typename DataType>

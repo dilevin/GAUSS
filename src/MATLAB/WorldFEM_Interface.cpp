@@ -73,7 +73,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             FEMPlaneStrainTri *FEM = new FEMPlaneStrainTri(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
         } else if(strcmp(femType, "neohookean_linear_tetrahedra")==0) {
-            mexPrintf("Initialize Initialize Neohookean Elastic Tetrahedra\n");
+            mexPrintf("Initialize Neohookean Elastic Tetrahedra\n");
             FEMNeohookeanTets *FEM = new FEMNeohookeanTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
         } else {
@@ -283,6 +283,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         // Call the method
         plhs[0] = mxCreateNumericMatrix(1,  1, mxDOUBLE_CLASS, mxREAL);
         mxGetPr(plhs[0])[0] = getStrainEnergy(*dummy_instance);
+        return;
+    }
+    
+    if (!strcmp("strenertet", cmd)) {
+        // Check parameters
+        if (nlhs < 0 || nrhs < 2)
+            mexErrMsgTxt("strainEnergy: not enough arguments.");
+        // Get the per tet strain energy
+        Eigen::VectorXd strainEnergy;
+        State<double> &state = dummy_instance->getState();
+        
+        forEach(dummy_instance->getSystemList(), [&strainEnergy, &state](auto a) {
+                strainEnergy.resize(impl(a).getF().rows(), 1);
+                strainEnergy = impl(a).getStrainEnergyPerElement(state);
+        });
+        
+        plhs[0] = eigenDenseToMATLAB(strainEnergy);
+
         return;
     }
     

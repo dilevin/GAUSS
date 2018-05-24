@@ -46,7 +46,11 @@ classdef WorldFEM < handle
          function varargout = strainEnergy(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('strener', this.objectHandle, varargin{:});
          end
-               
+         
+          function varargout = strainEnergyPerElement(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('strenertet', this.objectHandle, varargin{:});
+          end
+                    
          %% Force - get the world foce
         function varargout = force(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('f', this.objectHandle, varargin{:});
@@ -64,6 +68,12 @@ classdef WorldFEM < handle
         function c = strainEnergyFromQ(this, q)
             setQ(this,q);
             c = strainEnergy(this);
+        end
+        
+        %% convenience functions
+        function c = strainEnergyPerElementFromQ(this, q)
+            setQ(this,q);
+            c = strainEnergyPerElement(this);
         end
     end
 end

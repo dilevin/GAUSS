@@ -289,8 +289,9 @@ public:
             -gradZ.transpose()*ddw.block(6,3,3,3)*gradY +
             -gradZ.transpose()*ddw.block(6,6,3,3)*gradZ;
         
+        // hard coded for tet, need to change size for hex
         Eigen::EigenSolver<Eigen::Matrix> es(H);
-        for (int i = 0; i < 16; ++i) {
+        for (int i = 0; i < 12; ++i) {
             if (es.eigenvalues()[i]<1e-6) {
                 es.eigenvalues()[i] = 1e-3;
             }

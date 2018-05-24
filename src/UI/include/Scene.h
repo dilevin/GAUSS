@@ -23,6 +23,9 @@
 //Embeddings
 #include "RenderableEmbeddedSurface.h"
 
+//Rigidbodies
+#include "RenderableRigidBody.h"
+
 #include <TimeStepper.h>
 
 namespace Gauss {

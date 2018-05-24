@@ -51,6 +51,11 @@ namespace Gauss {
                 return m_impl.getNumCollisions();
             }
             
+            template <typename Vector>
+            inline void getDbDt(Vector &f,  const State<DataType> &state, const ConstraintIndex &index) {
+               
+            }
+            
             //get Gradients
             template<typename World, typename Assembler, unsigned int Operation>
             void getGradient(Assembler &assembler, World &world, const State<DataType> &state, const ConstraintIndex &index) {

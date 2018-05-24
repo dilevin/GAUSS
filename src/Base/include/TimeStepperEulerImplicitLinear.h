@@ -160,9 +160,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     m_lagrangeMultipliers = x0.tail(world.getNumConstraints());
     
     //update state
-    q = q + dt*qDot;
-    
-    //std::cout<<"Q: "<<q<<"\n";
+    updateState(world, world.getState(), dt);
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

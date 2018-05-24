@@ -9,10 +9,12 @@
 #include <RenderableFEMHex.h>
 #include <RenderableFEMTri.h>
 #include <RenderableEmbeddedSurface.h>
+#include <RenderableRigidBody.h>
 
 //specific physical system types
 #include <PhysicalSystemParticles.h>
 #include <PhysicalSystemFEM.h>
+#include <PhysicalSystemRigidBody.h>
 #include <ForceExternal.h>
 #include <ForceSpring.h>
 
@@ -174,6 +176,27 @@ namespace Gauss {
     {
     public:
         PhysicalEntity(Embeddings::PhysicalSystemEmbeddedMesh<DataType, System> *system) :
+        PhysicalEntity<DataType>()
+        {
+            PhysicalEntity<DataType>::m_renderableObjects.push_back(new Renderable<typename std::remove_pointer<decltype(system)>::type>(system));
+        }
+        
+        
+        
+    protected:
+        
+        
+    private:
+        
+    };
+    
+    //Rigidbody
+    template<typename DataType>
+    class PhysicalEntity<RigidBodies::PhysicalSystemRigidBody<DataType> > : public PhysicalEntity<DataType>
+    
+    {
+    public:
+        PhysicalEntity(RigidBodies::PhysicalSystemRigidBody<DataType> *system) :
         PhysicalEntity<DataType>()
         {
             PhysicalEntity<DataType>::m_renderableObjects.push_back(new Renderable<typename std::remove_pointer<decltype(system)>::type>(system));

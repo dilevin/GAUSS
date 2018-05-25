@@ -23,13 +23,13 @@ using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
 // subclass a hard-coded templated class from PhysicalSystemFEM
-// this means that this EigenFit only works for NeohookeanTets
-class EigenFit: public PhysicalSystemFEM<double, NeohookeanTet>{
+// this means that this EigenFit only works for NeohookeanHFixedTets
+class EigenFit: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
     
 public:
     // alias the hard-coded template name. Easier to read
     // the following lines read: the Physical System Implementation used here is a neo-hookean tet class
-    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanTet>;
+    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
     
     // use all the default function for now
     using PhysicalSystemImpl::getEnergy;
@@ -179,8 +179,8 @@ public:
 
         //Eigendecomposition for the embedded fine mesh
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-            saveMarket(*fineStiffnessMatrix, "stiffness.mtx");
-            saveMarket(*m_fineMassMatrix, "mass.mtx");
+//            saveMarket(*fineStiffnessMatrix, "stiffness.mtx");
+//            saveMarket(*m_fineMassMatrix, "mass.mtx");
         m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
         // Eigendecomposition for the coarse mesh

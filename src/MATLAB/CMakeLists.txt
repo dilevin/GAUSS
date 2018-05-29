@@ -7,7 +7,6 @@ find_package(MATLAB REQUIRED)
 include_directories(${Matlab_INCLUDE_DIRS})
 
 get_filename_component(MATLAB_PATH_DIR "${Matlab_MEX_LIBRARY}" PATH)
-get_filename_component(MATLAB_PATH_DIR "${Matlab_MEX_LIBRARY}" PATH)
 
 #have to manually ad libmx on OSX (on my machine at least) for some reason
 find_library(LUA_LIB lua)

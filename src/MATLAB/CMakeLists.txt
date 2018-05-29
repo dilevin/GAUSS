@@ -28,7 +28,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
      matlab_add_mex(
         NAME Gauss_MATLAB
         SRC class_handle.hpp WorldFEM_Interface.cpp UtilitiesEigenMex.h
-        LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM /opt/matlab/matlab-R2017a/sys/os/glnxa64/libiomp5.so
+        LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM /usr/local/matlab-R2018a/sys/os/glnxa64/libiomp5.so
         OUTPUT_NAME WorldFEM_Interface)
 else()
     matlab_add_mex(

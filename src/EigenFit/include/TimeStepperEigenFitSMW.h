@@ -34,7 +34,7 @@ namespace Gauss {
         template<typename Matrix>
         TimeStepperImplEigenFitSMWImpl(Matrix &P) {
             
-            m_numToCorrect = 20;
+            m_numToCorrect = 10;
             m_numModes = 10;
 //            m_R.setConstant(m_numModes, 1.0);
 //            m_I.setConstant(m_numModes, 1.0);
@@ -128,7 +128,9 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
     (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
     (*forceVector) = m_P*(*forceVector);
-
+    
+    saveMarket(*massMatrix, "coarsemass.mtx");
+    
     //Eigendecomposition
 //    m_coarseUs = generalizedEigenvalueProblem((*stiffnessMatrix), (*massMatrix), m_numModes, 0.0);
   
@@ -149,6 +151,19 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     Eigen::VectorXd x0;
     Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
+    int file_ind = 0;
+    std::string name = "coarsestiffness_unmodified";
+    std::string fformat = ".dat";
+    std::string filename = name + std::to_string(file_ind) + fformat;
+    struct stat buf;
+    while (stat(filename.c_str(), &buf) != -1)
+    {
+        file_ind++;
+        filename = name + std::to_string(file_ind) + fformat;
+    }
+    saveMarket(*m_stiffnessMatrix, filename);
+
+    
     m_pardiso.symbolicFactorization(systemMatrix, m_numModes);
     m_pardiso.numericalFactorization();
     
@@ -156,14 +171,50 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     m_pardiso.solve(*forceVector);
     x0 = m_pardiso.getX();
     
+    file_ind = 0;
+    name = "x0_original";
+    fformat = ".dat";
+    filename = name + std::to_string(file_ind) + fformat;
+    while (stat(filename.c_str(), &buf) != -1)
+    {
+        file_ind++;
+        filename = name + std::to_string(file_ind) + fformat;
+    }
+    saveMarket(x0, filename);
+
+    
     Y = dt*Y;
     Z = -dt*Z;
     m_pardiso.solve(Y);
     Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*m_pardiso.getX()).ldlt().solve(Z*x0);
     
+    file_ind = 0;
+    name = "bPrime";
+    fformat = ".dat";
+    filename = name + std::to_string(file_ind) + fformat;
+    
+    while (stat(filename.c_str(), &buf) != -1)
+    {
+        file_ind++;
+        filename = name + std::to_string(file_ind) + fformat;
+    }
+    saveMarket(bPrime, filename);
+    
+    
     m_pardiso.solve(bPrime);
     
     x0 -= m_pardiso.getX();
+    
+    file_ind = 0;
+    name = "x0_SMW";
+    fformat = ".dat";
+    filename = name + std::to_string(file_ind) + fformat;
+    while (stat(filename.c_str(), &buf) != -1)
+    {
+        file_ind++;
+        filename = name + std::to_string(file_ind) + fformat;
+    }
+    saveMarket(x0, filename);
     
     m_pardiso.cleanup();
     
@@ -172,6 +223,17 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     //update state
     q = q + dt*qDot;
     
+    file_ind = 0;
+    name = "coarsemesh_q";
+    fformat = ".dat";
+    filename = name + std::to_string(file_ind) + fformat;
+    while (stat(filename.c_str(), &buf) != -1)
+    {
+        file_ind++;
+        filename = name + std::to_string(file_ind) + fformat;
+    }
+    saveMarket(q, filename);
+
     //std::cout<<"Q: "<<q<<"\n";
 }
 

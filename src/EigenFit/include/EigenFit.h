@@ -17,6 +17,7 @@
 #include <ParticleSystemIncludes.h>
 #include <ConstraintFixedPoint.h>
 #include <unsupported/Eigen/SparseExtra>
+#include <sys/stat.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -76,6 +77,7 @@ public:
              m_N.block(3*ii, 0, 3, numCols) = Jmat;
          }
 
+         saveMarket(m_N, "m_N.dat");
          
          // setup the fine mesh
          PhysicalSystemImpl *m_fineMeshSystem = new PhysicalSystemImpl(Vf,Ff);
@@ -119,13 +121,37 @@ public:
          
 //         delete m_fineMeshSystem;
          
+         
+         // fill in the rest state position
          restFineState = m_fineWorld.getState();
+         
+         fine_pos0 = new double[world.getNumQDOFs()];
+         
+         Eigen::Map<Eigen::VectorXd> eigen_fine_pos0(fine_pos0,world.getNumQDOFs());
+         
+         Eigen::Vector3x<double> pos0;
+
+         unsigned int idx;
+         idx = 0;
+         
+         for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+             
+             // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+             pos0 = this->getFinePosition(restFineState, vertexId);
+             
+             eigen_fine_pos0(idx) = pos0[0];
+             idx++;
+             eigen_fine_pos0(idx) = pos0[1];
+             idx++;
+             eigen_fine_pos0(idx) = pos0[2];
+             idx++;
+         }
 //
          
      }
     
 
-    ~EigenFit() {
+    ~EigenFit() {delete fine_pos0;
     }
     
 //    void calculateEigenFitData(Eigen::MatrixXd &Y, Eigen::MatrixXd &Z, std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_Us){
@@ -141,9 +167,17 @@ public:
             
             Eigen::Map<Eigen::VectorXd> fine_q = mapStateEigen<0>(m_fineWorld);
 
+            double pd_fine_pos[world.getNumQDOFs()];
+            Eigen::Map<Eigen::VectorXd> fine_pos(pd_fine_pos,world.getNumQDOFs());
+//            double pd_fine_pos0[world.getNumQDOFs()];
+//            Eigen::Map<Eigen::VectorXd> fine_pos0(pd_fine_pos0,world.getNumQDOFs());
+            Eigen::Map<Eigen::VectorXd> eigen_fine_pos0(fine_pos0,world.getNumQDOFs());
+            
+//            double * pd_fine_pos0;
+//            Eigen::Map<Eigen::VectorXd> fine_pos0(pd_fine_pos0,world.getNumQDOFs());
+//            Eigen::Map<Eigen::VectorXd> fine_pos0;
 //            update the embedding q
             Eigen::Vector3x<double> pos;
-            Eigen::Vector3x<double> pos0;
             unsigned int idx;
             idx = 0;
             
@@ -152,19 +186,57 @@ public:
 //                    vertexId = this->getImpl().getGeometry().second(elId, ii);
                     // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
                     pos = this->getFinePosition(state, vertexId);
-                    pos0 = this->getFinePosition(restFineState, vertexId);
+//                    pos0 = this->getFinePosition(restFineState, vertexId);
                 
-                    fine_q(idx) = pos[0] - pos0[0];
-                    idx++;
-                    fine_q(idx) = pos[1] - pos0[1];
-                    idx++;
-                    fine_q(idx) = pos[2] - pos0[2];
-                    idx++;
+                fine_q(idx) = pos[0] - eigen_fine_pos0[idx];
+                fine_pos(idx) = pos[0];
+//                fine_pos0(idx) = pos0[0];
+                idx++;
+                fine_q(idx) = pos[1] - eigen_fine_pos0[idx];
+                fine_pos(idx) = pos[1];
+//                fine_pos0(idx) = pos0[1];
+                idx++;
+                fine_q(idx) = pos[2] - eigen_fine_pos0[idx];
+                fine_pos(idx) = pos[2];
+//                fine_pos0(idx) = pos0[2];
+                idx++;
                 }
-                
-        
+            
+        int file_ind = 0;
+        std::string name = "finemesh_q";
+        std::string fformat = ".dat";
+        std::string filename = name + std::to_string(file_ind) + fformat;
+        struct stat buf;
+        while (stat(filename.c_str(), &buf) != -1)
+        {
+            file_ind++;
+            filename = name + std::to_string(file_ind) + fformat;
+        }
+        saveMarket(fine_q, filename);
+            
+//            file_ind = 0;
+//            name = "fine_pos";
+//            fformat = ".dat";
+//            filename = name + std::to_string(file_ind) + fformat;
+//            while (stat(filename.c_str(), &buf) != -1)
+//            {
+//                file_ind++;
+//                filename = name + std::to_string(file_ind) + fformat;
+//            }
+//            saveMarket(fine_pos, filename);
+//
+//            file_ind = 0;
+//            name = "fine_pos0";
+//            fformat = ".dat";
+//            filename = name + std::to_string(file_ind) + fformat;
+//            while (stat(filename.c_str(), &buf) != -1)
+//            {
+//                file_ind++;
+//                filename = name + std::to_string(file_ind) + fformat;
+//            }
+//            saveMarket(fine_pos0, filename);
 
-        
+            
 //        lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
         AssemblerEigenSparseMatrix<double> &fineStiffnessMatrix = m_fineStiffnessMatrix;
         
@@ -179,8 +251,18 @@ public:
 
         //Eigendecomposition for the embedded fine mesh
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-//            saveMarket(*fineStiffnessMatrix, "stiffness.mtx");
-//            saveMarket(*m_fineMassMatrix, "mass.mtx");
+//            saveMarket(*fineStiffnessMatrix, "finestiffness.mtx");
+            saveMarket(*m_fineMassMatrix, "finemass.mtx");
+            name = "finestiffness";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(*fineStiffnessMatrix, filename);
+            
         m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
         // Eigendecomposition for the coarse mesh
@@ -189,15 +271,34 @@ public:
         for(int i = 0; i < m_numModes; ++i)
             {
                 m_R(i) = m_Us.second(i)/m_coarseUs.second(i);
+                std::cout<<m_R(i)<<std::endl;
             }
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
         
+            name = "Y";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(Y, filename);
+            name = "Z";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(Z, filename);
+            
     }
     
     //per vertex accessors. takes the state of the coarse mesh
     inline Eigen::Vector3x<double> getFinePosition(const State<double> &state, unsigned int vertexId) const {
-        //return m_Vf.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*mapDOFEigen(fem.getQ(), state);
         return m_Vf.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*(*this).getImpl().getElement(m_elements[vertexId])->q(state);
     }
     
@@ -233,6 +334,8 @@ protected:
     Eigen::VectorXi m_elements;
     
     State<double> restFineState;
+    
+    double* fine_pos0  = NULL;
     // rest state of fine q
 //    Eigen::Map<Eigen::VectorXd> fine_pos0;
 

@@ -77,7 +77,7 @@ public:
              m_N.block(3*ii, 0, 3, numCols) = Jmat;
          }
 
-         saveMarket(m_N, "m_N.dat");
+//         saveMarket(m_N, "m_N.dat");
          
          // setup the fine mesh
          PhysicalSystemImpl *m_fineMeshSystem = new PhysicalSystemImpl(Vf,Ff);
@@ -156,7 +156,8 @@ public:
     
 //    void calculateEigenFitData(Eigen::MatrixXd &Y, Eigen::MatrixXd &Z, std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_Us){
     // calculate data, TODO: the first two parameter should be const
-        void calculateEigenFitData(const State<double> &state, const AssemblerEigenSparseMatrix<double> &coarseMassMatrix, const AssemblerEigenSparseMatrix<double> &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
+    template<typename MatrixAssembler>
+        void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
 
 //            std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
         //lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
@@ -202,17 +203,17 @@ public:
                 idx++;
                 }
             
-        int file_ind = 0;
-        std::string name = "finemesh_q";
-        std::string fformat = ".dat";
-        std::string filename = name + std::to_string(file_ind) + fformat;
-        struct stat buf;
-        while (stat(filename.c_str(), &buf) != -1)
-        {
-            file_ind++;
-            filename = name + std::to_string(file_ind) + fformat;
-        }
-        saveMarket(fine_q, filename);
+//        int file_ind = 0;
+//        std::string name = "finemesh_q";
+//        std::string fformat = ".dat";
+//        std::string filename = name + std::to_string(file_ind) + fformat;
+//        struct stat buf;
+//        while (stat(filename.c_str(), &buf) != -1)
+//        {
+//            file_ind++;
+//            filename = name + std::to_string(file_ind) + fformat;
+//        }
+//        saveMarket(fine_q, filename);
             
 //            file_ind = 0;
 //            name = "fine_pos";
@@ -252,17 +253,17 @@ public:
         //Eigendecomposition for the embedded fine mesh
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
 //            saveMarket(*fineStiffnessMatrix, "finestiffness.mtx");
-            saveMarket(*m_fineMassMatrix, "finemass.mtx");
-            name = "finestiffness";
-            fformat = ".dat";
-            filename = name + std::to_string(file_ind) + fformat;
-            while (stat(filename.c_str(), &buf) != -1)
-            {
-                file_ind++;
-                filename = name + std::to_string(file_ind) + fformat;
-            }
-            saveMarket(*fineStiffnessMatrix, filename);
-            
+//            saveMarket(*m_fineMassMatrix, "finemass.mtx");
+//            name = "finestiffness";
+//            fformat = ".dat";
+//            filename = name + std::to_string(file_ind) + fformat;
+//            while (stat(filename.c_str(), &buf) != -1)
+//            {
+//                file_ind++;
+//                filename = name + std::to_string(file_ind) + fformat;
+//            }
+//            saveMarket(*fineStiffnessMatrix, filename);
+//
         m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
         // Eigendecomposition for the coarse mesh
@@ -271,29 +272,29 @@ public:
         for(int i = 0; i < m_numModes; ++i)
             {
                 m_R(i) = m_Us.second(i)/m_coarseUs.second(i);
-                std::cout<<m_R(i)<<std::endl;
+//                std::cout<<m_R(i)<<std::endl;
             }
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
         
-            name = "Y";
-            fformat = ".dat";
-            filename = name + std::to_string(file_ind) + fformat;
-            while (stat(filename.c_str(), &buf) != -1)
-            {
-                file_ind++;
-                filename = name + std::to_string(file_ind) + fformat;
-            }
-            saveMarket(Y, filename);
-            name = "Z";
-            fformat = ".dat";
-            filename = name + std::to_string(file_ind) + fformat;
-            while (stat(filename.c_str(), &buf) != -1)
-            {
-                file_ind++;
-                filename = name + std::to_string(file_ind) + fformat;
-            }
-            saveMarket(Z, filename);
+//            name = "Y";
+//            fformat = ".dat";
+//            filename = name + std::to_string(file_ind) + fformat;
+//            while (stat(filename.c_str(), &buf) != -1)
+//            {
+//                file_ind++;
+//                filename = name + std::to_string(file_ind) + fformat;
+//            }
+//            saveMarket(Y, filename);
+//            name = "Z";
+//            fformat = ".dat";
+//            filename = name + std::to_string(file_ind) + fformat;
+//            while (stat(filename.c_str(), &buf) != -1)
+//            {
+//                file_ind++;
+//                filename = name + std::to_string(file_ind) + fformat;
+//            }
+//            saveMarket(Z, filename);
             
     }
     

@@ -5,6 +5,7 @@
 //  Created by Edwin Chen on 2018-05-11.
 //
 //
+//#define EDWIN_DEBUG
 
  #ifndef EigenFit_h
  #define EigenFit_h
@@ -76,19 +77,19 @@ public:
              
              m_N.block(3*ii, 0, 3, numCols) = Jmat;
          }
-
-//         saveMarket(m_N, "m_N.dat");
-         
+#ifdef EDWIN_DEBUG
+         saveMarket(m_N, "m_N.dat");
+#endif
          // setup the fine mesh
          PhysicalSystemImpl *m_fineMeshSystem = new PhysicalSystemImpl(Vf,Ff);
          m_fineWorld.addSystem(m_fineMeshSystem);
 //
          fixDisplacementMin(m_fineWorld, m_fineMeshSystem);
          m_fineWorld.finalize();
-//
+
          auto q = mapStateEigen(m_fineWorld);
          q.setZero();
-//
+
          // hard-coded constraint projection
          Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 0);
          m_P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
@@ -118,10 +119,6 @@ public:
          //constraint Projection
          (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
 
-         
-//         delete m_fineMeshSystem;
-         
-         
          // fill in the rest state position
          restFineState = m_fineWorld.getState();
          
@@ -154,7 +151,6 @@ public:
     ~EigenFit() {delete fine_pos0;
     }
     
-//    void calculateEigenFitData(Eigen::MatrixXd &Y, Eigen::MatrixXd &Z, std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_Us){
     // calculate data, TODO: the first two parameter should be const
     template<typename MatrixAssembler>
         void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
@@ -170,73 +166,57 @@ public:
 
             double pd_fine_pos[world.getNumQDOFs()];
             Eigen::Map<Eigen::VectorXd> fine_pos(pd_fine_pos,world.getNumQDOFs());
-//            double pd_fine_pos0[world.getNumQDOFs()];
-//            Eigen::Map<Eigen::VectorXd> fine_pos0(pd_fine_pos0,world.getNumQDOFs());
             Eigen::Map<Eigen::VectorXd> eigen_fine_pos0(fine_pos0,world.getNumQDOFs());
             
-//            double * pd_fine_pos0;
-//            Eigen::Map<Eigen::VectorXd> fine_pos0(pd_fine_pos0,world.getNumQDOFs());
-//            Eigen::Map<Eigen::VectorXd> fine_pos0;
-//            update the embedding q
             Eigen::Vector3x<double> pos;
             unsigned int idx;
             idx = 0;
             
             for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
                 
-//                    vertexId = this->getImpl().getGeometry().second(elId, ii);
                     // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
                     pos = this->getFinePosition(state, vertexId);
-//                    pos0 = this->getFinePosition(restFineState, vertexId);
                 
                 fine_q(idx) = pos[0] - eigen_fine_pos0[idx];
+#ifdef EDWIN_DEBUG
                 fine_pos(idx) = pos[0];
-//                fine_pos0(idx) = pos0[0];
+#endif
                 idx++;
                 fine_q(idx) = pos[1] - eigen_fine_pos0[idx];
+#ifdef EDWIN_DEBUG
                 fine_pos(idx) = pos[1];
-//                fine_pos0(idx) = pos0[1];
+#endif
                 idx++;
                 fine_q(idx) = pos[2] - eigen_fine_pos0[idx];
+#ifdef EDWIN_DEBUG
                 fine_pos(idx) = pos[2];
-//                fine_pos0(idx) = pos0[2];
+#endif
                 idx++;
                 }
-            
-//        int file_ind = 0;
-//        std::string name = "finemesh_q";
-//        std::string fformat = ".dat";
-//        std::string filename = name + std::to_string(file_ind) + fformat;
-//        struct stat buf;
-//        while (stat(filename.c_str(), &buf) != -1)
-//        {
-//            file_ind++;
-//            filename = name + std::to_string(file_ind) + fformat;
-//        }
-//        saveMarket(fine_q, filename);
-            
-//            file_ind = 0;
-//            name = "fine_pos";
-//            fformat = ".dat";
-//            filename = name + std::to_string(file_ind) + fformat;
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            saveMarket(fine_pos, filename);
-//
-//            file_ind = 0;
-//            name = "fine_pos0";
-//            fformat = ".dat";
-//            filename = name + std::to_string(file_ind) + fformat;
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            saveMarket(fine_pos0, filename);
+#ifdef EDWIN_DEBUG
+        int file_ind = 0;
+        std::string name = "finemesh_q";
+        std::string fformat = ".dat";
+        std::string filename = name + std::to_string(file_ind) + fformat;
+        struct stat buf;
+        while (stat(filename.c_str(), &buf) != -1)
+        {
+            file_ind++;
+            filename = name + std::to_string(file_ind) + fformat;
+        }
+        saveMarket(fine_q, filename);
 
+            file_ind = 0;
+            name = "fine_pos";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(fine_pos, filename);
+#endif
             
 //        lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
         AssemblerEigenSparseMatrix<double> &fineStiffnessMatrix = m_fineStiffnessMatrix;
@@ -252,18 +232,19 @@ public:
 
         //Eigendecomposition for the embedded fine mesh
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-//            saveMarket(*fineStiffnessMatrix, "finestiffness.mtx");
-//            saveMarket(*m_fineMassMatrix, "finemass.mtx");
-//            name = "finestiffness";
-//            fformat = ".dat";
-//            filename = name + std::to_string(file_ind) + fformat;
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            saveMarket(*fineStiffnessMatrix, filename);
-//
+#ifdef EDWIN_DEBUG
+            saveMarket(*fineStiffnessMatrix, "finestiffness.mtx");
+            saveMarket(*m_fineMassMatrix, "finemass.mtx");
+            name = "finestiffness";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(*fineStiffnessMatrix, filename);
+#endif
         m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
         // Eigendecomposition for the coarse mesh
@@ -272,29 +253,32 @@ public:
         for(int i = 0; i < m_numModes; ++i)
             {
                 m_R(i) = m_Us.second(i)/m_coarseUs.second(i);
-//                std::cout<<m_R(i)<<std::endl;
+#ifdef EDWIN_DEBUG
+                std::cout<<m_R(i)<<std::endl;
+#endif
             }
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
-        
-//            name = "Y";
-//            fformat = ".dat";
-//            filename = name + std::to_string(file_ind) + fformat;
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            saveMarket(Y, filename);
-//            name = "Z";
-//            fformat = ".dat";
-//            filename = name + std::to_string(file_ind) + fformat;
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            saveMarket(Z, filename);
+#ifdef EDWIN_DEBUG
+            name = "Y";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(Y, filename);
+            name = "Z";
+            fformat = ".dat";
+            filename = name + std::to_string(file_ind) + fformat;
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            saveMarket(Z, filename);
+#endif
             
     }
     
@@ -338,7 +322,6 @@ protected:
     
     double* fine_pos0  = NULL;
     // rest state of fine q
-//    Eigen::Map<Eigen::VectorXd> fine_pos0;
 
 private:
     

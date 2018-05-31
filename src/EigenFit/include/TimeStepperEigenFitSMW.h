@@ -86,7 +86,11 @@ namespace Gauss {
 #ifdef GAUSS_PARDISO
         
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
+#else
+        bool m_factored, m_refactor;
         
+//        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > &solver = m_eigensolver;
+//        Eigen::VectorXd eigenSolverResult;
 #endif
         
     private:
@@ -163,14 +167,43 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 //    }
 //    saveMarket(*m_stiffnessMatrix, filename);
 
-    
+#ifdef GAUSS_PARDISO
+
     m_pardiso.symbolicFactorization(systemMatrix, m_numModes);
     m_pardiso.numericalFactorization();
     
 //    SMW update for Eigenfit here
+
     m_pardiso.solve(*forceVector);
     x0 = m_pardiso.getX();
+
+#else
+    //solve system (Need interface for solvers but for now just use Eigen LLt)
+    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
     
+    if(m_refactor || !m_factored) {
+        solver.compute(systemMatrix);
+    }
+    
+    if(solver.info()!=Eigen::Success) {
+        // decomposition failed
+        assert(1 == 0);
+        std::cout<<"Decomposition Failed \n";
+        exit(1);
+    }
+    
+    if(solver.info()!=Eigen::Success) {
+        // solving failed
+        assert(1 == 0);
+        std::cout<<"Solve Failed \n";
+        exit(1);
+    }
+    
+    
+    x0 = solver.solve((*forceVector));
+
+#endif
+
 //    file_ind = 0;
 //    name = "x0_original";
 //    fformat = ".dat";
@@ -185,9 +218,18 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     
     Y = dt*Y;
     Z = -dt*Z;
+    
+#ifdef GAUSS_PARDISO
+
     m_pardiso.solve(Y);
     Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*m_pardiso.getX()).ldlt().solve(Z*x0);
     
+    
+#else
+    Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*solver.solve(Y)).ldlt().solve(Z*x0);
+    
+#endif
+
 //    file_ind = 0;
 //    name = "bPrime";
 //    fformat = ".dat";
@@ -201,10 +243,18 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 //    saveMarket(bPrime, filename);
 //
     
+#ifdef GAUSS_PARDISO
+
     m_pardiso.solve(bPrime);
     
     x0 -= m_pardiso.getX();
     
+    m_pardiso.cleanup();
+#else
+    
+    x0 -= solver.solve(bPrime);
+    
+#endif
 //    file_ind = 0;
 //    name = "x0_SMW";
 //    fformat = ".dat";
@@ -216,7 +266,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 //    }
 //    saveMarket(x0, filename);
 //
-    m_pardiso.cleanup();
     
     qDot = m_P.transpose()*x0;
     

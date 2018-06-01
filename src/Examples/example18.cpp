@@ -38,7 +38,7 @@ void preStepCallback(MyWorld &world) {
 
 //Test newton solver by solving for static equilibrium of a bendy bar
 int main(int argc, char **argv) {
-    std::cout<<"Test Neohookean FEM \n";
+    std::cout<<"Test St. Venant Kirchoff FEM \n";
     
     //Setup Physics
     MyWorld world;

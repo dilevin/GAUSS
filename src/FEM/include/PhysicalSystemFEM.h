@@ -77,6 +77,15 @@ namespace Gauss {
                 return energy;
             }
 
+            DataType getBodyForceEnergy(const State<DataType> &state) const {
+                DataType energy = 0.0;
+                for(auto &element : m_elements) {
+                    energy += element->getBodyForceWork(state);
+                }
+                
+                return energy;
+            }
+            
             DataType getStrainEnergy(const State<DataType> &state) const {
                 
                 DataType energy = 0.0;

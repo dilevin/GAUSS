@@ -301,7 +301,6 @@ namespace Gauss {
             inline ~QuadratureExact() { }
             
             //integral rules for things that I want
-            template<typename DOFList>
             inline DataType getValue(const State<DataType> &state) {
                 Eigen::Matrix<double, 12,1> f;
                 getGradient(f, state);

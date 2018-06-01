@@ -49,4 +49,6 @@ build
 .DS_Store
 *.sublime-project
 *.sublime-workspace
+#qt file
+*.run 
 ThirdParty 

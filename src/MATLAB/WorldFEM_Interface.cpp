@@ -307,16 +307,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[0] = eigenDenseToMATLAB(*force);
         return;
     }
-    // get stiffness matrix of the world
+    // get strain energy
     if (!strcmp("strener", cmd)) {
         // Check parameters
         if (nlhs < 0 || nrhs < 2)
-            mexErrMsgTxt("strainEnergy: not enough arguments.");
+            mexErrMsgTxt("Total Energy: not enough arguments.");
         // Call the method
         plhs[0] = mxCreateNumericMatrix(1,  1, mxDOUBLE_CLASS, mxREAL);
         mxGetPr(plhs[0])[0] = getStrainEnergy(*dummy_instance);
         return;
     }
+    
+    // get potential done by bodyforces
+    if (!strcmp("bdfener", cmd)) {
+        // Check parameters
+        if (nlhs < 0 || nrhs < 2)
+            mexErrMsgTxt("bdfener: not enough arguments.");
+        // Call the method
+        plhs[0] = mxCreateNumericMatrix(1,  1, mxDOUBLE_CLASS, mxREAL);
+        mxGetPr(plhs[0])[0] = getBodyForceEnergy(*dummy_instance);
+        return;
+    }
+    
 
     if (!strcmp("strenertet", cmd)) {
         // Check parameters

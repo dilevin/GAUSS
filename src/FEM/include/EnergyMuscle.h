@@ -11,7 +11,7 @@ inline DataType musclePow(DataType a, DataType b) {
 }
 
 template<typename DataType, typename ShapeFunction>
-class EnergyMuscle : public ShapeFunction {
+class EnergyMuscle : public virtual ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyMuscle(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {

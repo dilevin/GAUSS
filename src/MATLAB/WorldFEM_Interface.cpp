@@ -26,13 +26,15 @@ using namespace ParticleSystem; //For Force Spring
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
 typedef PhysicalSystemFEM<double, LinearPlaneStrainTri> FEMPlaneStrainTri;
 typedef PhysicalSystemFEM<double, NeohookeanTet> FEMNeohookeanTets;
+typedef PhysicalSystemFEM<double, StvkTet> FEMStvkTets;
 
 //Generic world object that supports the sim objects I need
 typedef World<  double,
                 std::tuple<
                     FEMLinearTets *,
                     FEMPlaneStrainTri *,
-                    FEMNeohookeanTets *
+                    FEMNeohookeanTets *,
+                    FEMStvkTets *
                 >,
                 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
                 std::tuple<ConstraintFixedPoint<double> *>
@@ -82,7 +84,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexPrintf("Initialize Neohookean Elastic Tetrahedra\n");
             FEMNeohookeanTets *FEM = new FEMNeohookeanTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
             world->addSystem(FEM);
-        } else {
+        } else if(strcmp(femType, "stvk_linear_tetrahedra")==0){
+            mexPrintf("Initialize StVK Elastic Tetrahedra\n");
+            FEMStvkTets *FEM = new FEMStvkTets(matlabToDouble(prhs[2]), matlabToInt32(prhs[3]));
+            world->addSystem(FEM);
+        }else {
            mexPrintf("Invalid Physical System. GAUSS not initalized \n");
         }
 

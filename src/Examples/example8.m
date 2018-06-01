@@ -8,7 +8,7 @@ z = [z(:);0];
 
 DT = delaunayTriangulation(x,y,z);
 
-fem = WorldFEM('elastic_linear_tetrahedra', DT.Points, DT.ConnectivityList);
+fem = WorldFEM('stvk_linear_tetrahedra', DT.Points, DT.ConnectivityList);
 
 M = mass(fem);
 K = stiffness(fem);

@@ -16,6 +16,12 @@ namespace Gauss {
     class DOFPair : public DOFBase<DataType, PropertyIndex> {
         
     public:
+        
+        DOFPair(DOF1<DataType,PropertyIndex> &a, DOF1<DataType,PropertyIndex> &b) : m_dof1(a), m_dof2(b), DOFPair()
+        {
+        
+        }
+        
         DOFPair() : DOFBase<DataType, PropertyIndex>(0)
         {
             //setup dof localIds

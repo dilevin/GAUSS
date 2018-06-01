@@ -165,7 +165,7 @@ namespace Gauss {
                 m_g = g;
             }
 
-            inline  double getValue(double *x, const State<DataType> &state) {
+            inline  DataType getValue(double *x, const State<DataType> &state) {
 
                 return  -ShapeFunction::q(state).transpose()*ShapeFunction::J(x,state).transpose()*m_rho*m_g;
             }

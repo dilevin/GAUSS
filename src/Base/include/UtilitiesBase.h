@@ -32,6 +32,18 @@ double getEnergy(World &world) {
     return energy;
 }
 
+
+template<typename World>
+double getBodyForceEnergy(World &world) {
+    
+    double energy = 0.0;
+    forEach(world.getSystemList(), [&energy, &world](auto a) {
+        energy += a->getBodyForceEnergy(world.getState());
+    });
+    
+    return energy;
+}
+
 template<typename Matrix, typename World>
 void getMassMatrix(Matrix &massMatrix, World &world) {
 

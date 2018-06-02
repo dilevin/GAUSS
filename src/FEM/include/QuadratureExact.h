@@ -44,7 +44,7 @@ namespace Gauss {
                 assert(m_V0 > 0); //tet non inverted in reference config
                 
                 //setup the mass matrix
-                double mass = m_rho*m_V0;
+                double mass = m_V0;
                 double c0 = (1.0/10.0)*mass;
                 double c1 = (1.0/20.0)*mass;
                 
@@ -81,7 +81,7 @@ namespace Gauss {
                                         
             inline ~QuadratureExact() { }
             
-            //integral rules for things that I wan
+            //integral rules for things that I want
             inline DataType getValue(const State<DataType> &state) {
             
                 Eigen::Map<Eigen::VectorXd> v0 = mapDOFEigen(*m_qDotDofs[0], state);
@@ -91,7 +91,7 @@ namespace Gauss {
                 Eigen::Matrix<DataType, 12,1> qDot;
                 qDot << v0, v1, v2, v3;
                 
-                return 0.5*qDot.transpose()*m_massMatrix*qDot;
+                return 0.5*qDot.transpose()*m_rho*m_massMatrix*qDot;
             }
             
             template<typename Vector>
@@ -102,7 +102,7 @@ namespace Gauss {
             template<typename Matrix>
             inline void getHessian(Matrix &H, const State<DataType> &state) {
             
-                assign(H, m_massMatrix, m_qDotDofs, m_qDotDofs);
+                assign(H, m_rho*m_massMatrix, m_qDotDofs, m_qDotDofs);
 
                 
                 //Only need two numbers for element mass matrix

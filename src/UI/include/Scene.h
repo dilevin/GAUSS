@@ -64,15 +64,10 @@ namespace Gauss {
         
     public:
         Scene(World<DataType,SystemTypes...> *world, TimeStepper *stepper) : QtScene() {
-            std::cout<<"Constructor line 1"<<std::endl;
             m_world = world;
-            std::cout<<"Constructor line 2"<<std::endl;
             m_stepper = stepper;
-            std::cout<<"Constructor line 3"<<std::endl;
             m_rootEntity = NULL;
-            std::cout<<"Constructor line 4"<<std::endl;
             initScene();
-            std::cout<<"Constructor line 5"<<std::endl;
         }
         
         Scene(World<DataType,SystemTypes...> *world, TimeStepper *stepper, std::function<void(World<DataType,SystemTypes...>&)> preStepCallback) : Scene(world, stepper) {

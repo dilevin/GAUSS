@@ -79,16 +79,23 @@ public:
          }
          // setup the fine mesh
          PhysicalSystemImpl *m_fineMeshSystem = new PhysicalSystemImpl(Vf,Ff);
+         // set up material parameters
+         for(unsigned int iel=0; iel<m_fineMeshSystem->getImpl().getF().rows(); ++iel) {
+             
+             m_fineMeshSystem->getImpl().getElement(iel)->setParameters(1e6, 0.45);
+             
+         }
+         
          m_fineWorld.addSystem(m_fineMeshSystem);
 //
-         fixDisplacementMin(m_fineWorld, m_fineMeshSystem);
+         fixDisplacementMin(m_fineWorld, m_fineMeshSystem,2);
          m_fineWorld.finalize();
 
          auto q = mapStateEigen(m_fineWorld);
          q.setZero();
 
          // hard-coded constraint projection
-         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 0);
+         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 2);
          m_P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
 
          m_numModes = 10;

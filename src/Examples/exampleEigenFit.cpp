@@ -67,25 +67,30 @@ int main(int argc, char **argv) {
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
+    double youngs = 2e5;
+    double poisson = 0.45;
+    int constraint_dir = 2; // constraint direction. 0 for x, 1 for y, 2 for z
+    double constraint_tol = 2e-1;
     
-    // the last flag indicate whether to recalculated or not
-    EigenFit *test = new EigenFit(V,F,Vf,Ff,false);
+    // the flag indicate whether to recalculated or not
+    // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
+    EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol);
     
     for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
         
-        test->getImpl().getElement(iel)->setParameters(1e6, 0.45);
+        test->getImpl().getElement(iel)->setParameters(youngs, poisson);
         
     }
 //    test->getImpl.getElements.setParameters(1e5,0.45);
     world.addSystem(test);
-    fixDisplacementMin(world, test,2,1);
+    fixDisplacementMin(world, test,constraint_dir,constraint_tol);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
      auto q = mapStateEigen(world);
      q.setZero();
     
     
-    Eigen::VectorXi indices = minVertices(test, 2,1);
+    Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
     Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
     

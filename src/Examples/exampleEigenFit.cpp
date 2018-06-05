@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd Vf;
     Eigen::MatrixXi Ff;
 
-    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/arma/arma_5.node", dataDir()+"/meshesTetgen/arma/arma_5.ele");
+    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/arma/arma_4.node", dataDir()+"/meshesTetgen/arma/arma_4.ele");
 
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     
     for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
         
-        test->getImpl().getElement(iel)->setParameters(1e4, 0.45);
+        test->getImpl().getElement(iel)->setParameters(1e6, 0.45);
         
     }
 //    test->getImpl.getElements.setParameters(1e5,0.45);

@@ -126,9 +126,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
     (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
     (*forceVector) = m_P*(*forceVector);
-#ifdef EDWIN_DEBUG
-    saveMarket(*massMatrix, "coarsemass.mtx");
-#endif
     //Eigendecomposition
   
     static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
@@ -147,19 +144,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     Eigen::VectorXd x0;
     Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
-#ifdef EDWIN_DEBUG
-    int file_ind = 0;
-    std::string name = "coarsestiffness_unmodified";
-    std::string fformat = ".dat";
-    std::string filename = name + std::to_string(file_ind) + fformat;
-    struct stat buf;
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
-    saveMarket(*m_stiffnessMatrix, filename);
-#endif
     
 #ifdef GAUSS_PARDISO
 
@@ -199,19 +183,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 #endif
 
     
-#ifdef EDWIN_DEBUG
-    file_ind = 0;
-    name = "x0_original";
-    fformat = ".dat";
-    filename = name + std::to_string(file_ind) + fformat;
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
-    saveMarket(x0, filename);
-#endif
-    
     Y = dt*Y;
     Z = -dt*Z;
     
@@ -226,19 +197,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     
 #endif
 
-#ifdef EDWIN_DEBUG
-    file_ind = 0;
-    name = "bPrime";
-    fformat = ".dat";
-    filename = name + std::to_string(file_ind) + fformat;
-
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
-    saveMarket(bPrime, filename);
-#endif
     
 #ifdef GAUSS_PARDISO
 
@@ -253,36 +211,10 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     
 #endif
     
-#ifdef EDWIN_DEBUG
-    file_ind = 0;
-    name = "x0_SMW";
-    fformat = ".dat";
-    filename = name + std::to_string(file_ind) + fformat;
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
-    saveMarket(x0, filename);
-#endif
-    
     qDot = m_P.transpose()*x0;
     
     //update state
     q = q + dt*qDot;
-    
-#ifdef EDWIN_DEBUG
-    file_ind = 0;
-    name = "coarsemesh_q";
-    fformat = ".dat";
-    filename = name + std::to_string(file_ind) + fformat;
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
-    saveMarket(q, filename);
-#endif
     
 }
 

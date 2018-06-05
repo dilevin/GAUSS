@@ -41,10 +41,17 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
 //    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh5.node", dataDir()+"/meshesTetgen/bar/barmesh5.ele");
-    readTetgen(V, F, dataDir()+"/meshesTetgen/arma/arma_5.node", dataDir()+"/meshesTetgen/arma/arma_5.ele");
+    readTetgen(V, F, dataDir()+"/meshesTetgen/arma/arma_3.node", dataDir()+"/meshesTetgen/arma/arma_3.ele");
 //    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
+
+    
+    for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+        
+        test->getImpl().getElement(iel)->setParameters(1e6, 0.45);
+        
+    }
 
     world.addSystem(test);
     fixDisplacementMin(world, test, 2);

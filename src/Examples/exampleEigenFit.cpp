@@ -68,8 +68,8 @@ int main(int argc, char **argv) {
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     
-    
-    EigenFit *test = new EigenFit(V,F,Vf,Ff);
+    // the last flag indicate whether to recalculated or not
+    EigenFit *test = new EigenFit(V,F,Vf,Ff,false);
     
     for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
         
@@ -78,14 +78,14 @@ int main(int argc, char **argv) {
     }
 //    test->getImpl.getElements.setParameters(1e5,0.45);
     world.addSystem(test);
-    fixDisplacementMin(world, test,2);
+    fixDisplacementMin(world, test,2,1);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
      auto q = mapStateEigen(world);
      q.setZero();
     
     
-    Eigen::VectorXi indices = minVertices(test, 2);
+    Eigen::VectorXi indices = minVertices(test, 2,1);
     Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
     

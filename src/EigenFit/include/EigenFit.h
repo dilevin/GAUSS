@@ -54,10 +54,12 @@ public:
     // the constructor will take the two mesh parameters, one coarse one fine.
     // The coarse mesh data will be passed to the parent class constructor to constructor
     // the fine mesh data will be used to initialize the members specific to the EigenFit class
-     EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff) : PhysicalSystemImpl(Vc,Fc)
+     EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag) : PhysicalSystemImpl(Vc,Fc)
      {
          m_Vf = Vf;
          m_Ff = Ff;
+         
+         ratio_recalculation_flag = flag;
          
          AssemblerEigenSparseMatrix<double> N;
          //element[i] is a n-vector that stores the index of the element containing the ith vertex in the embedded mesh
@@ -88,19 +90,21 @@ public:
          
          m_fineWorld.addSystem(m_fineMeshSystem);
 //
-         fixDisplacementMin(m_fineWorld, m_fineMeshSystem,2);
+         fixDisplacementMin(m_fineWorld, m_fineMeshSystem,2,1);
          m_fineWorld.finalize();
 
          auto q = mapStateEigen(m_fineWorld);
          q.setZero();
 
          // hard-coded constraint projection
-         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 2);
+         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 2, 1);
          m_P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
 
          m_numModes = 10;
          
+         // put random value to m_R for now
          m_R.setConstant(m_numModes, 0.1);
+         ratio_calculated = false;
          m_I.setConstant(m_numModes, 1.0);
 
          
@@ -159,6 +163,11 @@ public:
     template<typename MatrixAssembler>
         void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
 
+            
+            // Eigendecomposition for the coarse mesh
+            m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 1e-3);
+            
+            if(ratio_recalculation_flag || (!ratio_calculated)){
 //            std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
         //lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
         // world name must match "world"?!
@@ -205,15 +214,14 @@ public:
         std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
         m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
             
-        // Eigendecomposition for the coarse mesh
-        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 1e-3);
-            
-        for(int i = 0; i < m_numModes; ++i)
+                for(int i = 0; i < m_numModes; ++i)
             {
                 m_R(i) = m_Us.second(i)/m_coarseUs.second(i);
 #ifdef EDWIN_DEBUG
                 std::cout<<m_R(i)<<std::endl;
 #endif
+            }
+                ratio_calculated = true;
             }
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
@@ -260,7 +268,9 @@ protected:
     
     double* fine_pos0  = NULL;
     // rest state of fine q
-
+    
+    bool ratio_recalculation_flag;
+    bool ratio_calculated;
 private:
     
 };

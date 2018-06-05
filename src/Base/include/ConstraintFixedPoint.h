@@ -121,6 +121,7 @@ namespace Gauss {
         
         //add a bunch of constraints
         for(auto iV : minV) {
+            // set constraint with 0 velocity
             world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
         }
     }

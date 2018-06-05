@@ -54,7 +54,7 @@ public:
     // the constructor will take the two mesh parameters, one coarse one fine.
     // The coarse mesh data will be passed to the parent class constructor to constructor
     // the fine mesh data will be used to initialize the members specific to the EigenFit class
-     EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag) : PhysicalSystemImpl(Vc,Fc)
+     EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraint_dir, double constraint_tol) : PhysicalSystemImpl(Vc,Fc)
      {
          m_Vf = Vf;
          m_Ff = Ff;
@@ -84,20 +84,20 @@ public:
          // set up material parameters
          for(unsigned int iel=0; iel<m_fineMeshSystem->getImpl().getF().rows(); ++iel) {
              
-             m_fineMeshSystem->getImpl().getElement(iel)->setParameters(1e6, 0.45);
+             m_fineMeshSystem->getImpl().getElement(iel)->setParameters(youngs, poisson);
              
          }
          
          m_fineWorld.addSystem(m_fineMeshSystem);
 //
-         fixDisplacementMin(m_fineWorld, m_fineMeshSystem,2,1);
+         fixDisplacementMin(m_fineWorld, m_fineMeshSystem, constraint_dir, constraint_tol);
          m_fineWorld.finalize();
 
          auto q = mapStateEigen(m_fineWorld);
          q.setZero();
 
          // hard-coded constraint projection
-         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, 2, 1);
+         Eigen::VectorXi indices = minVertices(m_fineMeshSystem, constraint_dir, constraint_tol);
          m_P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
 
          m_numModes = 10;

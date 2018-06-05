@@ -40,13 +40,14 @@ int main(int argc, char **argv) {
     //new code -- load tetgen files
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
-    
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+//    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh5.node", dataDir()+"/meshesTetgen/bar/barmesh5.ele");
+    readTetgen(V, F, dataDir()+"/meshesTetgen/arma/arma_5.node", dataDir()+"/meshesTetgen/arma/arma_5.ele");
+//    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
 
     world.addSystem(test);
-    fixDisplacementMin(world, test);
+    fixDisplacementMin(world, test, 2);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
     auto q = mapStateEigen(world);

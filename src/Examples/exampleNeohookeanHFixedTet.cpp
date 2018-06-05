@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
     }
 
     world.addSystem(test);
-    fixDisplacementMin(world, test, 2);
+    fixDisplacementMin(world, test, 2,1);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
     auto q = mapStateEigen(world);

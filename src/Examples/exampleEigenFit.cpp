@@ -53,29 +53,39 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-//    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+//    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh5.node", dataDir()+"/meshesTetgen/bar/barmesh5.ele");
+//    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    
+    readTetgen(V, F, dataDir()+"/meshesTetgen/arma/arma_6.node", dataDir()+"/meshesTetgen/arma/arma_6.ele");
     
     //new code -- load tetgen files
     Eigen::MatrixXd Vf;
     Eigen::MatrixXi Ff;
-    
+
+    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/arma/arma_5.node", dataDir()+"/meshesTetgen/arma/arma_5.ele");
+
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
-    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+//    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     
     
     EigenFit *test = new EigenFit(V,F,Vf,Ff);
-
+    
+    for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+        
+        test->getImpl().getElement(iel)->setParameters(1e4, 0.45);
+        
+    }
+//    test->getImpl.getElements.setParameters(1e5,0.45);
     world.addSystem(test);
-    fixDisplacementMin(world, test);
+    fixDisplacementMin(world, test,2);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
      auto q = mapStateEigen(world);
      q.setZero();
     
     
-    Eigen::VectorXi indices = minVertices(test, 0);
+    Eigen::VectorXi indices = minVertices(test, 2);
     Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
     

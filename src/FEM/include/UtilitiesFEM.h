@@ -73,8 +73,8 @@ namespace Gauss {
         
         //some convenience functions for getting various, useful, assembled matrices
         //FEM is assumed to be an FEM system
-        //x is a nx3 matrix of points in space, we're going to build the shape function matrix evaluated at each point
-        //element[i] stores the index of the element containing the ith vertex in the embedded mesh 
+        //x is a nx3 matrix of points in space (n is # of points), we're going to build the shape function matrix evaluated at each point
+        //element[i] is a n-vector that stores the index of the element containing the ith vertex in the embedded mesh 
         template<typename Matrix, typename Vector, typename FEM>
         void getShapeFunctionMatrix(Matrix &N, Vector &element, Eigen::MatrixXd &x, FEM &fem) {
             

@@ -279,13 +279,13 @@ public:
             -gradZ.transpose()*ddw.block(6,6,3,3)*gradZ;
         
         // hard coded for tet, need to change size for hex
-        Eigen::EigenSolver<Matrix> es(-H);
+        Eigen::SelfAdjointEigenSolver<Matrix> es(-H);
         
         Eigen::MatrixXd DiagEval = es.eigenvalues().real().asDiagonal();
         Eigen::MatrixXd Evec = es.eigenvectors().real();
         
         for (int i = 0; i < 12; ++i) {
-            if (es.eigenvalues()[i].real()<1e-6) {
+            if (es.eigenvalues()[i]<1e-6) {
                 DiagEval(i,i) = 1e-3;
             }
         }

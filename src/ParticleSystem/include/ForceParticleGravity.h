@@ -22,7 +22,7 @@ namespace Gauss {
         {
         public:
             
-            ForceGravityImpl(ParticleSystem::DOFParticle<DataType> *q0, DataType mass, Eigen::Vector3x<DataType> g)  {
+            ForceGravityImpl(DOFParticle<DataType> *q0, DataType mass, Eigen::Vector3x<DataType> g)  {
                 m_q0 = q0;
                 m_g = mass*g;
             }
@@ -55,7 +55,7 @@ namespace Gauss {
             
         protected:
             
-            ParticleSystem::DOFParticle<DataType> *m_q0;
+            DOFParticle<DataType> *m_q0;
             Eigen::Vector3x<DataType> m_g;
             
         private:

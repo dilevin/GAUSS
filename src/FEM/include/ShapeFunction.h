@@ -213,6 +213,10 @@ namespace Gauss {
             inline double volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
             
             constexpr unsigned int getNumVerts() { return 4; }
+
+            inline Eigen::Matrix<DataType, 3,3> getInvRefShapeMatrix(){
+                return m_T;
+            }
             
             
         protected:

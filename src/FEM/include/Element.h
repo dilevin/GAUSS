@@ -85,6 +85,7 @@ namespace Gauss {
             }
             
             inline double getBodyForceWork(const State<DataType> &state) {
+                QuadratureBF::setBodyForceDensity(QuadratureT::getDensity());
                 return QuadratureBF::getValue(state);
             }
                              

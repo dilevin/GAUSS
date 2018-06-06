@@ -14,6 +14,7 @@
 #include <Element.h>
 #include <Energy.h>
 #include <EnergyNeohookean.h>
+#include <EnergyNeohookeanHFixed.h>
 #include <EnergyMuscle.h>
 #include <EnergyStvk.h>
 

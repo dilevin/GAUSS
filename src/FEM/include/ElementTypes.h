@@ -18,6 +18,10 @@ namespace Gauss {
         using NeohookeanTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookean, BodyForceGravity, ShapeFunctionLinearTet>;
 
         template<typename DataType>
+
+        using NeohookeanHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookeanHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
+
+        template<typename DataType>
         using MuscleTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionLinearTet>;
 
         template<typename DataType>

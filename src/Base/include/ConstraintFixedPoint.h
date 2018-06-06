@@ -121,6 +121,7 @@ namespace Gauss {
         
         //add a bunch of constraints
         for(auto iV : minV) {
+            // set constraint with 0 velocity
             world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
         }
     }
@@ -197,7 +198,7 @@ namespace Gauss {
     
     //Utility functions to fix a bunch of points
     template<typename FEMSystem>
-    Eigen::VectorXi minVertices(FEMSystem *system, unsigned int dim = 0) {
+    Eigen::VectorXi minVertices(FEMSystem *system, unsigned int dim = 0, double tolerance = 1e-5) {
         
         
         //find all vertices with minimum x coordinate and fix DOF associated with them
@@ -210,7 +211,7 @@ namespace Gauss {
                 minX = system->getImpl().getV()(ii,dim);
                 minV.clear();
                 minV.push_back(ii);
-            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < 1e-5) {
+            } else if(fabs(system->getImpl().getV()(ii,dim) - minX) < tolerance) {
                 minV.push_back(ii);
             }
         }

@@ -210,6 +210,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/FEM)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Embeddings)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/EigenFit)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/RigidBodies)
+
+#UI package has to come last
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
 
 set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/LBFGS++/include)

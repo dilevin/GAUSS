@@ -11,7 +11,7 @@ inline DataType musclePow(DataType a, DataType b) {
 }
 
 template<typename DataType, typename ShapeFunction>
-class EnergyMuscle : public ShapeFunction {
+class EnergyMuscle : public virtual ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyMuscle(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
@@ -307,8 +307,8 @@ public:
     
     template<typename Matrix>
     inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
-        double mu = 50.0;
-        double lambda = 50.0;
+        double mu = 2*m_C;
+        double lambda = 2*m_D;
 
         Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
         double J = F.determinant();

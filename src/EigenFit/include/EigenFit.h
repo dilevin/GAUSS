@@ -177,7 +177,8 @@ public:
             
             Eigen::Map<Eigen::VectorXd> fine_q = mapStateEigen<0>(m_fineWorld);
 
-            double pd_fine_pos[world.getNumQDOFs()];
+//            double pd_fine_pos[world.getNumQDOFs()]; // doesn't work for MSVS
+                double* pd_fine_pos = new double[world.getNumQDOFs()];
             Eigen::Map<Eigen::VectorXd> fine_pos(pd_fine_pos,world.getNumQDOFs());
             Eigen::Map<Eigen::VectorXd> eigen_fine_pos0(fine_pos0,world.getNumQDOFs());
             

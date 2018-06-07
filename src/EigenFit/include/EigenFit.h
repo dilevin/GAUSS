@@ -5,7 +5,7 @@
 //  Created by Edwin Chen on 2018-05-11.
 //
 //
-#define EDWIN_DEBUG
+//#define EDWIN_DEBUG
 
  #ifndef EigenFit_h
  #define EigenFit_h

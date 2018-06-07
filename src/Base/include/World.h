@@ -214,6 +214,7 @@ int World<DataType, std::tuple<SystemTypes...>, std::tuple<ForceTypes...>, std::
     unsigned int totalQDOFs = 0;
     
     //compute the total number of Dofs in the system
+    // pass a lambda to forEach. the lambda operates on each entry of the multivector
     forEach(m_systems, [&totalQDOFs, &totalQDotDOFs](auto a){totalQDOFs+=a->getQ().getNumScalarDOF();
                                                          totalQDotDOFs+=a->getQDot().getNumScalarDOF();});
     

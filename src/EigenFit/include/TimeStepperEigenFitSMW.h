@@ -216,38 +216,53 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     //update state
     q = q + dt*qDot;
     
-    
-#ifdef EDWIN_DEBUG
-    unsigned int file_ind = 0;
-    std::string name = "pos";
-    std::string fformat = ".obj";
-    std::string filename = name + std::to_string(file_ind) + fformat;
-    struct stat buf;
-    while (stat(filename.c_str(), &buf) != -1)
-    {
-        file_ind++;
-        filename = name + std::to_string(file_ind) + fformat;
-    }
 
-//    unsigned int idx;
-//    idx = 0;
-//    // getGeometry().first is V
-//    Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
 //    
-//    for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
-//        
-//        // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
-//        V_disp(vertexId,0) += q(idx);
-//        idx++;
-//        V_disp(vertexId,1) += q(idx);
-//        idx++;
-//        V_disp(vertexId,2) += q(idx);
-//        idx++;
+//#ifdef EDWIN_DEBUG
+//    std::ofstream ofile;
+//    ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
+//    ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
+//    ofile.close();
+////    unsigned int file_ind = 0;
+////    std::string name = "pos";
+////    std::string fformat = ".obj";
+////    std::string filename = name + std::to_string(file_ind) + fformat;
+////    struct stat buf;
+////    while (stat(filename.c_str(), &buf) != -1)
+////    {
+////        file_ind++;
+////        filename = name + std::to_string(file_ind) + fformat;
+////    }
+//    unsigned int file_ind = 0;
+//    std::string name = "pos";
+//    std::string fformat = ".obj";
+//    std::string filename = name + std::to_string(file_ind) + fformat;
+//    struct stat buf;
+//    while (stat(filename.c_str(), &buf) != -1)
+//    {
+//        file_ind++;
+//        filename = name + std::to_string(file_ind) + fformat;
 //    }
-//    igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
-//    saveMarket(V_disp, "V.dat");
-//    saveMarket(std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second, "F.dat");
-#endif
+//
+////    unsigned int idx;
+////    idx = 0;
+////    // getGeometry().first is V
+////    Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
+////    
+////    for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+////        
+////        // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+////        V_disp(vertexId,0) += q(idx);
+////        idx++;
+////        V_disp(vertexId,1) += q(idx);
+////        idx++;
+////        V_disp(vertexId,2) += q(idx);
+////        idx++;
+////    }
+////    igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+////    saveMarket(V_disp, "V.dat");
+////    saveMarket(std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second, "F.dat");
+//#endif
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

@@ -44,7 +44,7 @@ void preStepCallback(MyWorld &world) {
 }
 
 int main(int argc, char **argv) {
-    std::cout<<"Test Neohookean FEM \n";
+    std::cout<<"Test Neohookean FEM EigenFit\n";
     
     //Setup Physics
     MyWorld world;
@@ -53,24 +53,28 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
-//    readTetgen(V, F, dataDir()+"/meshesTetgen/bar/barmesh5.node", dataDir()+"/meshesTetgen/bar/barmesh5.ele");
-//    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
-    
-    readTetgen(V, F, dataDir()+"/meshesTetgen/arma/arma_6.node", dataDir()+"/meshesTetgen/arma/arma_6.ele");
-    
-    //new code -- load tetgen files
     Eigen::MatrixXd Vf;
     Eigen::MatrixXi Ff;
+    
+    std::string cmeshname = "/meshesTetgen/arma/arma_6";
+    std::string fmeshname = "/meshesTetgen/arma/arma_1";
+    
+    if (argc > 1) {
+        cmeshname = argv[1];
+        fmeshname = argv[2];
+    }
+    
+    readTetgen(V, F, dataDir()+cmeshname+".node", dataDir()+cmeshname+".ele");
 
-    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/arma/arma_4.node", dataDir()+"/meshesTetgen/arma/arma_4.ele");
+    readTetgen(Vf, Ff, dataDir()+fmeshname+".node", dataDir()+fmeshname+".ele");
 
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
-    double youngs = 2e6;
+    double youngs = 5e5;
     double poisson = 0.45;
     int constraint_dir = 2; // constraint direction. 0 for x, 1 for y, 2 for z
-    double constraint_tol = 1e-5;
+    double constraint_tol = 2e-1;
     
     // the flag indicate whether to recalculated or not
     // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
@@ -95,7 +99,49 @@ int main(int argc, char **argv) {
     
     
      MyTimeStepper stepper(0.01,P);
-    
+    if(argc > 3) {
+        
+        unsigned int file_ind = 0;
+        std::string name = "pos";
+        std::string fformat = ".obj";
+        std::string filename = name + std::to_string(file_ind) + fformat;
+        struct stat buf;
+        unsigned int idx;
+        
+        for(unsigned int istep=0; istep<atoi(argv[3]) ; ++istep) {
+            stepper.step(world);
+            
+            //output data here
+            std::ofstream ofile;
+            ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
+            ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
+            ofile.close();
+            
+            while (stat(filename.c_str(), &buf) != -1)
+            {
+                file_ind++;
+                filename = name + std::to_string(file_ind) + fformat;
+            }
+            
+                idx = 0;
+                // getGeometry().first is V
+                Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
+            
+                for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+            
+                    // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+                    V_disp(vertexId,0) += q(idx);
+                    idx++;
+                    V_disp(vertexId,1) += q(idx);
+                    idx++;
+                    V_disp(vertexId,2) += q(idx);
+                    idx++;
+                }
+                igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+
+        }
+    }
+    else {
     //Display
     QGuiApplication app(argc, argv);
     
@@ -103,4 +149,5 @@ int main(int argc, char **argv) {
      GAUSSVIEW(scene);
     
     return app.exec();
+    }
 }

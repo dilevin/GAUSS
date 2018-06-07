@@ -67,10 +67,10 @@ int main(int argc, char **argv) {
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/bar/barmesh8.node", dataDir()+"/meshesTetgen/bar/barmesh8.ele");
 //    readTetgen(Vf, Ff, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
-    double youngs = 2e5;
+    double youngs = 2e6;
     double poisson = 0.45;
     int constraint_dir = 2; // constraint direction. 0 for x, 1 for y, 2 for z
-    double constraint_tol = 2e-1;
+    double constraint_tol = 1e-5;
     
     // the flag indicate whether to recalculated or not
     // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly

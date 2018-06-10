@@ -263,7 +263,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
         //run the assembler, copy sparse matrix into matlab sparse matrix and be done with it
         //build mass and stiffness matrices
-        AssemblerEigenSparseMatrix<double> mass;
+        AssemblerParallel<double, AssemblerEigenSparseMatrix<double> > mass;
         getMassMatrix(mass, *dummy_instance);
 
         plhs[0] = eigenSparseToMATLAB(*mass);
@@ -276,7 +276,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs < 0 || nrhs < 2)
             mexErrMsgTxt("K: not enough arguments.");
         // Call the method
-        AssemblerEigenSparseMatrix<double> stiffness;
+        AssemblerParallel<double, AssemblerEigenSparseMatrix<double> > stiffness;
         getStiffnessMatrix(stiffness, *dummy_instance);
         plhs[0] = eigenSparseToMATLAB(*stiffness);
         return;
@@ -289,7 +289,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("f: not enough arguments.");
         // Call the method
         //dummy_instance->test();
-        AssemblerEigenVector<double> force;
+        AssemblerParallel<double, AssemblerEigenVector<double> > force;
         getForceVector(force, *dummy_instance);
         plhs[0] = eigenDenseToMATLAB(*force);
         return;
@@ -302,7 +302,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("if: not enough arguments.");
         // Call the method
         //dummy_instance->test();
-        AssemblerEigenVector<double> force;
+        AssemblerParallel<double, AssemblerEigenVector<double> > force;
         getInternalForceVector(force, *dummy_instance);
         plhs[0] = eigenDenseToMATLAB(*force);
         return;
@@ -374,8 +374,33 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[0] = eigenDenseToMATLAB(stresses);
         return;
     }
-    //need methods for getting mass matrix, stiffness matrix and forces
+    
+    //Some utility methods that are nice to have for testing vs. MATLAB internal functions
+    if(!strcmp("linmode", cmd)) {
+    
+        if(nlhs < 2 || nrhs < 4) {
+            mexErrMsgTxt("linear modal analysis: not enough arguments.");
+        }
+        
+        int  numModes = (int)(mxGetPr(prhs[2])[0]);
+        double shift = mxGetPr(prhs[3])[0];
+    
+        mexPrintf("NumModes: %d Shift: %f \n", numModes, shift);
+        //get stiffness matrix, get mass matrix
+        AssemblerParallel<double, AssemblerEigenSparseMatrix<double>> mass;
+        getMassMatrix(mass, *dummy_instance);
+        
+        AssemblerParallel<double, AssemblerEigenSparseMatrix<double> > stiffness;
+        getStiffnessMatrix(stiffness, *dummy_instance);
+        
+        auto results = generalizedEigenvalueProblem(*stiffness, *mass, numModes, shift);
 
+        plhs[0] = eigenDenseToMATLAB(results.first);
+        plhs[1] = eigenDenseToMATLAB(results.second);
+        
+        return;
+    }
+    
     // Got here, so command not recognized
     mexErrMsgTxt("Command not recognized.");
 }

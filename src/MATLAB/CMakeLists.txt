@@ -34,7 +34,7 @@ else()
     matlab_add_mex(
         NAME Gauss_MATLAB 
         SRC class_handle.hpp WorldFEM_Interface.cpp UtilitiesEigenMex.h
-    LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM  ${LLVM_LIB}/libiomp5.dylib
+    LINK_TO ${Matlab_MX_LIBRARY} ${Matlab_MEX_LIBRARY} Core Base SolversLinear ParticleSystem FEM  ${Matlab_ROOT_DIR}/sys/os/maci64/libiomp5.dylib
         OUTPUT_NAME WorldFEM_Interface)
 endif()
 

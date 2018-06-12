@@ -129,10 +129,10 @@ int main(int argc, char **argv) {
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
             //            set the projection matrix to identity because there is no constraint to project
-            Eigen::SparseMatrix<double> P;
+//            Eigen::SparseMatrix<double> P;
             P.resize(V.rows()*3,V.rows()*3);
             P.setIdentity();
-            
+//            std::cout<<P.rows();
             //            no constraints
         }
         else
@@ -158,8 +158,8 @@ int main(int argc, char **argv) {
         auto fine_q = mapStateEigen(test->getFineWorld());
         //    default to zero deformation
         q.setZero();
-        
-        if (atoi(argv[6]) == 0) {
+//        std::cout<<argv[6];
+        if (strcmp(argv[6],"0")==0) {
             
             q.setZero();
         }
@@ -172,6 +172,7 @@ int main(int argc, char **argv) {
         }
         
         
+//        std::cout<<P.rows()<<std::endl;
         MyTimeStepper stepper(0.01,P);
         
         //         the number of steps to take
@@ -202,7 +203,7 @@ int main(int argc, char **argv) {
             {
                 file_ind++;
                 filename = name + std::to_string(file_ind) + fformat;
-                qfilename = qname + std::to_string(file_ind) + qfformat;                
+                qfilename = qname + std::to_string(file_ind) + qfformat;
                 qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
                 
             }

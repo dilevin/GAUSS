@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
         //    default to zero deformation
         q.setZero();
         
-        if (trcmp(argv[5],"0")==0) {
+        if (strcmp(argv[5],"0")==0) {
             
             q.setZero();
         }
@@ -116,8 +116,11 @@ int main(int argc, char **argv) {
         {
             
             std::string qfileName(argv[5]);
-            loadMarketVector(q,qfileName);
-            
+            Eigen::VectorXd  tempv;
+            loadMarketVector(tempv,qfileName);
+            //            std::cout<<tempv.size();
+            //            std::cout<<tempv;
+            q = tempv;
         }
         
         

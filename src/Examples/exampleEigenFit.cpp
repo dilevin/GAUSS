@@ -167,7 +167,11 @@ int main(int argc, char **argv) {
         {
             
             std::string qfileName(argv[6]);
-            loadMarketVector(q,qfileName);
+            Eigen::VectorXd  tempv;
+            loadMarketVector(tempv,qfileName);
+//            std::cout<<tempv.size();
+//            std::cout<<tempv;
+            q = tempv;
             
         }
         
@@ -224,8 +228,10 @@ int main(int argc, char **argv) {
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
             // coarse mesh data
+            q = mapStateEigen(world);
             saveMarketVector(q, qfilename);
             // fine mesh data from embedded mesh in eigenfit
+            fine_q = mapStateEigen(test->getFineWorld());
             saveMarketVector(fine_q, qfilename2);
         }
     }

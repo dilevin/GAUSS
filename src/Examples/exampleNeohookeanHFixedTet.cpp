@@ -68,8 +68,10 @@ int main(int argc, char **argv) {
         
         FEMLinearTets *test = new FEMLinearTets(V,F);
 
+        world.addSystem(test);
+        
         if (atoi(argv[4]) == 0) {
-            // constraint switch
+//             constraint switch
             
             //            zero gravity
             Eigen::Vector3x<double> g;
@@ -83,14 +85,13 @@ int main(int argc, char **argv) {
                 
             }
             
-            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
         }
         else
         {
             //    default constraint
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
-            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+//            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
         }
         
@@ -100,13 +101,14 @@ int main(int argc, char **argv) {
             test->getImpl().getElement(iel)->setParameters(youngs, poisson);
             
         }
-        
+        world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+
         auto q = mapStateEigen(world);
         
         //    default to zero deformation
         q.setZero();
         
-        if (atoi(argv[5]) == 0) {
+        if (trcmp(argv[5],"0")==0) {
             
             q.setZero();
         }

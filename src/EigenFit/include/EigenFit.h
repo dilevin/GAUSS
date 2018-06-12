@@ -103,6 +103,7 @@ public:
             P.resize(Vf.rows()*3,Vf.rows()*3);
             P.setIdentity();
             m_P = P;
+            m_numConstraints = 10;
         }
         else if (constraint_switch == 1)
         {
@@ -115,6 +116,7 @@ public:
             Eigen::VectorXi indices = minVertices(m_fineMeshSystem, constraint_dir, constraint_tol);
             P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
             m_P = P;
+            m_numConstraints = indices.size();
         }
         
         
@@ -129,13 +131,48 @@ public:
         auto q = mapStateEigen(m_fineWorld);
         q.setZero();
         
-        
-        m_numModes = numModes;
-        
-        // put random value to m_R for now
-        m_R.setConstant(m_numModes, 0.1);
-        ratio_calculated = false;
-        m_I.setConstant(m_numModes, 1.0);
+        if (m_numConstraints > 6) {
+            // if constraint is more than a point constaint
+            m_numModes = numModes;
+            
+            // put random value to m_R for now
+            m_R.setConstant(m_numModes, 0.1);
+            ratio_calculated = false;
+            m_I.setConstant(m_numModes, 1.0);
+        }
+        else if (m_numConstraints == 3)
+        {
+            // if constraint is  a point constaint
+            m_numModes = numModes;
+            m_numModes = m_numModes + 3;
+            
+            // put random value to m_R for now
+            m_R.setConstant(m_numModes, 0.1);
+            m_R(0) = 1.0;
+            m_R(1) = 1.0;
+            m_R(2) = 1.0;
+            ratio_calculated = false;
+            m_I.setConstant(m_numModes, 1.0);
+        }
+        else
+        {
+            // otherwise, free boundary
+            m_numModes = numModes;
+            m_numModes = m_numModes + 6;
+            
+            // put random value to m_R for now
+            m_R.setConstant(m_numModes, 0.1);
+            m_R(0) = 1.0;
+            m_R(1) = 1.0;
+            m_R(2) = 1.0;
+            m_R(3) = 1.0;
+            m_R(4) = 1.0;
+            m_R(5) = 1.0;
+
+            ratio_calculated = false;
+            m_I.setConstant(m_numModes, 1.0);
+            
+        }
         
         
         
@@ -245,9 +282,28 @@ public:
             for(int i = 0; i < m_numModes; ++i)
             {
                 m_R(i) = m_Us.second(i)/m_coarseUs.second(i);
+                if (m_numConstraints == 3)
+                {
+                    // if constraint is  a point constaint
+                    m_R(0) = 1.0;
+                    m_R(1) = 1.0;
+                    m_R(2) = 1.0;
+                }
+                else if(m_numConstraints == 0)
+                {
+                    //  free boundary
+                    m_R(0) = 1.0;
+                    m_R(1) = 1.0;
+                    m_R(2) = 1.0;
+                    m_R(3) = 1.0;
+                    m_R(4) = 1.0;
+                    m_R(5) = 1.0;
+                    
+                }
 #ifdef EDWIN_DEBUG
                 std::cout<<m_R(i)<<std::endl;
 #endif
+                
             }
             ratio_calculated = true;
         }
@@ -304,7 +360,7 @@ protected:
     bool ratio_calculated;
     
     unsigned int constraint_switch;
-    unsigned int numConstraints;
+    unsigned int m_numConstraints;
 private:
     
 };

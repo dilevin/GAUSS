@@ -88,7 +88,10 @@ int main(int argc, char **argv) {
         std::string::size_type found = cmeshname.find_last_of(kPathSeparator);
         //    acutal name for the mesh, no path
         std::string cmeshnameActual = cmeshname.substr(found+1);
-        
+
+        //    acutal name for the mesh, no path
+        std::string fmeshnameActual = fmeshname.substr(found+1);
+
         
         //    parameters
         double youngs = atof(argv[3]);
@@ -152,7 +155,7 @@ int main(int argc, char **argv) {
         }
         
         auto q = mapStateEigen(world);
-        
+        auto fine_q = mapStateEigen(test->getFineWorld());
         //    default to zero deformation
         q.setZero();
         
@@ -180,6 +183,8 @@ int main(int argc, char **argv) {
         std::string qname = cmeshnameActual + "ExampleQ";
         std::string qfformat = ".mtx";
         std::string qfilename = qname + std::to_string(file_ind) + qfformat;
+        std::string qname2 = fmeshnameActual + "ExampleQ";
+        std::string qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
         
         struct stat buf;
         unsigned int idx;
@@ -197,6 +202,9 @@ int main(int argc, char **argv) {
             {
                 file_ind++;
                 filename = name + std::to_string(file_ind) + fformat;
+                qfilename = qname + std::to_string(file_ind) + qfformat;                
+                qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
+                
             }
             
             idx = 0;
@@ -214,7 +222,10 @@ int main(int argc, char **argv) {
                 idx++;
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+            // coarse mesh data
             saveMarketVector(q, qfilename);
+            // fine mesh data from embedded mesh in eigenfit
+            saveMarketVector(fine_q, qfilename2);
         }
     }
     else

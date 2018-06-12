@@ -261,6 +261,9 @@ public:
         return m_Vf.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*(*this).getImpl().getElement(m_elements[vertexId])->q(state);
     }
     
+    inline World<double, std::tuple<PhysicalSystemImpl *>,
+    std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
+    std::tuple<ConstraintFixedPoint<double> *> > & getFineWorld(){ return m_fineWorld;}
     
 protected:
     

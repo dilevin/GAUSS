@@ -36,6 +36,8 @@ namespace Gauss {
             
             m_numToCorrect = 10;
             m_numModes = 10;
+            
+//            std::cout<<m_P.rows()<<std::endl;
             m_P = P;
         }
         
@@ -123,6 +125,8 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     ASSEMBLEEND(fExt);
     
     //constraint Projection
+//    std::cout<<m_P.rows()<<std::endl;
+//    std::cout<<massMatrix.rows()<<std::endl;
     (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
     (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
     (*forceVector) = m_P*(*forceVector);

@@ -63,8 +63,8 @@ int main(int argc, char **argv) {
 
     //new code -- load tetgen files
 
-
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    Gauss::Optimization::doSomething([](){Gauss::Optimization::printVal(1.5);});
+    /*readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
 
@@ -91,6 +91,6 @@ int main(int argc, char **argv) {
     MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
     GAUSSVIEW(scene);
 
-    return app.exec();
+    return app.exec();*/
 
 }

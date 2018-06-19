@@ -39,9 +39,33 @@ typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 //typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
+// used for preStepCallback. should be delete
+std::vector<ConstraintFixedPoint<double> *> movingConstraints;
+Eigen::VectorXi movingVerts;
+Eigen::MatrixXd V;
+Eigen::MatrixXi F;
+char **arg_list;
+unsigned int istep;
 
 void preStepCallback(MyWorld &world) {
-    // This is an example callback
+//    // This is an example callback
+//    if (atoi(arg_list[5]) == 2)
+//    {
+//        // This is an example callback
+//        
+//        //script some motion
+////
+//        if (istep < 50) {
+//            
+//            for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+//                if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
+//                    Eigen::Vector3d v = V.row(movingVerts[jj]);
+//                    Eigen::Vector3d new_p = v + Eigen::Vector3d(0.0,1.0/10,0.0);
+//                    movingConstraints[jj]->getImpl().setFixedPoint(new_p);
+//                }
+//            }
+//        }
+//    }
 }
 
 int main(int argc, char **argv) {
@@ -60,12 +84,11 @@ int main(int argc, char **argv) {
     //Setup Physics
     MyWorld world;
     
-    //new code -- load tetgen files
-    Eigen::MatrixXd V;
-    Eigen::MatrixXi F;
+    arg_list = argv;
     
     Eigen::MatrixXd Vf;
     Eigen::MatrixXi Ff;
+    
     
     
     //    define the file separator base on system
@@ -135,7 +158,7 @@ int main(int argc, char **argv) {
 //            std::cout<<P.rows();
             //            no constraints
         }
-        else
+        else if(atoi(argv[5]) == 1)
         {
             //    default constraint
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
@@ -145,6 +168,33 @@ int main(int argc, char **argv) {
             Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
             P = fixedPointProjectionMatrix(indices, *test,world);
             
+        }
+        else if (atoi(argv[5]) == 2)
+        {
+            
+            //            zero gravity
+            Eigen::Vector3x<double> g;
+            g(0) = 0;
+            g(1) = 0;
+            g(2) = 0;
+            
+            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+                
+                test->getImpl().getElement(iel)->setGravity(g);
+                
+            }
+            
+            movingVerts = maxVertices(test, constraint_dir, constraint_tol);//indices for moving parts
+//
+            for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
+                movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
+                world.addConstraint(movingConstraints[ii]);
+            }
+            fixDisplacementMax(world, test,constraint_dir,constraint_tol);
+            
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            
+            P = fixedPointProjectionMatrix(movingVerts, *test,world);
         }
         
         // set material
@@ -194,8 +244,45 @@ int main(int argc, char **argv) {
         struct stat buf;
         unsigned int idx;
         
-        for(unsigned int istep=0; istep<atoi(argv[7]) ; ++istep) {
+        for(istep=0; istep<atoi(argv[7]) ; ++istep) {
             stepper.step(world);
+            
+            // acts like the "callback" block
+            if (atoi(arg_list[5]) == 2)
+            {
+                // This is an example callback
+                
+                //script some motion
+                //
+//                if (istep < 50) {
+                
+                
+                    for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+                        
+//                            auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+////                            std::cout<<v_q;
+////                            Eigen::Vector3d v = V.row(movingVerts[jj]);
+////                            Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
+////                            movingConstraints[jj]->getImpl().setFixedPoint(new_p);
+//                            v_q = v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
+//                            std::cout<<v_q;
+                        
+                        
+                        auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+                        //                            std::cout<<v_q;
+//                        Eigen::Vector3d v = V.row(movingVerts[jj]);
+                        //                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
+                        Eigen::Vector3d new_q =  istep*Eigen::Vector3d(0.0,1.0/100,0.0);
+                        
+                        //                        movingConstraints[jj]->getImpl().setFixedPoint(new_p);
+                        v_q = new_q;
+                        
+                         
+                        
+                    }
+//                   std::cout<<q;
+//                }
+            }
             
             //output data here
             std::ofstream ofile;

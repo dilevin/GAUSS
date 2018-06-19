@@ -26,10 +26,12 @@ namespace Gauss {
             m_dpdt = v;
         }
         
+        // position constraint
         void setFixedPoint(Eigen::VectorXx<DataType> pos) {
             m_p0 = pos;
         }
         
+        // overload velocity constraint
         void setFixedPoint(Eigen::VectorXx<DataType> pos, Eigen::VectorXx<DataType> vel) {
             m_p0 = pos;
             m_dpdt = vel;
@@ -182,6 +184,35 @@ namespace Gauss {
                 minV.clear();
                 minV.push_back(ii);
             } else if(fabs(system->getImpl().getV()(ii,dim) - maxX) < 1e-5) {
+                minV.push_back(ii);
+            }
+        }
+        
+        Eigen::VectorXi indices(minV.size());
+        
+        //add a bunch of constraints
+        for(unsigned int iV = 0; iV < minV.size(); ++iV) {
+            indices(iV) = minV[iV];
+        }
+        
+        return indices;
+    }
+    //Utility functions to fix a bunch of points
+    template<typename FEMSystem>
+    Eigen::VectorXi maxVertices(FEMSystem *system, unsigned int dim = 0, double tolerance = 1e-5) {
+        
+        
+        //find all vertices with minimum x coordinate and fix DOF associated with them
+        auto maxX = system->getImpl().getV()(0,dim);
+        std::vector<unsigned int> minV;
+        
+        for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
+            
+            if(system->getImpl().getV()(ii,dim) > maxX) {
+                maxX = system->getImpl().getV()(ii,dim);
+                minV.clear();
+                minV.push_back(ii);
+            } else if(fabs(system->getImpl().getV()(ii,dim) - maxX) < tolerance) {
                 minV.push_back(ii);
             }
         }

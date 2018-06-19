@@ -118,7 +118,23 @@ public:
             m_P = P;
             m_numConstraints = indices.size();
         }
-        
+        else if (constraint_switch == 2)
+        {
+            
+            Eigen::VectorXi movingVerts = maxVertices(m_fineMeshSystem, constraint_dir, constraint_tol);//indices for moving parts
+            std::vector<ConstraintFixedPoint<double> *> movingConstraints;
+
+            for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
+                movingConstraints.push_back(new ConstraintFixedPoint<double>(&m_fineMeshSystem->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
+                m_fineWorld.addConstraint(movingConstraints[ii]);
+            }
+            m_fineWorld.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            
+            // hard-coded constraint projection
+            P = fixedPointProjectionMatrix(movingVerts, *m_fineMeshSystem,m_fineWorld);
+            m_P = P;
+            m_numConstraints = movingVerts.size();
+        }
         
         
         
@@ -131,6 +147,7 @@ public:
         auto q = mapStateEigen(m_fineWorld);
         q.setZero();
         
+        // the first few ratios are 1 if less than 6 constraints, because eigenvalues ratio 0/0 is not defined
         if (m_numConstraints > 6) {
             // if constraint is more than a point constaint
             m_numModes = numModes;

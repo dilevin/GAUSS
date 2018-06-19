@@ -6,7 +6,7 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitLinear.h>
+#include <TimeStepperEulerImplicitLinearCProjection.h>
 #include <sys/stat.h>
 
 using namespace Gauss;
@@ -23,7 +23,7 @@ typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
                       std::tuple<ForceSpringFEMParticle<double> *>,
                       std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>>> MyTimeStepper;
+typedef TimeStepperEulerImplicitLinearCProjection<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>>> MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -79,6 +79,8 @@ int main(int argc, char **argv) {
 
         world.addSystem(test);
         
+        // projection matrix for constraints
+        Eigen::SparseMatrix<double> P;
         if (atoi(argv[4]) == 0) {
 //             constraint switch
             
@@ -94,6 +96,9 @@ int main(int argc, char **argv) {
                 
             }
             
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            P.resize(V.rows()*3,V.rows()*3);
+            P.setIdentity();
             
         }
         else if(atoi(argv[4]) == 1)
@@ -102,6 +107,11 @@ int main(int argc, char **argv) {
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
 //            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+
+            // construct the projection matrix for stepper
+            Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
+            P = fixedPointProjectionMatrix(indices, *test,world);
+
 
         }
         else if (atoi(argv[4]) == 2)
@@ -128,6 +138,8 @@ int main(int argc, char **argv) {
 
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
+            P = fixedPointProjectionMatrix(movingVerts, *test,world);
+
         }
         
         // set material
@@ -158,7 +170,7 @@ int main(int argc, char **argv) {
         }
         
         
-        MyTimeStepper stepper(0.01);
+        MyTimeStepper stepper(0.01,P);
         
         //         the number of steps to take
         
@@ -192,7 +204,7 @@ int main(int argc, char **argv) {
                     
                         auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
                         //                            std::cout<<v_q;
-                        Eigen::Vector3d v = V.row(movingVerts[jj]);
+//                        Eigen::Vector3d v = V.row(movingVerts[jj]);
 //                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
                     Eigen::Vector3d new_q = istep*Eigen::Vector3d(0.0,1.0/100,0.0);
 
@@ -278,13 +290,18 @@ int main(int argc, char **argv) {
 //        //    default constraint
 //        fixDisplacementMin(world, test,constraint_dir,constraint_tol);
         
+        // construct the projection matrix for stepper
+        Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
+        Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
+        
+        
         auto q = mapStateEigen(world);
         
         //    default to zero deformation
         q.setZero();
         
         
-        MyTimeStepper stepper(0.01);
+        MyTimeStepper stepper(0.01,P);
         
         //Display
         QGuiApplication app(argc, argv);

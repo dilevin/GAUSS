@@ -39,6 +39,8 @@ namespace Gauss {
             
 //            std::cout<<m_P.rows()<<std::endl;
             m_P = P;
+            m_factored = false;
+            m_refactor = false;
         }
         
         TimeStepperImplEigenFitSMWImpl(const TimeStepperImplEigenFitSMWImpl &toCopy) {
@@ -81,12 +83,12 @@ namespace Gauss {
         
         //storage for lagrange multipliers
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
-        
+     
+        bool m_factored, m_refactor;
 #ifdef GAUSS_PARDISO
         
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
 #else
-        bool m_factored, m_refactor;
 #endif
         
     private:

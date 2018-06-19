@@ -28,6 +28,15 @@ typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, Assembl
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 
+// used for preStepCallback. should be delete
+std::vector<ConstraintFixedPoint<double> *> movingConstraints;
+Eigen::VectorXi movingVerts;
+Eigen::MatrixXd V;
+Eigen::MatrixXi F;
+char **arg_list;
+unsigned int istep;
+
+
 void preStepCallback(MyWorld &world) {
     // This is an example callback
 }
@@ -87,11 +96,37 @@ int main(int argc, char **argv) {
             
             
         }
-        else
+        else if(atoi(argv[4]) == 1)
         {
             //    default constraint
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
 //            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+
+        }
+        else if (atoi(argv[4]) == 2)
+        {
+            //            zero gravity
+            Eigen::Vector3x<double> g;
+            g(0) = 0;
+            g(1) = 0;
+            g(2) = 0;
+            
+            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+                
+                test->getImpl().getElement(iel)->setGravity(g);
+                
+            }
+            
+            movingVerts = maxVertices(test, constraint_dir, constraint_tol);//indices for moving parts
+            
+            for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
+                movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
+                world.addConstraint(movingConstraints[ii]);
+            }
+            fixDisplacementMax(world, test,constraint_dir,constraint_tol);
+
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
         }
         
@@ -101,7 +136,6 @@ int main(int argc, char **argv) {
             test->getImpl().getElement(iel)->setParameters(youngs, poisson);
             
         }
-        world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
 
         auto q = mapStateEigen(world);
         
@@ -142,6 +176,37 @@ int main(int argc, char **argv) {
         for(unsigned int istep=0; istep<atoi(argv[6]) ; ++istep) {
             stepper.step(world);
             
+            
+            // acts like the "callback" block
+            if (atoi(argv[4]) == 2)
+            {
+                // This is an example callback
+                
+                //script some motion
+                //
+                //                if (istep < 50) {
+                
+                
+                for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+//                    if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
+                    
+                        auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+                        //                            std::cout<<v_q;
+                        Eigen::Vector3d v = V.row(movingVerts[jj]);
+//                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
+                    Eigen::Vector3d new_q = istep*Eigen::Vector3d(0.0,1.0/100,0.0);
+
+                    //                        movingConstraints[jj]->getImpl().setFixedPoint(new_p);
+                        v_q = new_q;
+                        //                            std::cout<<v_q;
+                        
+//                    }
+                }
+                //                   std::cout<<q;
+                //                }
+            }
+            
+            
             //output data here
             std::ofstream ofile;
             ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
@@ -169,7 +234,7 @@ int main(int argc, char **argv) {
                 idx++;
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
-            saveMarketVector(q, qfilename);
+//            saveMarketVector(q, qfilename);
         }
         world.addSystem(test);
         

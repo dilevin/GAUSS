@@ -199,7 +199,7 @@ namespace Gauss {
     }
     //Utility functions to fix a bunch of points
     template<typename FEMSystem>
-    Eigen::VectorXi maxVertices(FEMSystem *system, unsigned int dim = 0, double tolerance = 1e-5) {
+    Eigen::VectorXi maxVerticesTol(FEMSystem *system, unsigned int dim = 0, double tolerance = 1e-5) {
         
         
         //find all vertices with minimum x coordinate and fix DOF associated with them

@@ -123,25 +123,25 @@ int main(int argc, char **argv) {
         }
         else if (atoi(argv[4]) == 2)
         {
-            //            zero gravity
-            Eigen::Vector3x<double> g;
-            g(0) = 0;
-            g(1) = 0;
-            g(2) = 0;
+//            //            zero gravity
+//            Eigen::Vector3x<double> g;
+//            g(0) = 0;
+//            g(1) = 0;
+//            g(2) = 0;
+//
+//            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+//
+//                test->getImpl().getElement(iel)->setGravity(g);
+//
+//            }
             
-            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-                
-                test->getImpl().getElement(iel)->setGravity(g);
-                
-            }
-            
-            movingVerts = maxVerticesTol(test, constraint_dir, constraint_tol);//indices for moving parts
+            movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
             
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
                 movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
                 world.addConstraint(movingConstraints[ii]);
             }
-            fixDisplacementMax(world, test,constraint_dir,constraint_tol);
+            fixDisplacementMin(world, test,constraint_dir,constraint_tol);
 
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
@@ -209,14 +209,16 @@ int main(int argc, char **argv) {
                 for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
 //                    if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
                     
-                        auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
                         //                            std::cout<<v_q;
 //                        Eigen::Vector3d v = V.row(movingVerts[jj]);
 //                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
-                    Eigen::Vector3d new_q = istep*Eigen::Vector3d(0.0,1.0/100,0.0);
+
+//                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+//
+//                    Eigen::Vector3d new_q = istep*Eigen::Vector3d(0.0,1.0/100,0.0);
+//                    v_q = new_q;
 
                     //                        movingConstraints[jj]->getImpl().setFixedPoint(new_p);
-                        v_q = new_q;
                         //                            std::cout<<v_q;
                         
 //                    }

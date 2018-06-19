@@ -20,6 +20,13 @@ using namespace ParticleSystem; //For Force Spring
 //typedef scene
 typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 
+//typedef World<double, std::tuple<FEMLinearTets *>,
+//std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
+//std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+
+//typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
+
+
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
                       std::tuple<ForceSpringFEMParticle<double> *>,
                       std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
@@ -128,7 +135,7 @@ int main(int argc, char **argv) {
                 
             }
             
-            movingVerts = maxVertices(test, constraint_dir, constraint_tol);//indices for moving parts
+            movingVerts = maxVerticesTol(test, constraint_dir, constraint_tol);//indices for moving parts
             
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
                 movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));

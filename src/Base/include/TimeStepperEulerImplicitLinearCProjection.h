@@ -65,6 +65,7 @@ namespace Gauss {
         MatrixAssembler m_massMatrix;
         MatrixAssembler m_stiffnessMatrix;
         VectorAssembler m_forceVector;
+        VectorAssembler m_fExt;
         
         Eigen::SparseMatrix<DataType> m_P;
         
@@ -88,23 +89,23 @@ template<typename World>
 void TimeStepperImplEulerImplicitLinearCProjection<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
     
     
-    Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix;
-    Eigen::VectorXd x0;
     
 //    if(m_refactor || !m_factored) {
     
         //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
         MatrixAssembler &massMatrix = m_massMatrix;
         MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
-        
+        VectorAssembler &forceVector = m_forceVector;
+    VectorAssembler &fExt = m_fExt;
+
         //get mass matrix
         ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
         ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
-        
+        ASSEMBLEEND(massMatrix);
+    
 //        //add in the constraints
 //        ASSEMBLELISTOFFSET(massMatrix, world.getConstraintList(), getGradient, world.getNumQDotDOFs(), 0);
 //        ASSEMBLELISTOFFSETTRANSPOSE(massMatrix, world.getConstraintList(), getGradient, 0, world.getNumQDotDOFs());
-//        ASSEMBLEEND(massMatrix);
     
         
         //get stiffness matrix
@@ -113,16 +114,18 @@ void TimeStepperImplEulerImplicitLinearCProjection<DataType, MatrixAssembler, Ve
         ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
         ASSEMBLEEND(stiffnessMatrix);
     
-    // constraint projection only for fixed or jump
-    (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
-    (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
     
-
-        systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
-        
-//    }
-    
-    VectorAssembler &forceVector = m_forceVector;
+//    ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
+////    ASSEMBLELIST(forceVector, world.getForceList(), getForce);
+//    ASSEMBLELIST(forceVector, world.getSystemList(), getImpl().getInternalForce);
+//    //    ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getDbDt, world.getNumQDotDOFs(), 0);
+//    ASSEMBLEEND(forceVector);
+//
+//
+//
+//    ASSEMBLEVECINIT(fExt, world.getNumQDotDOFs());
+//    ASSEMBLELIST(fExt, world.getSystemList(), getImpl().getBodyForce);
+//    ASSEMBLEEND(fExt);
     
     ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
     ASSEMBLELIST(forceVector, world.getForceList(), getForce);
@@ -130,17 +133,37 @@ void TimeStepperImplEulerImplicitLinearCProjection<DataType, MatrixAssembler, Ve
 //    ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getDbDt, world.getNumQDotDOFs(), 0);
     ASSEMBLEEND(forceVector);
     
+    
     // constraint projection only for fixed or jump
+    (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
+    (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
     (*forceVector) = m_P*(*forceVector);
     
+    //    Correct Forces
+//    (*forceVector) = (*forceVector) + m_P*(*fExt);
+
     //Grab the state
     Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
     Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
     
     //setup RHS
-//    (*forceVector).head(world.getNumQDotDOFs()) = (*m_massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot + dt*(*forceVector).head(world.getNumQDotDOFs());
+    //    (*forceVector).head(world.getNumQDotDOFs()) = (*m_massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot + dt*(*forceVector).head(world.getNumQDotDOFs());
     (*forceVector) = (*massMatrix)*m_P*qDot + dt*(*forceVector);
 
+    
+    
+    Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix;
+    Eigen::VectorXd x0;
+
+        systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+        
+//    }
+    
+    
+    
+    // constraint projection only for fixed or jump
+    
+    
     
 #ifdef GAUSS_PARDISO
     if(m_refactor || !m_factored) {

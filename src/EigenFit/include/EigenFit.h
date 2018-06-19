@@ -121,7 +121,7 @@ public:
         else if (constraint_switch == 2)
         {
             
-            Eigen::VectorXi movingVerts = maxVertices(m_fineMeshSystem, constraint_dir, constraint_tol);//indices for moving parts
+            Eigen::VectorXi movingVerts = maxVerticesTol(m_fineMeshSystem, constraint_dir, constraint_tol);//indices for moving parts
             std::vector<ConstraintFixedPoint<double> *> movingConstraints;
 
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {

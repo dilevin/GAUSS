@@ -28,8 +28,8 @@ typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 
 
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
-                      std::tuple<ForceSpringFEMParticle<double> *>,
-                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
+std::tuple<ForceSpringFEMParticle<double> *>,
+std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplicitLinearCProjection<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>>> MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
         std::string::size_type found = meshname.find_last_of(kPathSeparator);
         //    acutal name for the mesh, no path
         std::string meshnameActual = meshname.substr(found+1);
-
+        
         //    parameters
         double youngs = atof(argv[2]);
         double poisson = 0.45;
@@ -83,13 +83,13 @@ int main(int argc, char **argv) {
         double constraint_tol = atof(argv[3]);
         
         FEMLinearTets *test = new FEMLinearTets(V,F);
-
+        
         world.addSystem(test);
         
         // projection matrix for constraints
         Eigen::SparseMatrix<double> P;
         if (atoi(argv[4]) == 0) {
-//             constraint switch
+            //             constraint switch
             
             //            zero gravity
             Eigen::Vector3x<double> g;
@@ -112,28 +112,28 @@ int main(int argc, char **argv) {
         {
             //    default constraint
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
-//            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            //            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
-
+            
             // construct the projection matrix for stepper
             Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
             P = fixedPointProjectionMatrix(indices, *test,world);
-
-
+            
+            
         }
         else if (atoi(argv[4]) == 2)
         {
-//            //            zero gravity
-//            Eigen::Vector3x<double> g;
-//            g(0) = 0;
-//            g(1) = 0;
-//            g(2) = 0;
-//
-//            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-//
-//                test->getImpl().getElement(iel)->setGravity(g);
-//
-//            }
+            //            //            zero gravity
+            //            Eigen::Vector3x<double> g;
+            //            g(0) = 0;
+            //            g(1) = 0;
+            //            g(2) = 0;
+            //
+            //            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+            //
+            //                test->getImpl().getElement(iel)->setGravity(g);
+            //
+            //            }
             
             movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
             
@@ -142,11 +142,11 @@ int main(int argc, char **argv) {
                 world.addConstraint(movingConstraints[ii]);
             }
             fixDisplacementMin(world, test,constraint_dir,constraint_tol);
-
+            
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
             P = fixedPointProjectionMatrix(movingVerts, *test,world);
-
+            
         }
         
         // set material
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
             test->getImpl().getElement(iel)->setParameters(youngs, poisson);
             
         }
-
+        
         auto q = mapStateEigen(world);
         
         //    default to zero deformation
@@ -203,28 +203,26 @@ int main(int argc, char **argv) {
                 
                 //script some motion
                 //
-                //                if (istep < 50) {
                 
                 
                 for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-//                    if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
                     
-                        //                            std::cout<<v_q;
-//                        Eigen::Vector3d v = V.row(movingVerts[jj]);
-//                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
-
-//                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
 //
-//                    Eigen::Vector3d new_q = istep*Eigen::Vector3d(0.0,1.0/100,0.0);
-//                    v_q = new_q;
-
-                    //                        movingConstraints[jj]->getImpl().setFixedPoint(new_p);
-                        //                            std::cout<<v_q;
-                        
+//                    if ((istep%150) < 50) {
+//                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+//                        v_q = new_q;
 //                    }
+//                    else if ((istep%150) < 100)
+//                    {}
+//                    else
+//                    {
+//                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
+//                        v_q = new_q;
+//                    }
+                    Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    v_q = new_q;
                 }
-                //                   std::cout<<q;
-                //                }
             }
             
             
@@ -255,11 +253,11 @@ int main(int argc, char **argv) {
                 idx++;
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
-//            saveMarketVector(q, qfilename);
+            //            saveMarketVector(q, qfilename);
         }
         world.addSystem(test);
         
-
+        
     }
     else
     {
@@ -295,9 +293,9 @@ int main(int argc, char **argv) {
         fixDisplacementMin(world, test,constraint_dir,constraint_tol);
         world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
         // IMPORTANT, need to finalized before fix boundary
-//        
-//        //    default constraint
-//        fixDisplacementMin(world, test,constraint_dir,constraint_tol);
+        //
+        //        //    default constraint
+        //        fixDisplacementMin(world, test,constraint_dir,constraint_tol);
         
         // construct the projection matrix for stepper
         Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
@@ -320,93 +318,93 @@ int main(int argc, char **argv) {
         
         return app.exec();
     }
-//    
-//    std::string meshname = "/meshesTetgen/arma/arma_6";
-//    
-//    if (argc > 1) {
-//        meshname = argv[1];
-//    }
-//    
-//    readTetgen(V, F, dataDir()+meshname+".node", dataDir()+meshname+".ele");
-//   
-//    FEMLinearTets *test = new FEMLinearTets(V,F);
-//
-//    double youngs = 5e5;
-//    double poisson = 0.45;
-//    int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
-//    double constraint_tol = 2e-1;
-//    
-//    if (argc > 2) {
-//        youngs = atof(argv[2]);
-//    }
-//    
-//    if (argc > 3) {
-//        constraint_tol = atof(argv[3]);
-//    }
-//    
-//    for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-//        
-//        test->getImpl().getElement(iel)->setParameters(youngs, poisson);
-//        
-//    }
-//
-//    world.addSystem(test);
-//    fixDisplacementMin(world, test, constraint_dir,constraint_tol);
-//    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
-//    
-//    auto q = mapStateEigen(world);
-//    q.setZero();
-//    
-//    MyTimeStepper stepper(0.01);
-//    if(argc > 4) {
-//        
-//        unsigned int file_ind = 0;
-//        std::string name = "pos";
-//        std::string fformat = ".obj";
-//        std::string filename = name + std::to_string(file_ind) + fformat;
-//        struct stat buf;
-//        unsigned int idx;
-//        
-//        for(unsigned int istep=0; istep<atoi(argv[4]) ; ++istep) {
-//            stepper.step(world);
-//            
-//            //output data here
-//            std::ofstream ofile;
-//            ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
-//            ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
-//            ofile.close();
-//            
-//            while (stat(filename.c_str(), &buf) != -1)
-//            {
-//                file_ind++;
-//                filename = name + std::to_string(file_ind) + fformat;
-//            }
-//            
-//            idx = 0;
-//            // getGeometry().first is V
-//            Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
-//            
-//            for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
-//                
-//                // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
-//                V_disp(vertexId,0) += q(idx);
-//                idx++;
-//                V_disp(vertexId,1) += q(idx);
-//                idx++;
-//                V_disp(vertexId,2) += q(idx);
-//                idx++;
-//            }
-//            igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
-//            
-//        }
-//    }
-//    else {
-//        //Display
-//        QGuiApplication app(argc, argv);
-//        
-//        MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
-//        GAUSSVIEW(scene);
-//        
-//        return app.exec();
-//    }
+    //
+    //    std::string meshname = "/meshesTetgen/arma/arma_6";
+    //
+    //    if (argc > 1) {
+    //        meshname = argv[1];
+    //    }
+    //
+    //    readTetgen(V, F, dataDir()+meshname+".node", dataDir()+meshname+".ele");
+    //
+    //    FEMLinearTets *test = new FEMLinearTets(V,F);
+    //
+    //    double youngs = 5e5;
+    //    double poisson = 0.45;
+    //    int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
+    //    double constraint_tol = 2e-1;
+    //
+    //    if (argc > 2) {
+    //        youngs = atof(argv[2]);
+    //    }
+    //
+    //    if (argc > 3) {
+    //        constraint_tol = atof(argv[3]);
+    //    }
+    //
+    //    for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+    //
+    //        test->getImpl().getElement(iel)->setParameters(youngs, poisson);
+    //
+    //    }
+    //
+    //    world.addSystem(test);
+    //    fixDisplacementMin(world, test, constraint_dir,constraint_tol);
+    //    world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+    //
+    //    auto q = mapStateEigen(world);
+    //    q.setZero();
+    //
+    //    MyTimeStepper stepper(0.01);
+    //    if(argc > 4) {
+    //
+    //        unsigned int file_ind = 0;
+    //        std::string name = "pos";
+    //        std::string fformat = ".obj";
+    //        std::string filename = name + std::to_string(file_ind) + fformat;
+    //        struct stat buf;
+    //        unsigned int idx;
+    //
+    //        for(unsigned int istep=0; istep<atoi(argv[4]) ; ++istep) {
+    //            stepper.step(world);
+    //
+    //            //output data here
+    //            std::ofstream ofile;
+    //            ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
+    //            ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
+    //            ofile.close();
+    //
+    //            while (stat(filename.c_str(), &buf) != -1)
+    //            {
+    //                file_ind++;
+    //                filename = name + std::to_string(file_ind) + fformat;
+    //            }
+    //
+    //            idx = 0;
+    //            // getGeometry().first is V
+    //            Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
+    //
+    //            for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+    //
+    //                // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+    //                V_disp(vertexId,0) += q(idx);
+    //                idx++;
+    //                V_disp(vertexId,1) += q(idx);
+    //                idx++;
+    //                V_disp(vertexId,2) += q(idx);
+    //                idx++;
+    //            }
+    //            igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+    //
+    //        }
+    //    }
+    //    else {
+    //        //Display
+    //        QGuiApplication app(argc, argv);
+    //
+    //        MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
+    //        GAUSSVIEW(scene);
+    //
+    //        return app.exec();
+    //    }
 }

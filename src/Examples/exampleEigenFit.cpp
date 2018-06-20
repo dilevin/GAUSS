@@ -255,35 +255,27 @@ int main(int argc, char **argv) {
                 
                 //script some motion
                 //
-//                if (istep < 50) {
                 
                 
-                    for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-                        
-//                            auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
-////                            std::cout<<v_q;
-////                            Eigen::Vector3d v = V.row(movingVerts[jj]);
-////                            Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
-////                            movingConstraints[jj]->getImpl().setFixedPoint(new_p);
-//                            v_q = v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
-//                            std::cout<<v_q;
-                        
-                        
-                        //                            std::cout<<v_q;
-//                        Eigen::Vector3d v = V.row(movingVerts[jj]);
-                        //                        Eigen::Vector3d new_p = v + v_q + Eigen::Vector3d(0.0,1.0/100,0.0);
-//                        auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+                for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+                    
+                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
 //
-//                        Eigen::Vector3d new_q =  istep*Eigen::Vector3d(0.0,1.0/100,0.0);
+//                    if ((istep%150) < 50) {
+//                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
 //                        v_q = new_q;
+//                    }
+//                    else if ((istep%150) < 100)
+//                    {}
+//                    else
+//                    {
+//                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
+//                        v_q = new_q;
+//                    }
+                    Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    v_q = new_q;
 
-                        //                        movingConstraints[jj]->getImpl().setFixedPoint(new_p);
-                        
-                         
-                        
-                    }
-//                   std::cout<<q;
-//                }
+                }
             }
             
             //output data here

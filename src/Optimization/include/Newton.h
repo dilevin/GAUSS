@@ -1,75 +1,11 @@
 #ifndef NEWTON_HPP
 #define NEWTON_HPP
 #include <vector>
+#include <climits>
 
 namespace Gauss {
     namespace Optimization {
         
-        //Test Functions, Delete in a bit
-        void printVal(double val) { std::cout<<val<<"\n"; }
-        
-        template<typename A>
-        void doSomething(A a) {
-            std::cout<<a<<"\n";
-        }
-    
-        //functions to implement an equality constrained newton solve using Gauss
-        //Energy
-        template<typename Vector, typename World, typename MassMatrix, typename QDot>
-        inline auto & energyImplicitWorld(Vector &x0, World &world, MassMatrix &massMatrix, QDot &qDot) {
-            return (getEnergy(world) - mapStateEigen<1>(world).transpose()*massMatrix*qDot);
-        }
-        
-        //Gradient
-        template<typename Vector, typename World, typename MassMatrix, typename ForceVector, typename QDot, typename DataType>
-        inline auto & gradientImplicit(Vector &x0, World &world, MassMatrix &massMatrix, ForceVector &forceVector, DataType &dt, QDot &qDot) {
-            ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
-            ASSEMBLELIST(forceVector, world.getForceList(), getForce);
-            ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
-            ASSEMBLEEND(forceVector);
-            
-            (*forceVector) *= -dt;
-            (*forceVector) += massMatrix*(mapStateEigen<1>(world)-qDot);
-            return (*forceVector);
-        };
-        
-        //Hessian actually builds the KKT for world stuff (it's faster than merging sparse matrices)
-        template<typename Vector, typename World, typename MassMatrix, typename StiffnessMatrix, typename ConstraintEq, typename QDot, typename DataType>
-        inline auto & hessianImplicit(Vector &x0, World &world,
-                                      MassMatrix &massMatrix, StiffnessMatrix &stiffnessMatrix, ConstraintEq &ceq,
-                                      DataType &dt) {
-            //get stiffness matrix
-            ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
-            ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-            ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-            
-            ASSEMBLEEND(stiffnessMatrix);
-            
-            (*stiffnessMatrix) *= -(dt*dt);
-            (*stiffnessMatrix) += massMatrix;
-            return (*stiffnessMatrix);
-        };
-                                        
-                                        
-        //Equality Constraints (velocity level)
-        //Hessian actually builds the KKT for world stuff (it's faster than merging sparse matrices)
-        template<typename Vector, typename World, typename MassMatrix, typename StiffnessMatrix, typename ConstraintEq, typename QDot, typename DataType>
-        inline auto & hessianImplicit(Vector &x0, World &world,
-                                      MassMatrix &massMatrix, StiffnessMatrix &stiffnessMatrix, ConstraintEq &ceq,
-                                      DataType &dt) {
-            //get stiffness matrix
-            ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
-            ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-            ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-            
-            ASSEMBLEEND(stiffnessMatrix);
-            
-            (*stiffnessMatrix) *= -(dt*dt);
-            (*stiffnessMatrix) += massMatrix;
-            return (*stiffnessMatrix);
-        };
-        
-                                        
         //Implementation of backtracking linesearch. Parameter values chosen based on Numerical Optimization by Nocedal and Wright
         //Inputs:
         //  Energy - a function/functor of the form f(x) that returns the energy associated with the  iterate x
@@ -82,15 +18,17 @@ namespace Gauss {
         template <typename Energy, typename Gradient, typename Hessian,
                   typename ConstraintEq, typename JacobianEq,
                   typename Direction, typename StepCallback, typename Vector>
-        inline bool backTracking(Energy &f, ConstraintEq &ceq, JacobianEq &Aeq, Direction &solver, Vector &x0, StepCallback &scallback, double tol1 = 1e-5) {
+        inline bool backTracking(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
+                                 Direction &solver, StepCallback &scallback, double tol1 = 1e-5) {
             
             //std::cout<<"NORM2: "<<x0.norm()<<"\n";
             //first version is a lazy Newton step with no line search.
+            Vector gradient = g(x0);
             
             scallback(x0);
             double E0 = f(x0);
-            Vector p = solver(H(x0), g(x0), Aeq(x0), ceq(x0));
-            double gStep = g(x0).transpose()*p;
+            Vector p = solver(H(x0), gradient, Aeq(x0), ceq(x0), x0);
+            double gStep = gradient.transpose()*p;
             
             //back tracking line search
             double alpha =1;
@@ -129,11 +67,11 @@ namespace Gauss {
         template <typename Energy, typename Gradient, typename Hessian,
         typename ConstraintEq, typename JacobianEq,
         typename StepCallback, typename Vector, typename Linesearch>
-        bool optimizeWithLineSearch(Energy &f, ConstraintEq &ceq, JacobianEq &Aeq, LineSearch &linesearch, Vector &x0, double tol1 = 1e-5) {
+        bool optimizeWithLineSearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Linesearch &linesearch, double tol1 = 1e-5, unsigned int maxIter = UINT_MAX) {
             
             unsigned int iter = 0;
             
-            while(iter < maxIter && linesearch(f,g,H, ceq, Aeq, x0, tol1) == false) {
+            while(iter < maxIter && linesearch(x0, f,g,H, ceq, Aeq, tol1) == false) {
                 iter++;
             }
             

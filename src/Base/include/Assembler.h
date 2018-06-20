@@ -5,27 +5,6 @@
 #include <Utilities.h>
 #include <World.h>
 
-//useful defines for assembling
-/*#define ASSEMBLEMAT(world, assembler, nFunc, mFunc, funcName) \
-assembler.init(world.mFunc(), world.nFunc()); \
-forEach(world.getSystemList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-forEach(world.getForceList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-assembler.finalize();
-
-#define ASSEMBLEVEC(world, assembler, mFunc, funcName) \
-assembler.init(world.mFunc()); \
-forEach(world.getSystemList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-forEach(world.getForceList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-assembler.finalize();*/
-
 //Needed for more complex operations
 #define ASSEMBLEMATINIT(assembler, mSize, nSize) \
 assembler.init(mSize, nSize);

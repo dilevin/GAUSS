@@ -8,6 +8,10 @@
 #ifndef GaussOptimizationAdapters_h
 #define GaussOptimizationAdapters_h
 
+#include <igl/cat.h>
+#include <climits>
+#include <Newton.h>
+
 namespace Gauss {
     namespace Optimization {
         //functions that produce functors for plugging Gauss assemblers directly into my optimizers
@@ -31,13 +35,21 @@ namespace Gauss {
                 
             }
         
-            template<typename Vector, template Func>
+            inline unsigned int getM() { return m_m; }
+            
+            inline unsigned int getN() {return m_n; }
+            
+            template<typename Vector>
             inline auto operator()(Vector &qDot) {
+                
+                Assembler<DataType> &assm = m_assembler;
                 
                 //init assembler
                 ASSEMBLEMATINIT(m_assembler, m_m, m_n);
-                return this->operator()(qDot, m_assemler);
+                this->operator()(qDot, assm);
                 ASSEMBLEEND(m_assembler);
+                
+                return m_assembler;
                 
             }
             
@@ -48,29 +60,76 @@ namespace Gauss {
             
         };
 
-        //Newtons Step Direction using Pardiso
+
+        //Handy update rules for optimization
+        //Velocity level dynamic update
+        /*template<typename World, typename DataType>
+        class UpdateQDot {
+        public:
+            UpdateQDot(World &world, DataType dt) : m_world(world), m_dt(dt) { }
+            
+            template<typename Vector>
+            void operator()(Vector &qDot) {
+                mapStateEigen<1>(m_world) = qDot.head(world.getNumQDOFs());
+                mapStateEigen<0>(m_world) = q + qDot*mapStateEigen<1>(world);
+            }
+            
+        protected:
+            World &m_world;
+            DataType m_dt;
+            
+        private:
+        };*/
+        
+        //Newtons Step Direction from Assembler input (allows assembling everything ing place
         template<typename DataType>
-        class DirectionNewtonPardiso {
+        class DirectionNewtonAssembler {
           
         public:
-            inline DirectionNewtonPardiso() {
+            inline DirectionNewtonAssembler() {
                 
             }
             
-            template<typename HessianFunc, typename GradientFunc, typename Ceq, typename JacobianEq>
-            inline auto operator()(HessianFunc &H, GradientFunc &g, Ceq &cdq, JacobianEq &Jeq) {
+            //takes in assembled matrices and returns the newton step direction
+            template<typename Hessian, typename Gradient, typename Ceq, typename JacobianEq, typename Vector>
+            inline decltype(auto) operator()(Hessian &H, Gradient &g, Ceq &ceq, JacobianEq &Jeq, Vector &x0) {
                 
-                //compute newton search direction using proper hessian
+                //Concatanate matrices to get LHS of KKT
+                cat(1, *H, *Jeq, m_KKT);
+                cat(2, m_KKT, m_KKT);
                 
-                //return newton search direction
+                m_b.resize((*H).rows()+(*Jeq).rows());
+                m_b.segment(0, (*H).rows()) = (*g);
+                m_b.segment((*H).rows(), (*Jeq).rows()) = (*ceq) - (*Jeq)*x0;
+                
+                //Solve and return the newton search direction
+                return -m_pardiso.solve(m_KKT, m_b);
+                
             }
+            
         protected:
             
             SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
-            AssemblerParallel<DataType, AssemblerSparseMatrixEigen<DataType> > m_mat;
-            AssemblerParallel<DataType, AssemblerVectorEigen<DataType> > m_vec;
+            Eigen::SparseMatrix<DataType, Eigen::RowMajor> m_KKT;
+            Eigen::VectorXx<DataType> m_b;
         };
+        
+        //Equality constrained newtons method using Gauss
+        template <typename DataType, typename Energy, typename Gradient, typename Hessian, typename ConstraintEq,
+                  typename JacobianEq, typename Solve, typename PostStepCallback, typename Vector>
+        inline bool minimizeWorldNewton(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, PostStepCallback &pscallback, double tol1 = 1e-5, unsigned int numIterations = UINT_MAX) {
+            
+            //some useful typedefs
+            DirectionNewtonAssembler<DataType> solver; //initialize newton direction solver
+            
+            auto linesearch = [&solver](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto &scallback, auto  &tol1) {
+                backTrackingLinesearch(x0, f, g, H, ceq, Aeq, scallback, solver, tol1);
+            };
+            
+            return optimizeWithLineSearch(x0, f, g, H, ceq, Aeq, linesearch, tol1, numIterations);
+        }
     }
+    
 }
 
 #endif /* GaussOptimizationAdapters_h */

@@ -149,7 +149,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     auto Aeq = [&world, &massMatrix, &AeqMatrix, &dt, &qDot](auto &a)->auto & {
         //get stiffness matrix
         ASSEMBLEMATINIT(AeqMatrix, world.getNumConstraints(), world.getNumQDotDOFs());
-        ASSEMBLELIST(AeqMatrix, world.getConstraintList(), getGradient);
+        ASSEMBLELISTCONSTRAINT(AeqMatrix, world.getConstraintList(), getGradient);
         ASSEMBLEEND(AeqMatrix);
         
         return AeqMatrix;
@@ -183,7 +183,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     
     auto b = [&world, &massMatrix, &bVector, &dt, &qDot](auto &a) -> auto & {
         ASSEMBLEVECINIT(bVector, world.getNumConstraints());
-        ASSEMBLELIST(bVector, world.getConstraintList, getDbDt);
+        ASSEMBLELISTCONSTRAINT(bVector, world.getConstraintList(), getDbDt);
         ASSEMBLEEND(bVector);
         
         return bVector;
@@ -229,7 +229,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     //x0.head(world.getNumQDotDOFs()) = mapStateEigen<1>(world);
     //Optimization::newton(E, g, H, solve, x0, update, 1e-4, m_num_iterations);
     //std::cout<<mapStateEigen<1>(world)<<"\n";
-    Optimization::minimizeWorldNewton(x0, E, g, H, b, Aeq, update, 1e-4, m_num_iterations);
+    Optimization::minimizeNewtonWorld<DataType>(x0, E, g, H, b, Aeq, update, 1e-4, m_num_iterations);
 
 
 }

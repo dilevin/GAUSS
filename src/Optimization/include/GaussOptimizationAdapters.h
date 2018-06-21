@@ -11,6 +11,7 @@
 #include <igl/cat.h>
 #include <climits>
 #include <Newton.h>
+#include <UtilitiesEigen.h>
 
 namespace Gauss {
     namespace Optimization {
@@ -94,12 +95,34 @@ namespace Gauss {
             template<typename Hessian, typename Gradient, typename Ceq, typename JacobianEq, typename Vector>
             inline decltype(auto) operator()(Hessian &H, Gradient &g, Ceq &ceq, JacobianEq &Jeq, Vector &x0) {
                 
-                //Concatanate matrices to get LHS of KKT
-                cat(1, *H, *Jeq, m_KKT);
-                cat(2, m_KKT, m_KKT);
                 
+                
+                //Use symmetric matrix format to make life easier
+                unsigned int nnzH, nnzJ;
+                nnzH = (*H).nonZeros();
+                nnzJ = (*Jeq).nonZeros();
+                
+                m_KKT.resize((*H).rows() + (*Jeq).rows(), (*H).cols());
+                m_KKT.reserve(nnzH + nnzJ);
+                m_KKT =  (*H).template selfadjointView<Eigen::Lower>();
+                
+                //add Jeq as bottom rows
+                for(unsigned int ii = 0; ii<nnzJ; ++ii) {
+                    m_KKT.valuePtr()[nnzH+ii] = (*Jeq).valuePtr()[ii];
+                    m_KKT.innerIndexPtr()[nnzH+ii] = nnzH+(*Jeq).innerIndexPtr()[ii];
+                }
+                
+                //outer pointers
+                for(unsigned int ii=0; ii<(*Jeq).rows()+1; ++ii) {
+                    m_KKT.outerIndexPtr()[(*H).rows()+ii] = nnzH+(*Jeq).outerIndexPtr()[ii];
+                }
+                
+                m_KKT = m_KKT.transpose();
+                
+                toMatlab(m_KKT, "./testKKT.txt");
+                //add the constraint matrix
                 m_b.resize((*H).rows()+(*Jeq).rows());
-                m_b.segment(0, (*H).rows()) = (*g);
+                m_b.segment(0, (*H).rows()) = g;
                 m_b.segment((*H).rows(), (*Jeq).rows()) = (*ceq) - (*Jeq)*x0;
                 
                 //Solve and return the newton search direction
@@ -116,14 +139,14 @@ namespace Gauss {
         
         //Equality constrained newtons method using Gauss
         template <typename DataType, typename Energy, typename Gradient, typename Hessian, typename ConstraintEq,
-                  typename JacobianEq, typename Solve, typename PostStepCallback, typename Vector>
-        inline bool minimizeWorldNewton(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, PostStepCallback &pscallback, double tol1 = 1e-5, unsigned int numIterations = UINT_MAX) {
+                  typename JacobianEq, typename PostStepCallback, typename Vector>
+        inline bool minimizeNewtonWorld(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, PostStepCallback &pscallback, double tol1 = 1e-5, unsigned int numIterations = UINT_MAX) {
             
             //some useful typedefs
             DirectionNewtonAssembler<DataType> solver; //initialize newton direction solver
             
-            auto linesearch = [&solver](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto &scallback, auto  &tol1) {
-                backTrackingLinesearch(x0, f, g, H, ceq, Aeq, scallback, solver, tol1);
+            auto linesearch = [&solver, &pscallback](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto  &tol1) {
+                return backTrackingLinesearch(x0, f, g, H, ceq, Aeq, solver, pscallback, tol1);
             };
             
             return optimizeWithLineSearch(x0, f, g, H, ceq, Aeq, linesearch, tol1, numIterations);

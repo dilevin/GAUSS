@@ -18,16 +18,17 @@ namespace Gauss {
         template <typename Energy, typename Gradient, typename Hessian,
                   typename ConstraintEq, typename JacobianEq,
                   typename Direction, typename StepCallback, typename Vector>
-        inline bool backTracking(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
+        inline bool backTrackingLinesearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
                                  Direction &solver, StepCallback &scallback, double tol1 = 1e-5) {
             
             //std::cout<<"NORM2: "<<x0.norm()<<"\n";
             //first version is a lazy Newton step with no line search.
-            Vector gradient = g(x0);
+            Vector gradient;
+            assign(gradient, g(x0));
             
             scallback(x0);
             double E0 = f(x0);
-            Vector p = solver(H(x0), gradient, Aeq(x0), ceq(x0), x0);
+            Vector p = solver(H(x0), gradient, ceq(x0), Aeq(x0), x0);
             double gStep = gradient.transpose()*p;
             
             //back tracking line search
@@ -65,8 +66,7 @@ namespace Gauss {
         // x0 - initial point for the solver. For constrained solves, x0 is the stacked vector of primal and dual variables. Must be of size #primal + #constraints
         //tol1 - convergence tolerane
         template <typename Energy, typename Gradient, typename Hessian,
-        typename ConstraintEq, typename JacobianEq,
-        typename StepCallback, typename Vector, typename Linesearch>
+        typename ConstraintEq, typename JacobianEq, typename Vector, typename Linesearch>
         bool optimizeWithLineSearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Linesearch &linesearch, double tol1 = 1e-5, unsigned int maxIter = UINT_MAX) {
             
             unsigned int iter = 0;

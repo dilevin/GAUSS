@@ -407,6 +407,16 @@ namespace Gauss {
             f(a) = b;
         });
     }
+
+    //for cases where you may need to assign a whole assembled structure to a vector
+    template<typename A, typename B>
+    inline void assign(A &a, B &b) {
+        static_if<isAssembler<typename std::remove_reference<B>::type>::val()>([&](auto f){
+            f(a) = (*b);
+        }).else_([&](auto f) {
+            f(a) = b;
+        });
+    }
     
 }
 

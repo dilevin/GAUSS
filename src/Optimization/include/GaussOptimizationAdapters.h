@@ -138,7 +138,7 @@ namespace Gauss {
                         exit(1);
                     }
             
-                    return m_solver.solve((*forceVector));
+                    return m_solver.solve(m_b);
                 
                 #endif
                 

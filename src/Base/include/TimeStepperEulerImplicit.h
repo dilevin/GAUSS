@@ -63,12 +63,8 @@ namespace Gauss {
         
         unsigned int m_num_iterations;
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
-#ifdef GAUSS_PARDISO
-        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
-#else
-        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > m_eigensolver;
-#endif
-
+        Optimization::NewtonSearchWithBackTracking<DataType> m_newton;
+        
     private:
     };
 }
@@ -84,55 +80,20 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     
     VectorAssembler &bVector = m_b;
     VectorAssembler &forceVector = m_forceVector;
-#ifdef GAUSS_PARDISO
-    SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > &solver = m_pardiso;
-#else
-    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > &solver = m_eigensolver;
-    Eigen::VectorXd eigenSolverResult;
-#endif
+
     //Grab the state
     Eigen::VectorXd q = mapStateEigen<0>(world);
     Eigen::VectorXd qDot = mapStateEigen<1>(world);
 
 
     ///get mass matrix
-    ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
+    ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
     ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
-
-    //add in the constraints
-    ASSEMBLELISTOFFSET(massMatrix, world.getConstraintList(), getGradient, world.getNumQDotDOFs(), 0);
-    ASSEMBLELISTOFFSETTRANSPOSE(massMatrix, world.getConstraintList(), getGradient, 0, world.getNumQDotDOFs());
     ASSEMBLEEND(massMatrix);
-
-    //std::cout<<"F: "<<(*forceVector)<<"\n";
-    //setup RHS
-
-
-    //toMatlab(*massMatrix, "./testMHex.txt");
-    //toMatlab(*stiffnessMatrix, "./testKHex.txt");
-    //toMatlab(*forceVector, "./testfHex.txt");
-
-    //std::cout<<"F: \n"<<(*forceVector)<<"\n";
-
-
-    //Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
 
     //we're going to build equality constraints into our gradient and hessian calcuations
     auto E = [&world, &massMatrix, &qDot](auto &a) { return (getEnergy(world) -
-                                                             mapStateEigen<1>(world).transpose()*(*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*qDot); };
-
-    /*auto H = [&world, &massMatrix, &stiffnessMatrix, &dt, &qDot](auto &a)->auto & {
-        //get stiffness matrix
-        ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
-        ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-        ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-
-        ASSEMBLEEND(stiffnessMatrix);
-
-        (*stiffnessMatrix) *= -(dt*dt);
-        (*stiffnessMatrix) += (*massMatrix);
-        return (*stiffnessMatrix);
-    };*/
+                                                             mapStateEigen<1>(world).transpose()*(*massMatrix)*qDot); };
     
     auto H = [&world, &massMatrix, &stiffnessMatrix, &dt, &qDot](auto &a)->auto & {
         //get stiffness matrix
@@ -155,20 +116,6 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         return AeqMatrix;
     };
 
-    /*auto g = [&world, &massMatrix, &forceVector, &dt, &qDot](auto &a) -> auto & {
-        ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs()+world.getNumConstraints());
-        ASSEMBLELIST(forceVector, world.getForceList(), getForce);
-        ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
-        ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getDbDt, world.getNumQDotDOFs(), 0);
-        ASSEMBLEEND(forceVector);
-
-        (*forceVector).head(world.getNumQDotDOFs()) *= -dt;
-        (*forceVector).tail(world.getNumConstraints()) *= -1.0;
-        (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*(mapStateEigen<1>(world)-qDot);
-
-        return (*forceVector);
-    };*/
-    
     auto g = [&world, &massMatrix, &forceVector, &dt, &qDot](auto &a) -> auto & {
         ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
         ASSEMBLELIST(forceVector, world.getForceList(), getForce);
@@ -176,7 +123,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         ASSEMBLEEND(forceVector);
         
         (*forceVector).head(world.getNumQDotDOFs()) *= -dt;
-        (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix).block(0,0,world.getNumQDotDOFs(),world.getNumQDotDOFs())*(mapStateEigen<1>(world)-qDot);
+        (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix)*(mapStateEigen<1>(world)-qDot);
         
         return forceVector;
     };
@@ -189,32 +136,6 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         return bVector;
     };
     
-#ifdef GAUSS_PARDISO
-
-    auto solve = [&solver](auto &A, auto &b)->auto & {
-        return solver.solve(A,b);
-    };
-#else
-    auto solve = [&solver, &eigenSolverResult](auto &A, auto &b)->auto & {
-        solver.compute(A);
-        if(solver.info()!=Eigen::Success) {
-            // decomposition failed
-            // assert(1 == 0);
-            std::cout<<"Decomposition Failed \n";
-            exit(1);
-        }
-
-        if(solver.info()!=Eigen::Success) {
-            // solving failed
-            // assert(1 == 0);
-            std::cout<<"Solve Failed \n";
-            exit(1);
-        }
-        eigenSolverResult = solver.solve(b);
-        return eigenSolverResult;
-    };
-#endif
-
     auto update = [&world, &q, &qDot, &dt, &massMatrix](auto &dx) {
 
         //std::cout<<"NORM: "<<dx.head(world.getNumQDOFs()).norm()<<"\n";
@@ -226,11 +147,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     //solve this using newton's method
     auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
     x0.setZero();
-    //x0.head(world.getNumQDotDOFs()) = mapStateEigen<1>(world);
-    //Optimization::newton(E, g, H, solve, x0, update, 1e-4, m_num_iterations);
-    //std::cout<<mapStateEigen<1>(world)<<"\n";
-    Optimization::minimizeNewtonWorld<DataType>(x0, E, g, H, b, Aeq, update, 1e-4, m_num_iterations);
-
+    m_newton(x0, E, g, H, b, Aeq, update, 1e-4, m_num_iterations);
 
 }
 

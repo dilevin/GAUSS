@@ -60,7 +60,7 @@ namespace Gauss {
             }
             
             inline double getEnergy(const State<DataType> &state) {
-                return getKineticEnergy(state)+getStrainEnergy(state)+getBodyForceWork(state);
+                return getKineticEnergy(state)+getStrainEnergy(state) + getBodyForceWork(state);
             }
             
             template<typename Vector>

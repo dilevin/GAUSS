@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <Eigen/src/SparseCore/SparseSelfAdjointView.h>
 #include <Utilities.h>
 #include <World.h>
 

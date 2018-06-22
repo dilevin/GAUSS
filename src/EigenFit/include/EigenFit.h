@@ -54,7 +54,7 @@ public:
     // the constructor will take the two mesh parameters, one coarse one fine.
     // The coarse mesh data will be passed to the parent class constructor to constructor
     // the fine mesh data will be used to initialize the members specific to the EigenFit class
-    EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraint_dir, double constraint_tol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes) : PhysicalSystemImpl(Vc,Fc)
+    EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraintDir, double constraintTol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes) : PhysicalSystemImpl(Vc,Fc)
     {
         m_Vf = Vf;
         m_Ff = Ff;
@@ -94,46 +94,64 @@ public:
         
         
         //       constraints
-        Eigen::SparseMatrix<double> P;
+        Eigen::SparseMatrix<double> fineP;
+        Eigen::SparseMatrix<double> coarseP;
         if (constraint_switch == 0) {
             // hard-coded constraint projection
             
             m_fineWorld.finalize();
             
-            P.resize(Vf.rows()*3,Vf.rows()*3);
-            P.setIdentity();
-            m_P = P;
+            fineP.resize(Vf.rows()*3,Vf.rows()*3);
+            fineP.setIdentity();
+            m_fineP = fineP;
+            coarseP.resize(Vc.rows()*3,Vc.rows()*3);
+            coarseP.setIdentity();
+            m_coarseP = coarseP;
+
+            // set a number here. can be changed later after checking with hausdorff distance
             m_numConstraints = 10;
         }
         else if (constraint_switch == 1)
         {
             // default constraint
             //            fix displacement
-            fixDisplacementMin(m_fineWorld, m_fineMeshSystem, constraint_dir, constraint_tol);
+            fixDisplacementMin(m_fineWorld, m_fineMeshSystem, constraintDir, constraintTol);
             
             m_fineWorld.finalize();
             // hard-coded constraint projection
-            Eigen::VectorXi indices = minVertices(m_fineMeshSystem, constraint_dir, constraint_tol);
-            P = fixedPointProjectionMatrix(indices, *m_fineMeshSystem,m_fineWorld);
-            m_P = P;
-            m_numConstraints = indices.size();
+            Eigen::VectorXi fine_constraint_indices = minVertices(m_fineMeshSystem, constraintDir, constraintTol);
+            fineP = fixedPointProjectionMatrix(fine_constraint_indices, *m_fineMeshSystem,m_fineWorld);
+            m_fineP = fineP;
+            
+            Eigen::VectorXi coarse_constrait_indices = minVertices(this, constraintDir, constraintTol);
+            coarseP = fixedPointProjectionMatrixCoarse(coarse_constrait_indices);
+            m_coarseP = coarseP;
+            
+            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
+            m_numConstraints = fine_constraint_indices.size();
         }
         else if (constraint_switch == 2)
         {
             
-            Eigen::VectorXi movingVerts = maxVertices(m_fineMeshSystem, constraint_dir, constraint_tol);//indices for moving parts
-            std::vector<ConstraintFixedPoint<double> *> movingConstraints;
+            Eigen::VectorXi fineMovingVerts = minVertices(m_fineMeshSystem, constraintDir, constraintTol);//indices for moving parts
+            std::vector<ConstraintFixedPoint<double> *> fineMovingConstraints;
 
-            for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
-                movingConstraints.push_back(new ConstraintFixedPoint<double>(&m_fineMeshSystem->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
-                m_fineWorld.addConstraint(movingConstraints[ii]);
+            for(unsigned int ii=0; ii<fineMovingVerts.rows(); ++ii) {
+                fineMovingConstraints.push_back(new ConstraintFixedPoint<double>(&m_fineMeshSystem->getQ()[fineMovingVerts[ii]], Eigen::Vector3d(0,0,0)));
+                m_fineWorld.addConstraint(fineMovingConstraints[ii]);
             }
             m_fineWorld.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
             // hard-coded constraint projection
-            P = fixedPointProjectionMatrix(movingVerts, *m_fineMeshSystem,m_fineWorld);
-            m_P = P;
-            m_numConstraints = movingVerts.size();
+            fineP = fixedPointProjectionMatrix(fineMovingVerts, *m_fineMeshSystem,m_fineWorld);
+            m_fineP = fineP;
+            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
+            m_numConstraints = fineMovingVerts.size();
+            
+            Eigen::VectorXi coarseMovingVerts = minVertices(this, constraintDir, constraintTol);
+            coarseP = fixedPointProjectionMatrixCoarse(coarseMovingVerts);
+            m_coarseP = coarseP;
+            
         }
         
         
@@ -204,7 +222,7 @@ public:
         ASSEMBLEEND(massMatrix);
         
         //constraint Projection
-        (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
+        (*massMatrix) = m_fineP*(*massMatrix)*m_fineP.transpose();
         
         // fill in the rest state position
         restFineState = m_fineWorld.getState();
@@ -244,9 +262,37 @@ public:
     template<typename MatrixAssembler>
     void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
         
-        
+
+        // matrices passed in already eliminated the constraints
         // Eigendecomposition for the coarse mesh
         m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 1e-3);
+        
+        unsigned int mode = 0;
+        unsigned int idx = 0;
+        std::string name = "coarse_eigen_mode";
+        std::string fformat = ".obj";
+        std::string filename = name + std::to_string(mode) + fformat;
+        Eigen::VectorXd coarse_eig_def;
+        for (mode = 0; mode < m_numModes; ++mode) {
+            coarse_eig_def = (m_coarseP.transpose()*m_coarseUs.first.col(mode)).transpose();
+            
+            idx = 0;
+            // getGeometry().first is V
+            Eigen::MatrixXd V_disp = this->getImpl().getV();
+            for(unsigned int vertexId=0;  vertexId < this->getImpl().getV().rows(); ++vertexId) {
+                
+                // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+                V_disp(vertexId,0) += coarse_eig_def(idx);
+                idx++;
+                V_disp(vertexId,1) += coarse_eig_def(idx);
+                idx++;
+                V_disp(vertexId,2) += coarse_eig_def(idx);
+                idx++;
+            }
+            filename = name + std::to_string(mode) + fformat;
+            igl::writeOBJ(filename,V_disp,this->getImpl().getF());
+            Eigen::MatrixXi F = surftri(this->getImpl().getV(), this->getImpl().getF());
+        }
         
         if(ratio_recalculation_flag || (!ratio_calculated)){
             //            std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
@@ -290,11 +336,37 @@ public:
             ASSEMBLEEND(fineStiffnessMatrix);
             
             //constraint Projection
-            (*fineStiffnessMatrix) = m_P*(*fineStiffnessMatrix)*m_P.transpose();
+            (*fineStiffnessMatrix) = m_fineP*(*fineStiffnessMatrix)*m_fineP.transpose();
             
             //Eigendecomposition for the embedded fine mesh
             std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
             m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
+            
+            mode = 0;
+            name = "fine_eigen_mode";
+            fformat = ".mesh";
+            filename = name + std::to_string(mode) + fformat;
+            Eigen::VectorXd fine_eig_def;
+            for (mode = 0; mode < m_numModes; ++mode) {
+                fine_eig_def = (m_fineP.transpose()*m_Us.first.col(mode)).transpose();
+                
+                idx = 0;
+                // getGeometry().first is V
+                Eigen::MatrixXd V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
+                for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+                    
+                    // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+                    V_disp(vertexId,0) += fine_eig_def(idx);
+                    idx++;
+                    V_disp(vertexId,1) += fine_eig_def(idx);
+                    idx++;
+                    V_disp(vertexId,2) += fine_eig_def(idx);
+                    idx++;
+                }
+                filename = name + std::to_string(mode) + fformat;
+                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+            }
+            
             
             for(int i = 0; i < m_numModes; ++i)
             {
@@ -329,6 +401,85 @@ public:
         
     }
     
+    Eigen::SparseMatrix<double> fixedPointProjectionMatrixCoarse(Eigen::VectorXi &indices) {
+        
+        std::vector<Eigen::Triplet<double> > triplets;
+        Eigen::SparseMatrix<double> P;
+        Eigen::VectorXi sortedIndices = indices;
+        std::sort(sortedIndices.data(), sortedIndices.data()+indices.rows());
+        
+        //build a projection matrix P which projects fixed points out of a physical syste
+        int fIndex = 0;
+        
+        //total number of DOFS in system
+        
+        unsigned int n = 3*this->getImpl().getV().rows();
+        unsigned int m = n - 3*indices.rows();
+        
+        P.resize(m,n);
+        
+        //number of unconstrained DOFs
+        unsigned int rowIndex =0;
+        for(unsigned int vIndex = 0; vIndex < this->getImpl().getV().rows(); vIndex++) {
+            
+            while((vIndex < this->getImpl().getV().rows()) && (fIndex < sortedIndices.rows()) &&(vIndex == sortedIndices[fIndex])) {
+                fIndex++;
+                vIndex++;
+            }
+            
+            if(vIndex == this->getImpl().getV().rows())
+                break;
+            
+            //add triplet into matrix
+            triplets.push_back(Eigen::Triplet<double>(this->getQ().getGlobalId() +rowIndex, this->getQ().getGlobalId() + 3*vIndex,1));
+            triplets.push_back(Eigen::Triplet<double>(this->getQ().getGlobalId() +rowIndex+1, this->getQ().getGlobalId() + 3*vIndex+1, 1));
+            triplets.push_back(Eigen::Triplet<double>(this->getQ().getGlobalId() +rowIndex+2, this->getQ().getGlobalId() + 3*vIndex+2, 1));
+            
+            rowIndex+=3;
+        }
+        
+        P.setFromTriplets(triplets.begin(), triplets.end());
+        
+        //build the matrix and  return
+        return P;
+    }
+    
+    void writeSimpleMesh(const std::string mesh_file_name,
+                         const Eigen::MatrixXd & V,
+                         const Eigen::MatrixXi & T)
+    {
+        // copied from tetwild
+        std::fstream f(mesh_file_name, std::ios::out);
+        f.precision(std::numeric_limits<double>::digits10 + 1);
+        f << "MeshVersionFormatted 1" << std::endl;
+        f << "Dimension 3" << std::endl;
+        
+        f << "Vertices" << " " <<V.rows()  << std::endl;
+        for (int i = 0; i < V.rows(); i++)
+        f << V(i,0) << " " << V(i,1) << " " << V(i,2) << " " << 0 << std::endl;
+        f << "Tetrahedra" << std::endl;
+        f << T.rows() << std::endl;
+        for (int i = 0; i < T.rows(); i++) {
+            for (int j = 0; j < 4; j++)
+                f << T(i, j) + 1 << " ";
+            f << 0 << std::endl;
+        }
+        
+        f << "End";
+        f.close();
+    }
+    
+    Eigen::MatrixXi surftri(const Eigen::MatrixXd & V,
+    const Eigen::MatrixXi & T)
+    {
+        Eigen::MatrixXi faces(T.rows()*4,3);
+        faces.col(0) << T.col(0),T.col(0),T.col(0),T.col(1);
+        faces.col(1) << T.col(1),T.col(1),T.col(2),T.col(2);
+        faces.col(2) << T.col(2),T.col(3),T.col(3),T.col(3);
+        
+        return faces;
+    }
+    
     //per vertex accessors. takes the state of the coarse mesh
     inline Eigen::Vector3x<double> getFinePosition(const State<double> &state, unsigned int vertexId) const {
         return m_Vf.row(vertexId).transpose() + m_N.block(3*vertexId, 0, 3, m_N.cols())*(*this).getImpl().getElement(m_elements[vertexId])->q(state);
@@ -358,9 +509,9 @@ protected:
     Eigen::VectorXd m_R;
     Eigen::VectorXd m_I;
     
-    //Subspace Eigenvectors and eigenvalues
     AssemblerEigenVector<double> m_fExt;
-    Eigen::SparseMatrix<double> m_P;
+    Eigen::SparseMatrix<double> m_fineP;
+    Eigen::SparseMatrix<double> m_coarseP;
     
     Eigen::MatrixXx<double> m_Vf;
     Eigen::MatrixXi m_Ff;

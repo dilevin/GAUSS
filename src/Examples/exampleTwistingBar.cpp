@@ -26,8 +26,8 @@ typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>,
-AssemblerEigenVector<double> > MyTimeStepper;
+typedef TimeStepperEulerImplicit<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>,
+AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -47,11 +47,11 @@ void preStepCallback(MyWorld &world) {
     Eigen::AngleAxis<double> rot(0.01 * current_frame, Eigen::Vector3d(1.0,0.0,0.0));
 
     for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-        if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
+        //if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
             Eigen::Vector3d v = V.row(movingVerts[jj]);
             Eigen::Vector3d new_u = rot * v - v - mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
-            movingConstraints[jj]->getImpl().setFixedPoint(rot*v, new_u/0.01);
-        }
+            movingConstraints[jj]->getImpl().setFixedPoint(rot*v, new_u/0.1);
+        //}
     }
 }
 
@@ -62,8 +62,7 @@ int main(int argc, char **argv) {
     MyWorld world;
 
     //new code -- load tetgen files
-
-    /*readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
+    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     FEMLinearTets *test = new FEMLinearTets(V,F);
 
@@ -82,7 +81,7 @@ int main(int argc, char **argv) {
     auto q = mapStateEigen(world);
     q.setZero();
 
-    MyTimeStepper stepper(0.01, 1);
+    MyTimeStepper stepper(0.1, 200);
 
     //Display
     QGuiApplication app(argc, argv);
@@ -90,6 +89,6 @@ int main(int argc, char **argv) {
     MyScene *scene = new MyScene(&world, &stepper, preStepCallback);
     GAUSSVIEW(scene);
 
-    return app.exec();*/
+    return app.exec();
 
 }

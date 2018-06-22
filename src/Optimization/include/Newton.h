@@ -21,40 +21,42 @@ namespace Gauss {
         inline bool backTrackingLinesearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
                                  Direction &solver, StepCallback &scallback, double tol1 = 1e-5) {
             
-            //std::cout<<"NORM2: "<<x0.norm()<<"\n";
-            //first version is a lazy Newton step with no line search.
+            scallback(x0);
+            
             Vector gradient;
+            auto J = *Aeq(x0);
+            auto b = *ceq(x0);
             assign(gradient, g(x0));
             
-            scallback(x0);
-            double E0 = f(x0);
+            double E0 = f(x0) + 100000.0*(J*x0.head(gradient.rows()) - b).norm(); //merit function
             Vector p = solver(H(x0), gradient, ceq(x0), Aeq(x0), x0);
-            double gStep = gradient.transpose()*p;
+            double gStep = gradient.transpose()*p.head(gradient.rows());
             
             //back tracking line search
-            double alpha =1;
-            double c = 1e-4; //from Nocedal and Wright pg 31
+            double alpha = 1;
+            double c = 1e-8; //from Nocedal and Wright pg 31
             double rho = 0.5;
             
+            //for(unsigned int ii=0; ii < 20; ++ii) {
             while(true) {
                 
                 scallback(x0+alpha*p);
                 
-                if((f(x0+alpha*p) - E0 - c*alpha*gStep) < tol1) {
+                if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm() - E0) < tol1) {
                     break;
                 }
                 
-                //std::cout<<f(x0+alpha*p)<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
+                std::cout<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
                 alpha = alpha*rho;
                 
-                //if(alpha < 1e-8) {
-                //  alpha = 0;
-                //}
+                if(alpha < 1e-8) {
+                  alpha = 0;
+                }
             }
             
             x0 = x0+alpha*p;
             
-            return (fabs(f(x0) - E0) < tol1 ? true : false);
+            return ((fabs(f(x0) - E0)) < tol1  ? true : false);
             
         }
         

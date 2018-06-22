@@ -41,9 +41,11 @@ public:
     using SparseMatrix = Eigen::SparseMatrix<double, Eigen::RowMajor>;
     
     //Pardiso stuff
-    SolverPardiso(unsigned int numProcessors = 8) {
+    //default matrix type = unsymmetric
+    //only the upper triangle of symmetric matrices must be passed to pardiso 
+    SolverPardiso(int matrixType = 11, unsigned int numProcessors = 8) {
         
-        m_matrixType = 11; //Real symmetric matrix
+        m_matrixType = matrixType;
         
         //Annoying license file stuff
         int error = 0;

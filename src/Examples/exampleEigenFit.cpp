@@ -172,18 +172,7 @@ int main(int argc, char **argv) {
         else if (atoi(argv[5]) == 2)
         {
             
-//            //            zero gravity
-//            Eigen::Vector3x<double> g;
-//            g(0) = 0;
-//            g(1) = 0;
-//            g(2) = 0;
-//
-//            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-//
-//                test->getImpl().getElement(iel)->setGravity(g);
-//
-//            }
-            
+
             movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
 //
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
@@ -209,7 +198,7 @@ int main(int argc, char **argv) {
         auto fine_q = mapStateEigen(test->getFineWorld());
         //    default to zero deformation
         q.setZero();
-//        std::cout<<argv[6];
+
         if (strcmp(argv[6],"0")==0) {
             
             q.setZero();
@@ -220,14 +209,11 @@ int main(int argc, char **argv) {
             std::string qfileName(argv[6]);
             Eigen::VectorXd  tempv;
             loadMarketVector(tempv,qfileName);
-//            std::cout<<tempv.size();
-//            std::cout<<tempv;
+
             q = tempv;
             
         }
         
-        
-//        std::cout<<P.rows()<<std::endl;
         MyTimeStepper stepper(0.01,P);
         
         //         the number of steps to take
@@ -251,8 +237,6 @@ int main(int argc, char **argv) {
             // acts like the "callback" block
             if (atoi(arg_list[5]) == 2)
             {
-                // This is an example callback
-                
                 //script some motion
                 //
                 

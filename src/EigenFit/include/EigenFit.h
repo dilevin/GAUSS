@@ -19,6 +19,9 @@
 #include <ConstraintFixedPoint.h>
 #include <unsupported/Eigen/SparseExtra>
 #include <sys/stat.h>
+#include <igl/sortrows.h>
+#include <igl/histc.h>
+#include <igl/unique_rows.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -290,8 +293,9 @@ public:
                 idx++;
             }
             filename = name + std::to_string(mode) + fformat;
-            igl::writeOBJ(filename,V_disp,this->getImpl().getF());
+            
             Eigen::MatrixXi F = surftri(this->getImpl().getV(), this->getImpl().getF());
+            igl::writeOBJ(filename,V_disp,F);
         }
         
         if(ratio_recalculation_flag || (!ratio_calculated)){
@@ -344,7 +348,7 @@ public:
             
             mode = 0;
             name = "fine_eigen_mode";
-            fformat = ".mesh";
+            fformat = ".obj";
             filename = name + std::to_string(mode) + fformat;
             Eigen::VectorXd fine_eig_def;
             for (mode = 0; mode < m_numModes; ++mode) {
@@ -364,7 +368,10 @@ public:
                     idx++;
                 }
                 filename = name + std::to_string(mode) + fformat;
-                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+//                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+                
+                Eigen::MatrixXi F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+                igl::writeOBJ(filename,V_disp,F);
             }
             
             
@@ -472,12 +479,71 @@ public:
     Eigen::MatrixXi surftri(const Eigen::MatrixXd & V,
     const Eigen::MatrixXi & T)
     {
+        // translated from distmesh
         Eigen::MatrixXi faces(T.rows()*4,3);
         faces.col(0) << T.col(0),T.col(0),T.col(0),T.col(1);
         faces.col(1) << T.col(1),T.col(1),T.col(2),T.col(2);
         faces.col(2) << T.col(2),T.col(3),T.col(3),T.col(3);
         
-        return faces;
+        // the fourth vertex of the tet that's not on the surface
+        Eigen::VectorXi node4(T.rows()*4);
+        node4 << T.col(3), T.col(2), T.col(1), T.col(0);
+        
+        Eigen::MatrixXi facesSorted(T.rows()*4,3);
+        Eigen::VectorXi SortedInd(T.rows()*4);
+        igl::sortrows(faces,true,facesSorted,SortedInd);
+        Eigen::MatrixXi C;
+        Eigen::VectorXi IA;
+        Eigen::VectorXi IC;
+        igl::unique_rows(faces,C,IA,IC);
+        
+        Eigen::VectorXi count(IC.maxCoeff());
+        Eigen::VectorXi histbin(IC.maxCoeff());
+//        std::cout<<IC.maxCoeff()<<std::endl;
+        
+        for (int ind = 0; ind < IC.maxCoeff(); ++ind) {
+            histbin(ind) = ind;
+        }
+//        std::cout<<histbin<<std::endl;
+//        std::cout<<IC<<std::endl;
+        Eigen::VectorXi foo(IC.size());
+        igl::histc(IC,histbin,count,foo);
+//        std::cout<<count<<std::endl;
+        std::vector<int> nonDuplicatedFacesInd;
+        int oneCount = 0;
+        for (int ind = 0; ind < count.size(); ++ind) {
+            if (count(ind)==1) {
+                ++oneCount;
+                nonDuplicatedFacesInd.push_back(ind);
+            }
+        }
+        
+        Eigen::MatrixXi nonDuplicatedFaces(nonDuplicatedFacesInd.size(),3);
+        Eigen::VectorXi nonDuplicatedNode4(nonDuplicatedFacesInd.size());
+        for(std::vector<int>::iterator it = nonDuplicatedFacesInd.begin(); it != nonDuplicatedFacesInd.end(); ++it)
+        {
+            nonDuplicatedFaces.row(it-nonDuplicatedFacesInd.begin()) << faces.row(IA(*it));
+            nonDuplicatedNode4(it-nonDuplicatedFacesInd.begin()) = node4(IA(*it));
+        }
+        
+        // use the three vectors of the tet to determine the orientation
+        Eigen::Vector3d v1;
+        Eigen::Vector3d v2;
+        Eigen::Vector3d v3;
+        int tempV;
+        for (int ind = 0; ind < nonDuplicatedFaces.rows(); ++ind) {
+            v1 = V.row(nonDuplicatedFaces(ind,1)) - V.row(nonDuplicatedFaces(ind,0));
+            v2 = V.row(nonDuplicatedFaces(ind,2)) - V.row(nonDuplicatedFaces(ind,0));
+            v3 = V.row(nonDuplicatedNode4(ind)) - V.row(nonDuplicatedFaces(ind,0));
+            if ((v1.cross(v2)).dot(v3) > 0) {
+                
+                tempV = nonDuplicatedFaces(ind,1);
+                nonDuplicatedFaces(ind,1) = nonDuplicatedFaces(ind,2);
+                nonDuplicatedFaces(ind,2) = tempV;
+            }
+        }
+        
+        return nonDuplicatedFaces;
     }
     
     //per vertex accessors. takes the state of the coarse mesh

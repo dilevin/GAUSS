@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     q.setZero();
 
     std::cout << "Starting now." << std::endl;
-    MyTimeStepper stepper(2.0, 2000);
+    MyTimeStepper stepper(0.1, 2000);
 
     //Display
     QGuiApplication app(argc, argv);

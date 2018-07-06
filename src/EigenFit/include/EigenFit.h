@@ -22,6 +22,7 @@
 #include <igl/sortrows.h>
 #include <igl/histc.h>
 #include <igl/unique_rows.h>
+#include <igl/hausdorff.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -281,21 +282,20 @@ public:
             
             idx = 0;
             // getGeometry().first is V
-            Eigen::MatrixXd V_disp = this->getImpl().getV();
+            Eigen::MatrixXd coarse_V_disp = this->getImpl().getV();
             for(unsigned int vertexId=0;  vertexId < this->getImpl().getV().rows(); ++vertexId) {
                 
-                // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
-                V_disp(vertexId,0) += coarse_eig_def(idx);
+                coarse_V_disp(vertexId,0) += (10*coarse_eig_def(idx));
                 idx++;
-                V_disp(vertexId,1) += coarse_eig_def(idx);
+                coarse_V_disp(vertexId,1) += (10*coarse_eig_def(idx));
                 idx++;
-                V_disp(vertexId,2) += coarse_eig_def(idx);
+                coarse_V_disp(vertexId,2) += (10*coarse_eig_def(idx));
                 idx++;
             }
             filename = name + std::to_string(mode) + fformat;
             
-            Eigen::MatrixXi F = surftri(this->getImpl().getV(), this->getImpl().getF());
-            igl::writeOBJ(filename,V_disp,F);
+            Eigen::MatrixXi coarse_F = surftri(this->getImpl().getV(), this->getImpl().getF());
+            igl::writeOBJ(filename,coarse_V_disp, coarse_F);
         }
         
         if(ratio_recalculation_flag || (!ratio_calculated)){
@@ -348,6 +348,7 @@ public:
             
             mode = 0;
             name = "fine_eigen_mode";
+            std::string coarse_name = "coarse_eigen_mode";
             fformat = ".obj";
             filename = name + std::to_string(mode) + fformat;
             Eigen::VectorXd fine_eig_def;
@@ -356,22 +357,34 @@ public:
                 
                 idx = 0;
                 // getGeometry().first is V
-                Eigen::MatrixXd V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
+                Eigen::MatrixXd fine_V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
                 for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
                     
                     // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
-                    V_disp(vertexId,0) += fine_eig_def(idx);
+                    fine_V_disp(vertexId,0) += (-10*fine_eig_def(idx));
                     idx++;
-                    V_disp(vertexId,1) += fine_eig_def(idx);
+                    fine_V_disp(vertexId,1) += (-10*fine_eig_def(idx));
                     idx++;
-                    V_disp(vertexId,2) += fine_eig_def(idx);
+                    fine_V_disp(vertexId,2) += (-10*fine_eig_def(idx));
                     idx++;
                 }
                 filename = name + std::to_string(mode) + fformat;
+                std::string coarse_filename = coarse_name + std::to_string(mode) + fformat;
+                
 //                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
                 
-                Eigen::MatrixXi F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
-                igl::writeOBJ(filename,V_disp,F);
+                Eigen::MatrixXi fine_F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+                igl::writeOBJ(filename,fine_V_disp,fine_F);
+                
+                Eigen::MatrixXd coarse_V_disp;
+                Eigen::MatrixXi coarse_F;
+                igl::readOBJ(coarse_filename,coarse_V_disp, coarse_F);
+                
+                double dist;
+                Eigen::Array3d xyz_scales(coarse_V_disp.col(0).maxCoeff() - coarse_V_disp.col(0).minCoeff(), coarse_V_disp.col(1).maxCoeff() - coarse_V_disp.col(1).minCoeff(),coarse_V_disp.col(2).maxCoeff() - coarse_V_disp.col(2).minCoeff());
+                double max_scale = xyz_scales.abs().maxCoeff();
+                igl::hausdorff(fine_V_disp, fine_F, coarse_V_disp, coarse_F, dist);
+                std::cout<<dist/max_scale<<std::endl;
             }
             
             

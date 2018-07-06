@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
     //    7. number of time steps
 //    8. flag for using hausdorff distance
 //    9. number of modes to modifies
+//    10. constraint direction
     std::cout<<"Test Neohookean FEM EigenFit\n";
     
     //Setup Physics
@@ -119,7 +120,7 @@ int main(int argc, char **argv) {
         //    parameters
         double youngs = atof(argv[3]);
         double poisson = 0.45;
-        int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
+        int constraint_dir = atoi(argv[10]); // constraint direction. 0 for x, 1 for y, 2 for z
         double constraint_tol = atof(argv[4]);
         //
         // send the constraint switch in as well, or the fine embedded mesh. ugly
@@ -186,13 +187,24 @@ int main(int argc, char **argv) {
             P = fixedPointProjectionMatrix(movingVerts, *test,world);
             
         }
-        
-        // set material
-        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-            
-            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
-            
-        }
+//        else if(atoi(argv[5]) == 3)
+//        {
+//            
+//            fixDisplacementMin(world, test,constraint_dir,constraint_tol);
+//            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+//            
+//            // construct the projection matrix for stepper
+//            Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
+//            P = fixedPointProjectionMatrix(indices, *test,world);
+//            
+//        }
+//        
+//        // set material
+//        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+//            
+//            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
+//            
+//        }
         
         auto q = mapStateEigen(world);
         auto fine_q = mapStateEigen(test->getFineWorld());

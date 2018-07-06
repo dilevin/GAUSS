@@ -49,6 +49,7 @@ void preStepCallback(MyWorld &world) {
     for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
         //if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
             Eigen::Vector3d v = V.row(movingVerts[jj]);
+            // rot * v is the new position, so new_u is new velocity direction
             Eigen::Vector3d new_u = rot * v - v - mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
             movingConstraints[jj]->getImpl().setFixedPoint(rot*v, new_u/0.1);
         //}
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
     movingVerts = maxVertices(test, 0);//indices for moving parts
 
     for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
+        // initialize the moving constraint by setting the position. velocity is initialized to zero, but will be changed in callback
         movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
         world.addConstraint(movingConstraints[ii]);
     }

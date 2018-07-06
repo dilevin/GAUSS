@@ -26,10 +26,12 @@ namespace Gauss {
             m_dpdt = v;
         }
         
+        // position constraint
         void setFixedPoint(Eigen::VectorXx<DataType> pos) {
             m_p0 = pos;
         }
         
+        // overload velocity constraint
         void setFixedPoint(Eigen::VectorXx<DataType> pos, Eigen::VectorXx<DataType> vel) {
             m_p0 = pos;
             m_dpdt = vel;
@@ -165,32 +167,31 @@ namespace Gauss {
             world.addConstraint(new ConstraintFixedPoint<decltype(minX)>(&system->getQ()[iV], Eigen::Vector3d(0,0,0)));
         }
     }
-    
     //Utility functions to fix a bunch of points
     template<typename FEMSystem>
-    Eigen::VectorXi maxVertices(FEMSystem *system, unsigned int dim = 0) {
+    Eigen::VectorXi maxVertices(FEMSystem *system, unsigned int dim = 0, double tolerance = 1e-5) {
         
         
         //find all vertices with minimum x coordinate and fix DOF associated with them
         auto maxX = system->getImpl().getV()(0,dim);
-        std::vector<unsigned int> minV;
+        std::vector<unsigned int> maxV;
         
         for(unsigned int ii=0; ii<system->getImpl().getV().rows(); ++ii) {
             
             if(system->getImpl().getV()(ii,dim) > maxX) {
                 maxX = system->getImpl().getV()(ii,dim);
-                minV.clear();
-                minV.push_back(ii);
-            } else if(fabs(system->getImpl().getV()(ii,dim) - maxX) < 1e-5) {
-                minV.push_back(ii);
+                maxV.clear();
+                maxV.push_back(ii);
+            } else if(fabs(system->getImpl().getV()(ii,dim) - maxX) < tolerance) {
+                maxV.push_back(ii);
             }
         }
         
-        Eigen::VectorXi indices(minV.size());
+        Eigen::VectorXi indices(maxV.size());
         
         //add a bunch of constraints
-        for(unsigned int iV = 0; iV < minV.size(); ++iV) {
-            indices(iV) = minV[iV];
+        for(unsigned int iV = 0; iV < maxV.size(); ++iV) {
+            indices(iV) = maxV[iV];
         }
         
         return indices;

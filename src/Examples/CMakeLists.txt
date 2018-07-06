@@ -19,10 +19,10 @@ add_executable(Example10 example10.cpp)
 add_executable(ExampleCollisionsFloor exampleCollisionsFloor.cpp)
 target_link_libraries(ExampleCollisionsFloor Core Base Collisions FEM UI ${GAUSS_LIBS})
 
-if(USE_PARDISO)
-	add_executable(Example11 example11.cpp)
-	target_link_libraries(Example11 Core Base FEM Optimization UI ${GAUSS_LIBS})
-endif(USE_PARDISO)
+
+add_executable(Example11 example11.cpp)
+target_link_libraries(Example11 Core Base FEM Optimization UI ${GAUSS_LIBS})
+
 
 add_executable(Example13 example13.cpp)
 add_executable(Example14 example14.cpp)

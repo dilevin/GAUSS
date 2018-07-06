@@ -79,7 +79,6 @@ classdef WorldFEM < handle
         end
 
          %% convenience functions
-         
         function c = bodyForceEnergyFromQ(this, q)
             setQ(this,q);
             c = bodyForceEnergy(this);
@@ -89,6 +88,11 @@ classdef WorldFEM < handle
         function c = strainEnergyPerElementFromQ(this, q)
             setQ(this,q);
             c = strainEnergyPerElement(this);
+        end
+
+        %% duplicates matlab functionality, just for testing  things
+        function varargout = modalAnalysis(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('linmode', this.objectHandle, varargin{:});
         end
     end
 end

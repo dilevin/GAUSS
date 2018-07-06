@@ -173,9 +173,20 @@ namespace Gauss {
                 
                 assert(m_V0 > 0); //chewck tet is not inverted in reference config
                 
+                setParameters(m_E, m_mu);
                 //Compute B and C matrices then form per-element K
                 //Form of B if we assume DOFS are tiles as [x,y,z, x,y,z ....]'
                 //
+                
+            }
+            
+            inline ~QuadratureExact() { }
+            
+            inline void setParameters(double youngsModulus, double poissonsRatio) {
+               
+                m_E = youngsModulus;
+                m_mu = poissonsRatio;
+                
                 Eigen::Matrix<DataType, 6, 6> C;
                 C.setZero();
                 C(0,0) = 1.0-m_mu;
@@ -200,22 +211,17 @@ namespace Gauss {
                 
                 Eigen::Matrix<DataType, 6,12> B;
                 B <<    dphi0[0],  0,  0,  dphi1[0],   0,  0,  dphi2[0],   0,  0,  dphi3[0],   0,   0,
-                        0,      dphi0[1],  0,  0,  dphi1[1],   0,  0,  dphi2[1],   0,  0,  dphi3[1],   0,
-                        0,  0,      dphi0[2],  0,  0,  dphi1[2],   0,  0,  dphi2[2],   0,  0,  dphi3[2],
-                        dphi0[1],   dphi0[0],   0,  dphi1[1],   dphi1[0],   0, dphi2[1],   dphi2[0],   0, dphi3[1],   dphi3[0],   0,
-                        0,  dphi0[2],   dphi0[1], 0,  dphi1[2],   dphi1[1], 0,  dphi2[2],   dphi2[1], 0,  dphi3[2],   dphi3[1],
-                        dphi0[2],   0,  dphi0[0], dphi1[2],   0,  dphi1[0], dphi2[2],   0,  dphi2[0], dphi3[2],   0,  dphi3[0];
-                
-                
+                0,      dphi0[1],  0,  0,  dphi1[1],   0,  0,  dphi2[1],   0,  0,  dphi3[1],   0,
+                0,  0,      dphi0[2],  0,  0,  dphi1[2],   0,  0,  dphi2[2],   0,  0,  dphi3[2],
+                dphi0[1],   dphi0[0],   0,  dphi1[1],   dphi1[0],   0, dphi2[1],   dphi2[0],   0, dphi3[1],   dphi3[0],   0,
+                0,  dphi0[2],   dphi0[1], 0,  dphi1[2],   dphi1[1], 0,  dphi2[2],   dphi2[1], 0,  dphi3[2],   dphi3[1],
+                dphi0[2],   0,  dphi0[0], dphi1[2],   0,  dphi1[0], dphi2[2],   0,  dphi2[0], dphi3[2],   0,  dphi3[0];
                 
                 //B*=(1.0/(6.0*m_V0));
                 
                 m_K.setZero();
                 m_K = -m_V0*B.transpose()*C*B;
             }
-            
-            
-            inline ~QuadratureExact() { }
             
             //integral rules for things that I want
             inline DataType getValue(const State<DataType> &state) {
@@ -234,7 +240,7 @@ namespace Gauss {
                 return 0.5*q.transpose()*m_K*q;
                 
             }
-            
+        
             template<typename Vector>
             inline void getGradient(Vector &f, const State<DataType> &state) {
                 

@@ -5,27 +5,6 @@
 #include <Utilities.h>
 #include <World.h>
 
-//useful defines for assembling
-/*#define ASSEMBLEMAT(world, assembler, nFunc, mFunc, funcName) \
-assembler.init(world.mFunc(), world.nFunc()); \
-forEach(world.getSystemList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-forEach(world.getForceList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-assembler.finalize();
-
-#define ASSEMBLEVEC(world, assembler, mFunc, funcName) \
-assembler.init(world.mFunc()); \
-forEach(world.getSystemList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-forEach(world.getForceList(), [&world, &assembler](auto a) { \
-    a->funcName(assembler, world.getState()); \
-});\
-assembler.finalize();*/
-
 //Needed for more complex operations
 #define ASSEMBLEMATINIT(assembler, mSize, nSize) \
 assembler.init(mSize, nSize);
@@ -424,6 +403,16 @@ namespace Gauss {
     inline void assign(A &a, B &b, I &&i) {
         static_if<isAssembler<typename std::remove_reference<A>::type>::val()>([&](auto f){
             f(a).set(i, b);
+        }).else_([&](auto f) {
+            f(a) = b;
+        });
+    }
+
+    //for cases where you may need to assign a whole assembled structure to a vector
+    template<typename A, typename B>
+    inline void assign(A &a, B &b) {
+        static_if<isAssembler<typename std::remove_reference<B>::type>::val()>([&](auto f){
+            f(a) = (*b);
         }).else_([&](auto f) {
             f(a) = b;
         });

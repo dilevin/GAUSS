@@ -10,6 +10,7 @@
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicitLinear.h>
+#include <AssemblerMVP.h>
 
 //Utilities
 #include "UtilitiesEigenMex.h"
@@ -219,6 +220,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         //plhs[0] = returnData;
         return;
     }
+    
+    
 
     //set velocity level DOFs
     if (!strcmp("setQDot", cmd)) {
@@ -282,6 +285,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
 
+    // stiffness matrix vector product directly, avoids assembly
+    if (!strcmp("Kv", cmd)) {
+        // Check parameters
+        if (nlhs < 0 || nrhs < 3)
+            mexErrMsgTxt("K: not enough arguments.");
+        
+        // Call the method
+        //std::cout<<mxGetM(prhs[2])<<" "<<mxGetN(prhs[2])<<"\n";
+        Eigen::VectorXd x = Eigen::Map<Eigen::VectorXd>(mxGetPr(prhs[2]), mxGetM(prhs[2]));
+        AssemblerParallel<double, AssemblerMVPEigen<double> > kv;
+        kv.getImpl().setX(x);
+        getStiffnessMatrix(kv, *dummy_instance);
+        plhs[0] = eigenDenseToMATLAB(*kv);
+        return;
+    }
+    
     // get force vector
     if (!strcmp("f", cmd)) {
         // Check parameters

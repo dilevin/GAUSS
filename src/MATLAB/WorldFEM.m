@@ -46,6 +46,10 @@ classdef WorldFEM < handle
         function varargout = stiffness(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('K', this.objectHandle, varargin{:});
         end
+        
+        function varargout = Kx(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('Kv', this.objectHandle, varargin{:});
+        end
 
         %% strainEnergy - get the strain energy
          function varargout = strainEnergy(this, varargin)

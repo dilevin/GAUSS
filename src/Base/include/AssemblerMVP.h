@@ -98,7 +98,6 @@ namespace Gauss {
         ~AssemblerMVPImplEigen() { }
         
         void init(unsigned int m, unsigned int n) {
-            
             m_n = n;
             m_b.resize(m,1);
             m_b.setZero();
@@ -106,12 +105,6 @@ namespace Gauss {
         
         //for matrix vector product assembler
         void setX(MatrixType &x) {
-            
-            if(x.rows() != m_n) {
-                std::cout<<"Dimensions of x do not match number of columns in matrix \n";
-                exit(0);
-            }
-            
             m_x = &x;
         }
         

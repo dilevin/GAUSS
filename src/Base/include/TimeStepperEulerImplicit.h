@@ -33,11 +33,6 @@ namespace Gauss {
 
         TimeStepperImplEulerImplicit(unsigned int num_iterations = 10000)  {
             m_num_iterations = num_iterations;
-#ifdef GAUSS_PARDISO
-            std::cout<<"TimeStepperEuler.h will use Pardiso solver"<<std::endl;
-#else
-            std::cout<<"TimeStepperEuler.h will use Eigen's solver"<<std::endl;
-#endif
         }
 
         TimeStepperImplEulerImplicit(const TimeStepperImplEulerImplicit &toCopy) {

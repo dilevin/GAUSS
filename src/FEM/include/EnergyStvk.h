@@ -4,7 +4,7 @@
 #include <cmath>
 
 template<typename DataType, typename ShapeFunction>
-class EnergyStvk : public ShapeFunction{
+class EnergyStvk : public virtual ShapeFunction{
 public:
     template<typename QDOFList, typename QDotDOFList>
     EnergyStvk(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {

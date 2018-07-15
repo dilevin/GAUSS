@@ -39,7 +39,6 @@ namespace Gauss {
                 m_numVerts = m_V.rows();
                 m_numElements = m_F.rows();
                 
-                
                 assert(m_V.cols() == 3); //3D only for now
                 
                 //initialize all the elements
@@ -89,9 +88,17 @@ namespace Gauss {
             
             DataType getBodyForceEnergy(const State<DataType> &state) const {
                 DataType energy = 0.0;
+                
+                #if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
                 for(auto &element : m_elements) {
                     energy += element->getBodyForceWork(state);
                 }
+                #else
+                    #pragma omp parallel for reduction(+: energy)
+                    for(unsigned int ii=0; ii<m_elements.size(); ++ii) {
+                        energy = energy + m_elements[ii]->getBodyForceWork(state);
+                    }
+                #endif
                 
                 return energy;
             }
@@ -99,9 +106,17 @@ namespace Gauss {
             DataType getStrainEnergy(const State<DataType> &state) const {
                 
                 DataType energy = 0.0;
-                for(auto &element : m_elements) {
-                    energy += element->getStrainEnergy(state);
-                }
+                
+                #if defined(_WIN32) || defined(_WIN64) || defined (WIN32)
+                    for(auto &element : m_elements) {
+                        energy += element->getStrainEnergy(state);
+                    }
+                #else
+                    #pragma omp parallel for reduction(+: energy)
+                    for(unsigned int ii=0; ii<m_elements.size(); ++ii) {
+                        energy = energy + m_elements[ii]->getStrainEnergy(state);
+                    }
+                #endif
                 
                 return energy;
             }

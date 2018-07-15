@@ -46,7 +46,7 @@ namespace Gauss {
                     break;
                 }
                 
-                std::cout<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
+                //std::cout<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
                 alpha = alpha*rho;
                 
                 if(alpha < 1e-8) {

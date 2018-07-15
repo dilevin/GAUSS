@@ -68,7 +68,6 @@ namespace Gauss {
             
         }
         
-        
         //convenient overloads
         inline auto & getMatrix() {
             return m_assembled;
@@ -109,6 +108,20 @@ namespace Gauss {
         
         SerialAssembler & getAssembler(unsigned int threadId) {
             return m_serialAssemblers[threadId];
+        }
+        
+        
+        //For MVP assemblers
+        inline void setX(MatrixType &x) {
+        #pragma omp parallel
+            {
+            #pragma omp for
+                for(unsigned int ii=0; ii < m_serialAssemblers.size(); ++ii) {
+                    (m_serialAssemblers[ii].getImpl().setX(x));
+                }
+            }
+            
+            return *this;
         }
         
         //handle operators

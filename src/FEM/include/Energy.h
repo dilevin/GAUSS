@@ -68,7 +68,7 @@ namespace Gauss {
         };
 
         template<typename DataType, typename ShapeFunction>
-        class EnergyLinearElasticity : public ShapeFunction {
+        class EnergyLinearElasticity : public virtual ShapeFunction {
         public:
             template<typename QDOFList, typename QDotDOFList>
             EnergyLinearElasticity(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {

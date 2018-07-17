@@ -9,6 +9,7 @@
 #include <TimeStepperEigenFitSMW.h>
 #include <EigenFit.h>
 #include <fstream>
+#include <igl/boundary_facets.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -19,6 +20,7 @@ using namespace ParticleSystem; //For Force Spring
 //typedef physical entities I need
 
 //typedef scene
+//typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>,
@@ -44,6 +46,7 @@ std::vector<ConstraintFixedPoint<double> *> movingConstraints;
 Eigen::VectorXi movingVerts;
 Eigen::MatrixXd V;
 Eigen::MatrixXi F;
+Eigen::MatrixXi surfF;
 char **arg_list;
 unsigned int istep;
 
@@ -91,7 +94,6 @@ int main(int argc, char **argv) {
     Eigen::MatrixXi Ff;
     
     
-    
     //    define the file separator base on system
     const char kPathSeparator =
 #ifdef _WIN32
@@ -108,6 +110,9 @@ int main(int argc, char **argv) {
         
         readTetgen(V, F, dataDir()+cmeshname+".node", dataDir()+cmeshname+".ele");
         readTetgen(Vf, Ff, dataDir()+fmeshname+".node", dataDir()+fmeshname+".ele");
+        
+//        find the surface mesh
+        igl::boundary_facets(F,surfF);
         
         std::string::size_type found = cmeshname.find_last_of(kPathSeparator);
         //    acutal name for the mesh, no path
@@ -198,13 +203,13 @@ int main(int argc, char **argv) {
 //            P = fixedPointProjectionMatrix(indices, *test,world);
 //            
 //        }
-//        
-//        // set material
-//        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-//            
-//            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
-//            
-//        }
+        
+        // set material
+        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+            
+            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
+            
+        }
         
         auto q = mapStateEigen(world);
         auto fine_q = mapStateEigen(test->getFineWorld());
@@ -226,14 +231,16 @@ int main(int argc, char **argv) {
             
         }
         
-        MyTimeStepper stepper(0.01,P);
+        MyTimeStepper stepper(0.01,P,atoi(argv[9]));
         
         //         the number of steps to take
         
         unsigned int file_ind = 0;
         std::string name = "pos";
+        std::string surfname = "surfpos";
         std::string fformat = ".obj";
         std::string filename = name + std::to_string(file_ind) + fformat;
+        std::string surffilename = surfname + std::to_string(file_ind) + fformat;
         std::string qname = cmeshnameActual + "ExampleQ";
         std::string qfformat = ".mtx";
         std::string qfilename = qname + std::to_string(file_ind) + qfformat;
@@ -284,6 +291,7 @@ int main(int argc, char **argv) {
             {
                 file_ind++;
                 filename = name + std::to_string(file_ind) + fformat;
+                surffilename = surfname + std::to_string(file_ind) + fformat;
                 qfilename = qname + std::to_string(file_ind) + qfformat;
                 qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
                 
@@ -304,6 +312,8 @@ int main(int argc, char **argv) {
                 idx++;
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+            igl::writeOBJ(surffilename,V_disp,surfF);
+            
             // coarse mesh data
             q = mapStateEigen(world);
             saveMarketVector(q, qfilename);
@@ -366,7 +376,7 @@ int main(int argc, char **argv) {
         q.setZero();
         
 
-        MyTimeStepper stepper(0.01,P);
+        MyTimeStepper stepper(0.01,P,10);
         
         //Display
         QGuiApplication app(argc, argv);

@@ -23,6 +23,7 @@
 #include <igl/histc.h>
 #include <igl/unique_rows.h>
 #include <igl/hausdorff.h>
+#include <fstream>
 
 using namespace Gauss;
 using namespace FEM;
@@ -31,10 +32,12 @@ using namespace ParticleSystem; //For Force Spring
 // subclass a hard-coded templated class from PhysicalSystemFEM
 // this means that this EigenFit only works for NeohookeanHFixedTets
 class EigenFit: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
-    
+//class EigenFit: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
+
 public:
     // alias the hard-coded template name. Easier to read
     // the following lines read: the Physical System Implementation used here is a neo-hookean tet class
+//    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
     using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
     
     // use all the default function for now
@@ -112,8 +115,7 @@ public:
             coarseP.setIdentity();
             m_coarseP = coarseP;
 
-            // set a number here. can be changed later after checking with hausdorff distance
-            m_numConstraints = 10;
+            m_numConstraints = 0;
         }
         else if (constraint_switch == 1)
         {
@@ -131,7 +133,7 @@ public:
             coarseP = fixedPointProjectionMatrixCoarse(coarse_constrait_indices);
             m_coarseP = coarseP;
             
-            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
+            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse would work
             m_numConstraints = fine_constraint_indices.size();
         }
         else if (constraint_switch == 2)
@@ -194,7 +196,7 @@ public:
             m_numModes = numModes;
             
             // put random value to m_R for now
-            m_R.setConstant(m_numModes, 0.1);
+            m_R.setConstant(m_numModes, 1.0);
             ratio_calculated = false;
             m_I.setConstant(m_numModes, 1.0);
         }
@@ -205,7 +207,7 @@ public:
             m_numModes = m_numModes + 3;
             
             // put random value to m_R for now
-            m_R.setConstant(m_numModes, 0.1);
+            m_R.setConstant(m_numModes, 1.0);
             m_R(0) = 1.0;
             m_R(1) = 1.0;
             m_R(2) = 1.0;
@@ -219,7 +221,7 @@ public:
             m_numModes = m_numModes + 6;
             
             // put random value to m_R for now
-            m_R.setConstant(m_numModes, 0.1);
+            m_R.setConstant(m_numModes, 1.0);
             m_R(0) = 1.0;
             m_R(1) = 1.0;
             m_R(2) = 1.0;
@@ -288,7 +290,12 @@ public:
 
         // matrices passed in already eliminated the constraints
         // Eigendecomposition for the coarse mesh
-        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 1e-3);
+        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 0.0);
+        
+        Eigen::saveMarket(*coarseMassMatrix, "coarseMass.dat");
+        Eigen::saveMarket(*coarseStiffnessMatrix, "coarseStiff.dat");
+        Eigen::saveMarket(m_coarseUs.first, "coarseEigenmodes.dat");
+        Eigen::saveMarket(m_coarseUs.second, "coarseEigenvalues.dat");
         
         unsigned int mode = 0;
         unsigned int idx = 0;
@@ -372,7 +379,12 @@ public:
             
             //Eigendecomposition for the embedded fine mesh
             std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-            m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 1e-3);
+            m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 0.0);
+            
+            Eigen::saveMarket(*m_fineMassMatrix, "fineMass.dat");
+            Eigen::saveMarket(*fineStiffnessMatrix, "fineStiff.dat");
+            Eigen::saveMarket(m_Us.first, "fineEigenmodes.dat");
+            Eigen::saveMarket(m_Us.second, "fineEigenvalues.dat");
             
             mode = 0;
             std::string name = "fine_eigen_mode";
@@ -452,9 +464,9 @@ public:
                     m_R(5) = 1.0;
                     
                 }
-#ifdef EDWIN_DEBUG
+//#ifdef EDWIN_DEBUG
                 std::cout<<m_R(i)<<std::endl;
-#endif
+//#endif
                 
             }
             ratio_calculated = true;

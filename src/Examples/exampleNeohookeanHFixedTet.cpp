@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
         //    parameters
         double youngs = atof(argv[2]);
         double poisson = 0.45;
-        int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
+        int constraint_dir = atoi(argv[8]); // constraint direction. 0 for x, 1 for y, 2 for z
         double constraint_tol = atof(argv[3]);
         
         FEMLinearTets *test = new FEMLinearTets(V,F);
@@ -276,7 +276,7 @@ int main(int argc, char **argv) {
         //    default parameters
         double youngs = 5e5;
         double poisson = 0.45;
-        int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
+        int constraint_dir = atoi(argv[8]); // constraint direction. 0 for x, 1 for y, 2 for z
         double constraint_tol = 2e-1;
         
         FEMLinearTets *test = new FEMLinearTets(V,F);

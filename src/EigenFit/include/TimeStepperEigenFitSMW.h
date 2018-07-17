@@ -32,10 +32,9 @@ namespace Gauss {
     public:
         
         template<typename Matrix>
-        TimeStepperImplEigenFitSMWImpl(Matrix &P) {
+        TimeStepperImplEigenFitSMWImpl(Matrix &P, unsigned int numModes) {
             
-            m_numToCorrect = 10;
-            m_numModes = 10;
+            m_numModes = (numModes);
             
 //            std::cout<<m_P.rows()<<std::endl;
             m_P = P;
@@ -60,7 +59,6 @@ namespace Gauss {
         
         //num modes to correct
         unsigned int m_numModes;
-        unsigned int m_numToCorrect;
         
 //        //Ratios diagonal matrix, stored as vector
         Eigen::VectorXd m_R;
@@ -134,93 +132,160 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     (*forceVector) = m_P*(*forceVector);
     //Eigendecomposition
   
-    static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
-    
-//    Correct Forces
-    (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector) + m_P*(*fExt);
-    
-    //Grab the state
-    Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
-    Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
-    
-    
-    //setup RHS
-    (*forceVector) = (*massMatrix)*m_P*qDot + dt*(*forceVector);
-    
-    Eigen::VectorXd x0;
-    Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
-    
-    
+    // if number of modes not equals to 0, use eigenfit
+    if (m_numModes != 0) {
+        static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+        
+        //    Correct Forces
+        (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector) + m_P*(*fExt);
+        
+        //Grab the state
+        Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
+        Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
+        
+        
+        //setup RHS
+        (*forceVector) = (*massMatrix)*m_P*qDot + dt*(*forceVector);
+        
+        Eigen::VectorXd x0;
+        Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+        
+        
 #ifdef GAUSS_PARDISO
-
-    m_pardiso.symbolicFactorization(systemMatrix, m_numModes);
-    m_pardiso.numericalFactorization();
-    
-//    SMW update for Eigenfit here
-
-    m_pardiso.solve(*forceVector);
-    x0 = m_pardiso.getX();
-
+        
+        m_pardiso.symbolicFactorization(systemMatrix, m_numModes);
+        m_pardiso.numericalFactorization();
+        
+        //    SMW update for Eigenfit here
+        
+        m_pardiso.solve(*forceVector);
+        x0 = m_pardiso.getX();
+        
 #else
-    //solve system (Need interface for solvers but for now just use Eigen LLt)
-    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
-    
-    if(m_refactor || !m_factored) {
-        solver.compute(systemMatrix);
+        //solve system (Need interface for solvers but for now just use Eigen LLt)
+        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+        
+        if(m_refactor || !m_factored) {
+            solver.compute(systemMatrix);
+        }
+        
+        if(solver.info()!=Eigen::Success) {
+            // decomposition failed
+            assert(1 == 0);
+            std::cout<<"Decomposition Failed \n";
+            exit(1);
+        }
+        
+        if(solver.info()!=Eigen::Success) {
+            // solving failed
+            assert(1 == 0);
+            std::cout<<"Solve Failed \n";
+            exit(1);
+        }
+        
+        
+        x0 = solver.solve((*forceVector));
+        
+#endif
+        
+        
+        Y = dt*Y;
+        Z = -dt*Z;
+        
+#ifdef GAUSS_PARDISO
+        
+        m_pardiso.solve(Y);
+        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*m_pardiso.getX()).ldlt().solve(Z*x0);
+        
+        
+#else
+        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*solver.solve(Y)).ldlt().solve(Z*x0);
+        
+#endif
+        
+        
+#ifdef GAUSS_PARDISO
+        
+        m_pardiso.solve(bPrime);
+        
+        x0 -= m_pardiso.getX();
+        
+        m_pardiso.cleanup();
+#else
+        
+        x0 -= solver.solve(bPrime);
+        
+#endif
+        
+        qDot = m_P.transpose()*x0;
+        
+        //update state
+        q = q + dt*qDot;
+    }
+    else // number of modes is 0, so don't need to call eigenfit
+    {
+        //Grab the state
+        Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
+        Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
+        
+        //    add external Forces
+        (*forceVector) = (*forceVector) + m_P*(*fExt);
+        
+        //setup RHS
+        (*forceVector) = (*massMatrix)*m_P*qDot + dt*(*forceVector);
+        
+        Eigen::VectorXd x0;
+        Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
+        
+        
+        
+#ifdef GAUSS_PARDISO
+        if(m_refactor || !m_factored) {
+            m_pardiso.symbolicFactorization(systemMatrix);
+            m_pardiso.numericalFactorization();
+            m_factored = true;
+        }
+        
+        m_pardiso.solve(*forceVector);
+        x0 = m_pardiso.getX();
+        //m_pardiso.cleanup();
+#else
+        //solve system (Need interface for solvers but for now just use Eigen LLt)
+        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+        
+        if(m_refactor || !m_factored) {
+            solver.compute(systemMatrix);
+        }
+        
+        if(solver.info()!=Eigen::Success) {
+            // decomposition failed
+            assert(1 == 0);
+            std::cout<<"Decomposition Failed \n";
+            exit(1);
+        }
+        
+        if(solver.info()!=Eigen::Success) {
+            // solving failed
+            assert(1 == 0);
+            std::cout<<"Solve Failed \n";
+            exit(1);
+        }
+        
+        
+        x0 = solver.solve((*forceVector));
+#endif
+        
+        qDot = m_P.transpose()*x0;
+        //    qDot = x0.head(world.getNumQDotDOFs());
+        
+        //    m_lagrangeMultipliers = x0.tail(world.getNumConstraints());
+        
+        //update state
+        //    updateState(world, world.getState(), dt);
+        
+        q = q + dt*qDot;
     }
     
-    if(solver.info()!=Eigen::Success) {
-        // decomposition failed
-        assert(1 == 0);
-        std::cout<<"Decomposition Failed \n";
-        exit(1);
-    }
-    
-    if(solver.info()!=Eigen::Success) {
-        // solving failed
-        assert(1 == 0);
-        std::cout<<"Solve Failed \n";
-        exit(1);
-    }
-    
-    
-    x0 = solver.solve((*forceVector));
-
-#endif
-
-    
-    Y = dt*Y;
-    Z = -dt*Z;
-    
-#ifdef GAUSS_PARDISO
-
-    m_pardiso.solve(Y);
-    Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*m_pardiso.getX()).ldlt().solve(Z*x0);
-    
-    
-#else
-    Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*solver.solve(Y)).ldlt().solve(Z*x0);
-    
-#endif
-
-    
-#ifdef GAUSS_PARDISO
-
-    m_pardiso.solve(bPrime);
-    
-    x0 -= m_pardiso.getX();
-    
-    m_pardiso.cleanup();
-#else
-    
-    x0 -= solver.solve(bPrime);
-    
-#endif
-    
-    qDot = m_P.transpose()*x0;
-    
-    //update state
-    q = q + dt*qDot;
     
 
 //    

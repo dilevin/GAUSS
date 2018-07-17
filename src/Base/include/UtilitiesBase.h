@@ -55,7 +55,6 @@ void getMassMatrix(Matrix &massMatrix, World &world) {
 
 template<typename Matrix, typename World>
 void getStiffnessMatrix(Matrix &stiffnessMatrix, World &world) {
- 
     //get stiffness matrix
     ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
     ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
@@ -108,11 +107,11 @@ template<typename World>
  double getStrainEnergy(World &world) {
     
      double energy = 0.0;
-     
+         
      forEach(world.getSystemList(), [&energy, &world](auto a) {
          energy += a->getStrainEnergy(world.getState());
      });
-     
+
      return energy;
 }
 

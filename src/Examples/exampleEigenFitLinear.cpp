@@ -9,6 +9,7 @@
 #include <TimeStepperEigenFitLinearSMW.h>
 #include <EigenFitLinear.h>
 #include <fstream>
+#include <igl/boundary_facets.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -19,6 +20,7 @@ using namespace ParticleSystem; //For Force Spring
 //typedef physical entities I need
 
 //typedef scene
+//typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
 typedef PhysicalSystemFEM<double, LinearTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>,
@@ -34,7 +36,7 @@ typedef TimeStepperEigenFitLinearSMW<double, AssemblerParallel<double, Assembler
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 
-//typedef TimeStepperEigenFitSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+//typedef TimeStepperEigenFitLinearSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 //AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 //typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -44,28 +46,29 @@ std::vector<ConstraintFixedPoint<double> *> movingConstraints;
 Eigen::VectorXi movingVerts;
 Eigen::MatrixXd V;
 Eigen::MatrixXi F;
+Eigen::MatrixXi surfF;
 char **arg_list;
 unsigned int istep;
 
 void preStepCallback(MyWorld &world) {
-//    // This is an example callback
-//    if (atoi(arg_list[5]) == 2)
-//    {
-//        // This is an example callback
-//        
-//        //script some motion
-////
-//        if (istep < 50) {
-//            
-//            for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-//                if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
-//                    Eigen::Vector3d v = V.row(movingVerts[jj]);
-//                    Eigen::Vector3d new_p = v + Eigen::Vector3d(0.0,1.0/10,0.0);
-//                    movingConstraints[jj]->getImpl().setFixedPoint(new_p);
-//                }
-//            }
-//        }
-//    }
+    //    // This is an example callback
+    //    if (atoi(arg_list[5]) == 2)
+    //    {
+    //        // This is an example callback
+    //
+    //        //script some motion
+    ////
+    //        if (istep < 50) {
+    //
+    //            for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+    //                if(movingConstraints[jj]->getImpl().getFixedPoint()[0] > -3) {
+    //                    Eigen::Vector3d v = V.row(movingVerts[jj]);
+    //                    Eigen::Vector3d new_p = v + Eigen::Vector3d(0.0,1.0/10,0.0);
+    //                    movingConstraints[jj]->getImpl().setFixedPoint(new_p);
+    //                }
+    //            }
+    //        }
+    //    }
 }
 
 int main(int argc, char **argv) {
@@ -77,10 +80,10 @@ int main(int argc, char **argv) {
     //    5: constraint profile switch
     //    6: name of the initial deformation profile
     //    7. number of time steps
-//    8. flag for using hausdorff distance
-//    9. number of modes to modifies
-//    10. constraint direction
-    std::cout<<"Test Linear FEM EigenFitLinear\n";
+    //    8. flag for using hausdorff distance
+    //    9. number of modes to modifies
+    //    10. constraint direction
+    std::cout<<"Test linear FEM EigenFitLinear\n";
     
     //Setup Physics
     MyWorld world;
@@ -89,7 +92,6 @@ int main(int argc, char **argv) {
     
     Eigen::MatrixXd Vf;
     Eigen::MatrixXi Ff;
-    
     
     
     //    define the file separator base on system
@@ -109,13 +111,16 @@ int main(int argc, char **argv) {
         readTetgen(V, F, dataDir()+cmeshname+".node", dataDir()+cmeshname+".ele");
         readTetgen(Vf, Ff, dataDir()+fmeshname+".node", dataDir()+fmeshname+".ele");
         
+        //        find the surface mesh
+        igl::boundary_facets(F,surfF);
+        
         std::string::size_type found = cmeshname.find_last_of(kPathSeparator);
         //    acutal name for the mesh, no path
         std::string cmeshnameActual = cmeshname.substr(found+1);
-
+        
         //    acutal name for the mesh, no path
         std::string fmeshnameActual = fmeshname.substr(found+1);
-
+        
         
         //    parameters
         double youngs = atof(argv[3]);
@@ -132,7 +137,7 @@ int main(int argc, char **argv) {
         
         world.addSystem(test);
         
-
+        
         // projection matrix for constraints
         Eigen::SparseMatrix<double> P;
         if (atoi(argv[5]) == 0) {
@@ -153,10 +158,10 @@ int main(int argc, char **argv) {
             world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
             
             //            set the projection matrix to identity because there is no constraint to project
-//            Eigen::SparseMatrix<double> P;
+            //            Eigen::SparseMatrix<double> P;
             P.resize(V.rows()*3,V.rows()*3);
             P.setIdentity();
-//            std::cout<<P.rows();
+            //            std::cout<<P.rows();
             //            no constraints
         }
         else if(atoi(argv[5]) == 1)
@@ -173,9 +178,9 @@ int main(int argc, char **argv) {
         else if (atoi(argv[5]) == 2)
         {
             
-
+            
             movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
-//
+            //
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
                 movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
                 world.addConstraint(movingConstraints[ii]);
@@ -187,30 +192,30 @@ int main(int argc, char **argv) {
             P = fixedPointProjectionMatrix(movingVerts, *test,world);
             
         }
-//        else if(atoi(argv[5]) == 3)
-//        {
-//            
-//            fixDisplacementMin(world, test,constraint_dir,constraint_tol);
-//            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
-//            
-//            // construct the projection matrix for stepper
-//            Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
-//            P = fixedPointProjectionMatrix(indices, *test,world);
-//            
-//        }
-//        
-//        // set material
-//        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
-//            
-//            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
-//            
-//        }
+        //        else if(atoi(argv[5]) == 3)
+        //        {
+        //
+        //            fixDisplacementMin(world, test,constraint_dir,constraint_tol);
+        //            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+        //
+        //            // construct the projection matrix for stepper
+        //            Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
+        //            P = fixedPointProjectionMatrix(indices, *test,world);
+        //
+        //        }
+        
+        // set material
+        for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+            
+            test->getImpl().getElement(iel)->setParameters(youngs, poisson);
+            
+        }
         
         auto q = mapStateEigen(world);
         auto fine_q = mapStateEigen(test->getFineWorld());
         //    default to zero deformation
         q.setZero();
-
+        
         if (strcmp(argv[6],"0")==0) {
             
             q.setZero();
@@ -221,7 +226,7 @@ int main(int argc, char **argv) {
             std::string qfileName(argv[6]);
             Eigen::VectorXd  tempv;
             loadMarketVector(tempv,qfileName);
-
+            
             q = tempv;
             
         }
@@ -232,8 +237,10 @@ int main(int argc, char **argv) {
         
         unsigned int file_ind = 0;
         std::string name = "pos";
+        std::string surfname = "surfpos";
         std::string fformat = ".obj";
         std::string filename = name + std::to_string(file_ind) + fformat;
+        std::string surffilename = surfname + std::to_string(file_ind) + fformat;
         std::string qname = cmeshnameActual + "ExampleQ";
         std::string qfformat = ".mtx";
         std::string qfilename = qname + std::to_string(file_ind) + qfformat;
@@ -256,21 +263,21 @@ int main(int argc, char **argv) {
                 for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
                     
                     auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
-//
-//                    if ((istep%150) < 50) {
-//                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
-//                        v_q = new_q;
-//                    }
-//                    else if ((istep%150) < 100)
-//                    {}
-//                    else
-//                    {
-//                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
-//                        v_q = new_q;
-//                    }
+                    //
+                    //                    if ((istep%150) < 50) {
+                    //                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    //                        v_q = new_q;
+                    //                    }
+                    //                    else if ((istep%150) < 100)
+                    //                    {}
+                    //                    else
+                    //                    {
+                    //                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    //                        v_q = new_q;
+                    //                    }
                     Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,-1.0/100,0.0);
                     v_q = new_q;
-
+                    
                 }
             }
             
@@ -284,6 +291,7 @@ int main(int argc, char **argv) {
             {
                 file_ind++;
                 filename = name + std::to_string(file_ind) + fformat;
+                surffilename = surfname + std::to_string(file_ind) + fformat;
                 qfilename = qname + std::to_string(file_ind) + qfformat;
                 qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
                 
@@ -304,6 +312,8 @@ int main(int argc, char **argv) {
                 idx++;
             }
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+            igl::writeOBJ(surffilename,V_disp,surfF);
+            
             // coarse mesh data
             q = mapStateEigen(world);
             saveMarketVector(q, qfilename);
@@ -315,7 +325,7 @@ int main(int argc, char **argv) {
     else
     {
         // using all default paramters for EigenFitLinear
-     
+        
         //    default example meshes
         std::string cmeshname = "/meshesTetgen/arma/arma_6";
         std::string fmeshname = "/meshesTetgen/arma/arma_1";
@@ -365,7 +375,7 @@ int main(int argc, char **argv) {
         //    default to zero deformation
         q.setZero();
         
-
+        
         MyTimeStepper stepper(0.01,P,10);
         
         //Display

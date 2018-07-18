@@ -2,7 +2,7 @@
 //  EigenFitLinear.h
 //  Gauss
 //
-//  Created by Edwin Chen on 2018-07-16.
+//  Created by Edwin Chen on 2018-07-17.
 //
 //
 //#define EDWIN_DEBUG
@@ -30,14 +30,14 @@ using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
 // subclass a hard-coded templated class from PhysicalSystemFEM
-// this means that this EigenFitLinear only works for linear tet
+// this means that this EigenFitLinear only works for NeohookeanHFixedTets
 class EigenFitLinear: public PhysicalSystemFEM<double, LinearTet>{
-//class EigenFitLinear: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
-
+    //class EigenFitLinear: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
+    
 public:
     // alias the hard-coded template name. Easier to read
-    // the following lines read: the Physical System Implementation used here is a linear tet class
-//    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
+    // the following lines read: the Physical System Implementation used here is a neo-hookean tet class
+    //    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
     using PhysicalSystemImpl = PhysicalSystemFEM<double, LinearTet>;
     
     // use all the default function for now
@@ -114,7 +114,7 @@ public:
             coarseP.resize(Vc.rows()*3,Vc.rows()*3);
             coarseP.setIdentity();
             m_coarseP = coarseP;
-
+            
             m_numConstraints = 0;
         }
         else if (constraint_switch == 1)
@@ -141,7 +141,7 @@ public:
             
             Eigen::VectorXi fineMovingVerts = minVertices(m_fineMeshSystem, constraintDir, constraintTol);//indices for moving parts
             std::vector<ConstraintFixedPoint<double> *> fineMovingConstraints;
-
+            
             for(unsigned int ii=0; ii<fineMovingVerts.rows(); ++ii) {
                 fineMovingConstraints.push_back(new ConstraintFixedPoint<double>(&m_fineMeshSystem->getQ()[fineMovingVerts[ii]], Eigen::Vector3d(0,0,0)));
                 m_fineWorld.addConstraint(fineMovingConstraints[ii]);
@@ -159,25 +159,25 @@ public:
             m_coarseP = coarseP;
             
         }
-//        else if (constraint_switch == 3)
-//        {
-//            // default constraint
-//            //            fix displacement
-//            fixDisplacementMin(m_fineWorld, m_fineMeshSystem, constraintDir, constraintTol);
-//            
-//            m_fineWorld.finalize();
-//            // hard-coded constraint projection
-//            Eigen::VectorXi fine_constraint_indices = minVertices(m_fineMeshSystem, constraintDir, constraintTol);
-//            fineP = fixedPointProjectionMatrix(fine_constraint_indices, *m_fineMeshSystem,m_fineWorld);
-//            m_fineP = fineP;
-//            
-//            Eigen::VectorXi coarse_constrait_indices = minVertices(this, constraintDir, constraintTol);
-//            coarseP = fixedPointProjectionMatrixCoarse(coarse_constrait_indices);
-//            m_coarseP = coarseP;
-//            
-//            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
-//            m_numConstraints = fine_constraint_indices.size();
-//        }
+        //        else if (constraint_switch == 3)
+        //        {
+        //            // default constraint
+        //            //            fix displacement
+        //            fixDisplacementMin(m_fineWorld, m_fineMeshSystem, constraintDir, constraintTol);
+        //
+        //            m_fineWorld.finalize();
+        //            // hard-coded constraint projection
+        //            Eigen::VectorXi fine_constraint_indices = minVertices(m_fineMeshSystem, constraintDir, constraintTol);
+        //            fineP = fixedPointProjectionMatrix(fine_constraint_indices, *m_fineMeshSystem,m_fineWorld);
+        //            m_fineP = fineP;
+        //
+        //            Eigen::VectorXi coarse_constrait_indices = minVertices(this, constraintDir, constraintTol);
+        //            coarseP = fixedPointProjectionMatrixCoarse(coarse_constrait_indices);
+        //            m_coarseP = coarseP;
+        //
+        //            // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
+        //            m_numConstraints = fine_constraint_indices.size();
+        //        }
         
         
         
@@ -228,7 +228,7 @@ public:
             m_R(3) = 1.0;
             m_R(4) = 1.0;
             m_R(5) = 1.0;
-
+            
             ratio_calculated = false;
             m_I.setConstant(m_numModes, 1.0);
             
@@ -287,7 +287,7 @@ public:
     template<typename MatrixAssembler>
     void calculateEigenFitLinearData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
         
-
+        
         // matrices passed in already eliminated the constraints
         // Eigendecomposition for the coarse mesh
         m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 0.0);
@@ -412,8 +412,8 @@ public:
                 filename = name + std::to_string(mode) + fformat;
                 std::string coarse_filename_p = coarse_name_p + std::to_string(mode) + fformat;
                 std::string coarse_filename_n = coarse_name_n + std::to_string(mode) + fformat;
-
-//                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+                
+                //                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
                 
                 Eigen::MatrixXi fine_F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
                 igl::writeOBJ(filename,fine_V_disp,fine_F);
@@ -423,7 +423,7 @@ public:
                 Eigen::MatrixXi coarse_F;
                 igl::readOBJ(coarse_filename_p,coarse_V_disp_p, coarse_F);
                 igl::readOBJ(coarse_filename_n,coarse_V_disp_n, coarse_F);
-
+                
                 double dist_p, dist_n;
                 Eigen::MatrixXd coarse_V_disp = this->getImpl().getV();
                 
@@ -439,7 +439,7 @@ public:
                 {
                     std::cout<<"n"<<dist_n/max_scale<<std::endl;
                 }
-            
+                
             }
             
             
@@ -464,9 +464,9 @@ public:
                     m_R(5) = 1.0;
                     
                 }
-//#ifdef EDWIN_DEBUG
+                //#ifdef EDWIN_DEBUG
                 std::cout<<m_R(i)<<std::endl;
-//#endif
+                //#endif
                 
             }
             ratio_calculated = true;
@@ -531,7 +531,7 @@ public:
         
         f << "Vertices" << " " <<V.rows()  << std::endl;
         for (int i = 0; i < V.rows(); i++)
-        f << V(i,0) << " " << V(i,1) << " " << V(i,2) << " " << 0 << std::endl;
+            f << V(i,0) << " " << V(i,1) << " " << V(i,2) << " " << 0 << std::endl;
         f << "Tetrahedra" << std::endl;
         f << T.rows() << std::endl;
         for (int i = 0; i < T.rows(); i++) {
@@ -545,7 +545,7 @@ public:
     }
     
     Eigen::MatrixXi surftri(const Eigen::MatrixXd & V,
-    const Eigen::MatrixXi & T)
+                            const Eigen::MatrixXi & T)
     {
         // translated from distmesh
         Eigen::MatrixXi faces(T.rows()*4,3);
@@ -567,16 +567,16 @@ public:
         
         Eigen::VectorXi count(IC.maxCoeff());
         Eigen::VectorXi histbin(IC.maxCoeff());
-//        std::cout<<IC.maxCoeff()<<std::endl;
+        //        std::cout<<IC.maxCoeff()<<std::endl;
         
         for (int ind = 0; ind < IC.maxCoeff(); ++ind) {
             histbin(ind) = ind;
         }
-//        std::cout<<histbin<<std::endl;
-//        std::cout<<IC<<std::endl;
+        //        std::cout<<histbin<<std::endl;
+        //        std::cout<<IC<<std::endl;
         Eigen::VectorXi foo(IC.size());
         igl::histc(IC,histbin,count,foo);
-//        std::cout<<count<<std::endl;
+        //        std::cout<<count<<std::endl;
         std::vector<int> nonDuplicatedFacesInd;
         int oneCount = 0;
         for (int ind = 0; ind < count.size(); ++ind) {

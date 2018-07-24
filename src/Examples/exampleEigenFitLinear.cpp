@@ -231,7 +231,7 @@ int main(int argc, char **argv) {
             
         }
         
-        MyTimeStepper stepper(0.01,P,atoi(argv[9]));
+        MyTimeStepper stepper(atof(argv[11]),P,atoi(argv[9]));
         
         //         the number of steps to take
         

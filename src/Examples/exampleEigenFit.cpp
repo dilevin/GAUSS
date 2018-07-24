@@ -231,7 +231,7 @@ int main(int argc, char **argv) {
             
         }
         
-        MyTimeStepper stepper(0.01,P,atoi(argv[9]));
+        MyTimeStepper stepper(atof(argv[11]),P,atoi(argv[9]));
         
         //         the number of steps to take
         
@@ -327,8 +327,8 @@ int main(int argc, char **argv) {
         // using all default paramters for eigenfit
      
         //    default example meshes
-        std::string cmeshname = "/meshesTetgen/arma/arma_6";
-        std::string fmeshname = "/meshesTetgen/arma/arma_1";
+        std::string cmeshname = "/meshesTetWild/brick/brick_surf_2";
+        std::string fmeshname = "/meshesTetWild/brick/brick_surf_2";
         
         readTetgen(V, F, dataDir()+cmeshname+".node", dataDir()+cmeshname+".ele");
         readTetgen(Vf, Ff, dataDir()+fmeshname+".node", dataDir()+fmeshname+".ele");
@@ -339,16 +339,16 @@ int main(int argc, char **argv) {
         
         
         //    default parameters
-        double youngs = 5e5;
+        double youngs = 2e5;
         double poisson = 0.45;
         int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
-        double constraint_tol = 2e-1;
+        double constraint_tol = 1e-2;
         
         // no constraint switch so just create the eigenfit obj with constraint switch set to 1
         // the flag indicate whether to recalculated or not
         // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
         // also use the last two args to determine how many modes to fix. default not using hausdorff distance, and use 10 modes. have to put it here now.  ugly
-        EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, 1,false,10);
+        EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, 0,false,0);
         
         // set material
         for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
@@ -376,7 +376,7 @@ int main(int argc, char **argv) {
         q.setZero();
         
 
-        MyTimeStepper stepper(0.01,P,10);
+        MyTimeStepper stepper(0.01,P,0);
         
         //Display
         QGuiApplication app(argc, argv);

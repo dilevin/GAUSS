@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
         //    parameters
         double youngs = atof(argv[2]);
         double poisson = 0.45;
-        int constraint_dir = atoi(argv[8]); // constraint direction. 0 for x, 1 for y, 2 for z
+        int constraint_dir = atoi(argv[7]); // constraint direction. 0 for x, 1 for y, 2 for z
         double constraint_tol = atof(argv[3]);
         
         FEMLinearTets *test = new FEMLinearTets(V,F);
@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
         // using all default paramters for eigenfit
         
         //    default example meshes
-        std::string meshname = "/meshesTetgen/arma/arma_6";
+        std::string meshname = "/meshesTetWild/brick/brick_surf_2";
         
         readTetgen(V, F, dataDir()+meshname+".node", dataDir()+meshname+".ele");
         
@@ -274,10 +274,10 @@ int main(int argc, char **argv) {
         
         
         //    default parameters
-        double youngs = 5e5;
+        double youngs = 2e5;
         double poisson = 0.45;
-        int constraint_dir = atoi(argv[8]); // constraint direction. 0 for x, 1 for y, 2 for z
-        double constraint_tol = 2e-1;
+        int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
+        double constraint_tol = 1e-2;
         
         FEMLinearTets *test = new FEMLinearTets(V,F);
         

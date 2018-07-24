@@ -26,6 +26,7 @@
 #include <SymGEigsSolver.h>
 #include <stdexcept>
 
+
 //some useful types
 namespace Eigen {
     template<typename DataType>
@@ -122,7 +123,7 @@ namespace Spectra {
         const SparseMatrix m_stiffnessMat, m_massMat;
         const int m_n;
         Eigen::SimplicialLDLT<SparseMatrix, Uplo> m_solver;
-        
+
         
     public:
         ///
@@ -261,6 +262,7 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
         for(unsigned int ii=0; ii<eigs.eigenvalues().rows(); ++ii) {
             eigsCorrected[ii] = -(static_cast<DataType>(1)/(eigs.eigenvalues()[ii]) + shift);
             evsCorrected.col(ii)  = eigs.eigenvectors().col(ii)/sqrt(eigs.eigenvectors().col(ii).transpose()*M*eigs.eigenvectors().col(ii));
+
         }
         
         return std::make_pair(evsCorrected, eigsCorrected);
@@ -270,6 +272,7 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
         return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
     }
     
+
 }
 
 #endif /* UtilitiesEigen_h */

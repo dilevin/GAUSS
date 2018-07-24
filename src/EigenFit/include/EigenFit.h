@@ -290,12 +290,12 @@ public:
 
         // matrices passed in already eliminated the constraints
         // Eigendecomposition for the coarse mesh
-        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes, 0.0);
-        
-        Eigen::saveMarket(*coarseMassMatrix, "coarseMass.dat");
-        Eigen::saveMarket(*coarseStiffnessMatrix, "coarseStiff.dat");
-        Eigen::saveMarket(m_coarseUs.first, "coarseEigenmodes.dat");
-        Eigen::saveMarket(m_coarseUs.second, "coarseEigenvalues.dat");
+        m_coarseUs = generalizedEigenvalueProblem((*coarseStiffnessMatrix), (*coarseMassMatrix), m_numModes,0.0);
+//
+//        Eigen::saveMarket(*coarseMassMatrix, "coarseMass.dat");
+//        Eigen::saveMarket(*coarseStiffnessMatrix, "coarseStiff.dat");
+//        Eigen::saveMarket(m_coarseUs.first, "coarseEigenmodes.dat");
+//        Eigen::saveMarket(m_coarseUs.second, "coarseEigenvalues.dat");
         
         unsigned int mode = 0;
         unsigned int idx = 0;
@@ -379,68 +379,70 @@ public:
             
             //Eigendecomposition for the embedded fine mesh
             std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
-            m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes, 0.0);
+            m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes,0.0);
             
-            Eigen::saveMarket(*m_fineMassMatrix, "fineMass.dat");
-            Eigen::saveMarket(*fineStiffnessMatrix, "fineStiff.dat");
-            Eigen::saveMarket(m_Us.first, "fineEigenmodes.dat");
-            Eigen::saveMarket(m_Us.second, "fineEigenvalues.dat");
+//            Eigen::saveMarket(*m_fineMassMatrix, "fineMass.dat");
+//            Eigen::saveMarket(*fineStiffnessMatrix, "fineStiff.dat");
+//            Eigen::saveMarket(m_Us.first, "fineEigenmodes.dat");
+//            Eigen::saveMarket(m_Us.second, "fineEigenvalues.dat");
             
-            mode = 0;
-            std::string name = "fine_eigen_mode";
-            std::string coarse_name_p = "coarse_eigen_mode_p";
-            std::string coarse_name_n = "coarse_eigen_mode_n";
-            fformat = ".obj";
-            std::string filename = name + std::to_string(mode) + fformat;
-            Eigen::VectorXd fine_eig_def;
-            for (mode = 0; mode < m_numModes; ++mode) {
-                fine_eig_def = (m_fineP.transpose()*m_Us.first.col(mode)).transpose();
-                
-                idx = 0;
-                // getGeometry().first is V
-                Eigen::MatrixXd fine_V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
-                for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
-                    
-                    // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
-                    fine_V_disp(vertexId,0) += (1*fine_eig_def(idx));
-                    idx++;
-                    fine_V_disp(vertexId,1) += (1*fine_eig_def(idx));
-                    idx++;
-                    fine_V_disp(vertexId,2) += (1*fine_eig_def(idx));
-                    idx++;
-                }
-                filename = name + std::to_string(mode) + fformat;
-                std::string coarse_filename_p = coarse_name_p + std::to_string(mode) + fformat;
-                std::string coarse_filename_n = coarse_name_n + std::to_string(mode) + fformat;
-
-//                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
-                
-                Eigen::MatrixXi fine_F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
-                igl::writeOBJ(filename,fine_V_disp,fine_F);
-                
-                Eigen::MatrixXd coarse_V_disp_p;
-                Eigen::MatrixXd coarse_V_disp_n;
-                Eigen::MatrixXi coarse_F;
-                igl::readOBJ(coarse_filename_p,coarse_V_disp_p, coarse_F);
-                igl::readOBJ(coarse_filename_n,coarse_V_disp_n, coarse_F);
-
-                double dist_p, dist_n;
-                Eigen::MatrixXd coarse_V_disp = this->getImpl().getV();
-                
-                Eigen::Array3d xyz_scales(coarse_V_disp.col(0).maxCoeff() - coarse_V_disp.col(0).minCoeff(), coarse_V_disp.col(1).maxCoeff() - coarse_V_disp.col(1).minCoeff(),coarse_V_disp.col(2).maxCoeff() - coarse_V_disp.col(2).minCoeff());
-                double max_scale = xyz_scales.abs().maxCoeff();
-                igl::hausdorff(fine_V_disp, fine_F, coarse_V_disp_p, coarse_F, dist_p);
-                igl::hausdorff(fine_V_disp, fine_F, coarse_V_disp_n, coarse_F, dist_n);
-                if(dist_p < dist_n)
-                {
-                    std::cout<<"p"<<dist_p/max_scale<<std::endl;
-                    
-                } else
-                {
-                    std::cout<<"n"<<dist_n/max_scale<<std::endl;
-                }
-            
-            }
+//            Hausdorff distance check
+//
+//            mode = 0;
+//            std::string name = "fine_eigen_mode";
+//            std::string coarse_name_p = "coarse_eigen_mode_p";
+//            std::string coarse_name_n = "coarse_eigen_mode_n";
+//            fformat = ".obj";
+//            std::string filename = name + std::to_string(mode) + fformat;
+//            Eigen::VectorXd fine_eig_def;
+//            for (mode = 0; mode < m_numModes; ++mode) {
+//                fine_eig_def = (m_fineP.transpose()*m_Us.first.col(mode)).transpose();
+//
+//                idx = 0;
+//                // getGeometry().first is V
+//                Eigen::MatrixXd fine_V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
+//                for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+//
+//                    // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+//                    fine_V_disp(vertexId,0) += (1*fine_eig_def(idx));
+//                    idx++;
+//                    fine_V_disp(vertexId,1) += (1*fine_eig_def(idx));
+//                    idx++;
+//                    fine_V_disp(vertexId,2) += (1*fine_eig_def(idx));
+//                    idx++;
+//                }
+//                filename = name + std::to_string(mode) + fformat;
+//                std::string coarse_filename_p = coarse_name_p + std::to_string(mode) + fformat;
+//                std::string coarse_filename_n = coarse_name_n + std::to_string(mode) + fformat;
+//
+////                writeSimpleMesh(filename, V_disp, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+//
+//                Eigen::MatrixXi fine_F = surftri(std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first, std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().second);
+//                igl::writeOBJ(filename,fine_V_disp,fine_F);
+//
+//                Eigen::MatrixXd coarse_V_disp_p;
+//                Eigen::MatrixXd coarse_V_disp_n;
+//                Eigen::MatrixXi coarse_F;
+//                igl::readOBJ(coarse_filename_p,coarse_V_disp_p, coarse_F);
+//                igl::readOBJ(coarse_filename_n,coarse_V_disp_n, coarse_F);
+//
+//                double dist_p, dist_n;
+//                Eigen::MatrixXd coarse_V_disp = this->getImpl().getV();
+//
+//                Eigen::Array3d xyz_scales(coarse_V_disp.col(0).maxCoeff() - coarse_V_disp.col(0).minCoeff(), coarse_V_disp.col(1).maxCoeff() - coarse_V_disp.col(1).minCoeff(),coarse_V_disp.col(2).maxCoeff() - coarse_V_disp.col(2).minCoeff());
+//                double max_scale = xyz_scales.abs().maxCoeff();
+//                igl::hausdorff(fine_V_disp, fine_F, coarse_V_disp_p, coarse_F, dist_p);
+//                igl::hausdorff(fine_V_disp, fine_F, coarse_V_disp_n, coarse_F, dist_n);
+//                if(dist_p < dist_n)
+//                {
+//                    std::cout<<"p"<<dist_p/max_scale<<std::endl;
+//
+//                } else
+//                {
+//                    std::cout<<"n"<<dist_n/max_scale<<std::endl;
+//                }
+//
+//            }
             
             
             for(int i = 0; i < m_numModes; ++i)

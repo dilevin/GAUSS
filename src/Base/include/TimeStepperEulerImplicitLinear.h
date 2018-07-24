@@ -88,17 +88,23 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
         ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
         ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
         
+        
+        Eigen::saveMarket(*massMatrix, "massMatrix_woOffset.dat");
+        
         //add in the constraints
         ASSEMBLELISTOFFSET(massMatrix, world.getConstraintList(), getGradient, world.getNumQDotDOFs(), 0);
         ASSEMBLELISTOFFSETTRANSPOSE(massMatrix, world.getConstraintList(), getGradient, 0, world.getNumQDotDOFs());
         ASSEMBLEEND(massMatrix);
         
+        Eigen::saveMarket(*massMatrix, "massMatrix_wOffset.dat");
         
         //get stiffness matrix
         ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
         ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
         ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
         ASSEMBLEEND(stiffnessMatrix);
+        
+            Eigen::saveMarket(*stiffnessMatrix, "stiffnessMatrix_noP.dat");
         
         systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
         

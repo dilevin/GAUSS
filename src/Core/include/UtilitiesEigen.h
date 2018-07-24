@@ -15,7 +15,7 @@
 #include <Eigen/src/SparseCore/SparseSelfAdjointView.h>
 #include <Utilities.h>
 #include <World.h>
-
+//#include <SparseRegularInversePardiso.h>
 
 //some useful types
 namespace Eigen {
@@ -97,6 +97,7 @@ namespace Gauss {
     #include <GenEigsRealShiftSolver.h>
     #include <MatOp/SparseGenMatProd.h>
     #include <MatOp/SparseCholesky.h>
+    #include <MatOp/SparseRegularInverse.h>
     #include <MatOp/SparseSymShiftSolve.h>
     #include <SymGEigsSolver.h>
     #include <stdexcept>
@@ -225,6 +226,7 @@ namespace Gauss {
         
     }
     
+    
     //use shift and invert to find Eigenvalues near the shift
     template<typename DataType, int Flags, typename Indices>
     auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
@@ -273,6 +275,45 @@ namespace Gauss {
         }
         
     }
+    
+    
+    template<typename DataType, int Flags, typename Indices>
+    auto generalizedEigenvalueProblemSparseInverse(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
+                                                   const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
+                                                   unsigned int numVecs) {
+        
+        //Spectra seems to freak out if you use row storage, this copy just ensures everything is setup the way the solver likes
+        Eigen::SparseMatrix<DataType> K = A;
+        Eigen::SparseMatrix<DataType> M = B;
+        
+        
+        Spectra::SparseSymMatProd<DataType> Aop(K);
+        Spectra::SparseRegularInverse<DataType>   Bop(M);
+        
+        //Spectra::SparseSymShiftSolve<DataType> Aop(K);
+        
+        //Aop.set_shift(1e-3);
+        
+        // Construct eigen solver object, requesting the smallest three eigenvalues
+        Spectra::SymGEigsSolver<DataType, Spectra::SMALLEST_MAGN, Spectra::SparseSymMatProd<DataType>, Spectra::SparseRegularInverse<DataType>, Spectra::GEIGS_REGULAR_INVERSE > eigs(&Aop, &Bop, numVecs, 5*numVecs);
+        
+        
+        // Initialize and compute
+        eigs.init();
+        //int nconv = eigs.compute();
+        
+        // Retrieve results
+        if(eigs.info() == Spectra::SUCCESSFUL) {
+            
+            return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
+        } else {
+            std::cout<<"Failure: "<<eigs.info()<<"\n";
+            exit(1);
+            return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
+        }
+        
+    }
+    
 
 }
 #endif /* UtilitiesEigen_h */

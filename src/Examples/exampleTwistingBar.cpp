@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <UtilitiesFEM.h>
 #include <igl/slice.h>
+#include <igl/boundary_facets.h>
 using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
@@ -33,9 +34,10 @@ typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 
 std::vector<ConstraintFixedPoint<double> *> movingConstraints;
-Eigen::MatrixXd V;
+Eigen::MatrixXd V, Vtemp;
 Eigen::MatrixXi F;
 Eigen::VectorXi movingVerts;
+Eigen::MatrixXi surfF;
 
 int current_frame = 0;
 
@@ -54,6 +56,28 @@ void preStepCallback(MyWorld &world) {
             movingConstraints[jj]->getImpl().setFixedPoint(rot*v, new_u/0.1);
         //}
     }
+    auto q = mapStateEigen(world);
+    Eigen::saveMarketVector(q, "brick_surf_2_def" + std::to_string(current_frame) + ".mtx");
+    
+    
+    unsigned int idxc = 0;
+    
+    // get the mesh position
+    for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+        
+        Vtemp(vertexId,0) += q(idxc);
+        idxc++;
+        Vtemp(vertexId,1) += q(idxc);
+        idxc++;
+        Vtemp(vertexId,2) += q(idxc);
+        idxc++;
+    }
+    
+    // output mesh position with elements
+    igl::writeOBJ("savedpos" + std::to_string(current_frame) +".obj",Vtemp,surfF);
+    igl::writeOBJ("savedpos0" + std::to_string(current_frame) +".obj",V,surfF);
+//    Eigen::saveMarketVector(q,"saveddef.mtx");
+
 }
 
 int main(int argc, char **argv) {
@@ -63,14 +87,18 @@ int main(int argc, char **argv) {
     MyWorld world;
 
     //new code -- load tetgen files
-    readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
-
+    readTetgen(V, F, dataDir()+"/meshesTetWild/brick/brick_surf_2.node", dataDir()+"/meshesTetWild/brick/brick_surf_2.ele");
+    Vtemp = V;
+    
+    igl::boundary_facets(F,surfF);
+    
     FEMLinearTets *test = new FEMLinearTets(V,F);
 
     world.addSystem(test);
-
-    fixDisplacementMin(world, test); //fix one side
-    movingVerts = maxVertices(test, 0);//indices for moving parts
+    
+    fixDisplacementMin(world, test,0,1e-2); //fix one side
+    Eigen::saveMarketVector(minVertices(test,0,1e-2),"brick_surf_2_fixed_min_verts.mtx");
+    movingVerts = maxVertices(test, 0,1e-1);//indices for moving parts
 
     for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
         // initialize the moving constraint by setting the position. velocity is initialized to zero, but will be changed in callback

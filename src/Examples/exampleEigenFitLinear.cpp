@@ -83,7 +83,10 @@ int main(int argc, char **argv) {
     //    8. flag for using hausdorff distance
     //    9. number of modes to modifies
     //    10. constraint direction
-    std::cout<<"Test linear FEM EigenFitLinear\n";
+    //    11. step size
+    
+    
+    std::cout<<"Test Neohookean FEM EigenFit\n";
     
     //Setup Physics
     MyWorld world;
@@ -247,6 +250,16 @@ int main(int argc, char **argv) {
         std::string qname2 = fmeshnameActual + "ExampleQ";
         std::string qfilename2 = qname2 + std::to_string(file_ind) + qfformat;
         
+        unsigned int mode = 0;
+        unsigned int vert_idx = 0;
+        std::string name_p = "coarse_eigen_mode_p";
+        std::string name_n = "coarse_eigen_mode_n";
+        std::string objformat = ".obj";
+        std::string filename_p = name_p + std::to_string(mode) + fformat;
+        std::string filename_n = name_n + std::to_string(mode) + fformat;
+        Eigen::MatrixXd coarse_eig_def;
+        Eigen::VectorXd fine_eig_def;
+        
         struct stat buf;
         unsigned int idx;
         
@@ -314,12 +327,39 @@ int main(int argc, char **argv) {
             igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
             igl::writeOBJ(surffilename,V_disp,surfF);
             
+            //            print deformation
             // coarse mesh data
-            q = mapStateEigen(world);
-            saveMarketVector(q, qfilename);
-            // fine mesh data from embedded mesh in EigenFitLinear
-            fine_q = mapStateEigen(test->getFineWorld());
-            saveMarketVector(fine_q, qfilename2);
+            //            q = mapStateEigen(world);
+            //            saveMarketVector(q, qfilename);
+            // fine mesh data from embedded mesh in eigenfit
+            //            fine_q = mapStateEigen(test->getFineWorld());
+            //            saveMarketVector(fine_q, qfilename2);
+            
+            // project velocity onto the eigenspace
+//            auto coarseVel = mapStateEigen<1>(world);
+            //            auto fineVel = mapStateEigen<1>(test->getFineWorld());
+            
+            
+            
+            
+            //                    for (mode = 0; mode < atoi(argv[9]); ++mode) {
+            //                        coarse_eig_def = (P.transpose()*();
+            filename_p = name_p + "_" +std::to_string(file_ind) + ".dat";
+            Eigen::saveMarket(test->coarseEigMassProj.first, filename_p);
+//            Eigen::saveMarket((test->m_coarseMassMatrix), "mass" + std::to_string(file_ind) + ".dat");
+            
+            // velocity
+            Eigen::saveMarket((P*mapStateEigen<1>(world)).transpose(), "vel" +std::to_string(file_ind) + ".dat");
+            
+            // velocity projection
+            Eigen::VectorXd proj = (P*mapStateEigen<1>(world)).transpose() * (test->coarseEigMassProj.first);
+            Eigen::saveMarket(proj, "vel_proj" +std::to_string(file_ind) + ".dat");
+            Eigen::saveMarketVector(test->coarseEigMassProj.second, "coarse_eigval" + std::to_string(file_ind) + ".dat");
+            Eigen::saveMarketVector(test->fineEigMassProj.second, "fine_eigval" + std::to_string(file_ind) + ".dat");
+
+            //                        igl::writeOBJ(filename_n,coarse_V_disp_n, coarse_F);
+            //                    }
+            
         }
     }
     else

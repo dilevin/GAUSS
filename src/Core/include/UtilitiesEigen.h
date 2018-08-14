@@ -229,6 +229,7 @@ template<typename DataType, int Flags, typename Indices>
 auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
                                   const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
                                   unsigned int numVecs, DataType shift) {
+
     
     //Spectra seems to freak out if you use row storage, this copy just ensures everything is setup the way the solver likes
     Eigen::SparseMatrix<DataType> K = -A + shift*B;

@@ -94,6 +94,7 @@ namespace Gauss {
 #ifdef GAUSS_PARDISO
         
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
+        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_test;
 //        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_res;
 #else
 #endif
@@ -126,7 +127,6 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
     ASSEMBLEEND(stiffnessMatrix);
     
-//    Eigen::saveMarket(*stiffnessMatrix, "stiffnessMatrix_woP.dat");
 
     
     //Need to filter internal forces seperately for this applicat
@@ -139,28 +139,49 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
     ASSEMBLEEND(fExt);
     
     //constraint Projection
-    //    std::cout<<m_P.rows()<<std::endl;
-    //    std::cout<<massMatrix.rows()<<std::endl;
     (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
-//    Eigen::saveMarket(*massMatrix, "massMatrix_wP.dat");
     (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
-//    Eigen::saveMarket(*stiffnessMatrix, "stiffnessMatrix_wP.dat");
-
-    (*forceVector) = m_P*(*forceVector);
+    
     //Eigendecomposition
     
-    // if number of modes not equals to 0, use EigenFitLinear
+    // if number of modes not equals to 0, use EigenFit
     if (m_numModes != 0) {
-        static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
-        
-        //    Correct Forces
-        (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector) + m_P*(*fExt);
-        
         //Grab the state
         Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
         Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
-//        Eigen::VectorXd qDotOld = qDot; // deep copy
         
+//        using the current deformed state to do eigenfit
+        static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+        
+        
+//        using the rest state to do eigenfit
+//        Eigen::VectorXd q0(q.rows());
+//        q0.setZero();
+//        static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q0,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+        
+        
+        (*forceVector) = m_P*(*forceVector);
+        //    Correct Forces
+        (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
+        
+        // for force projection
+        // hack to output force (so that it won't be polluted while setting up the right hand side)
+//#ifdef GAUSS_PARDISO
+//
+//                m_pardiso_test.symbolicFactorization(*massMatrix);
+//                m_pardiso_test.numericalFactorization();
+//                m_pardiso_test.solve(*forceVector);
+//#endif
+//        (*fExt) = (*forceVector);
+//        (static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->minvfCP) = ((static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_fineP)*(*(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->N))*(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_coarseP).transpose())*((*forceVector));
+//        (static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->minvfCP) = ((static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_fineP)*(*(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->N))*(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_coarseP).transpose())*(m_pardiso_test.getX());
+        
+//        *(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_forceVector) = ((*(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->N)))*((*fExt));
+
+//        Eigen::VectorXd qDotOld = qDot; // deep copy
+
+        // add external force
+        (*forceVector) = (*forceVector) + m_P*(*fExt);
         
         //setup RHS
         (*forceVector) = (*massMatrix)*m_P*qDot + dt*(*forceVector);
@@ -213,7 +234,8 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 #ifdef GAUSS_PARDISO
         
         m_pardiso.solve(Y);
-        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*m_pardiso.getX()).ldlt().solve(Z*x0);
+        Eigen::MatrixXd APrime = Z*m_pardiso.getX();
+        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + APrime).ldlt().solve(Z*x0);
         
         
 #else
@@ -236,9 +258,12 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 #endif
         
         qDot = m_P.transpose()*x0;
-        
+//        std::cout<<"m_P "<<m_P.rows() << " " <<m_P.cols() << std::endl;
+//        std::cout<<"x0 "<<x0.rows()<< std::endl;
+//        std::cout<<"qDot "<<qDot.rows()<< std::endl;
         //update state
         q = q + dt*qDot;
+//        std::cout<<"q "<<q.rows()<< std::endl;
         
         
 //        // calculate the residual. brute force for now. ugly
@@ -304,6 +329,13 @@ void TimeStepperImplEigenFitSMWImpl<DataType, MatrixAssembler, VectorAssembler>:
 //        Eigen::VectorXd qDotOld = qDot; // deep copy
         
         //    add external Forces
+//        std::cout<<m_P.rows()<<std::endl;
+//        std::cout<<m_P.cols()<<std::endl;
+//        std::cout<<(*fExt).rows()<<std::endl;
+//        std::cout<<(*fExt).cols()<<std::endl;
+//        std::cout<<(*forceVector).rows()<<std::endl;
+//        std::cout<<(*forceVector).cols()<<std::endl;
+        (*forceVector) = m_P*(*forceVector);
         (*forceVector) = (*forceVector) + m_P*(*fExt);
         
         //setup RHS

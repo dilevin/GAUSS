@@ -77,11 +77,11 @@ namespace Gauss {
         VectorAssembler m_forceVector;
         VectorAssembler m_fExt;
         
-        // for calculating the residual. ugly
-        MatrixAssembler m_massMatrixNew;
-        MatrixAssembler m_stiffnessMatrixNew;
-        VectorAssembler m_forceVectorNew;
-        VectorAssembler m_fExtNew;
+//        // for calculating the residual. ugly
+//        MatrixAssembler m_massMatrixNew;
+//        MatrixAssembler m_stiffnessMatrixNew;
+//        VectorAssembler m_forceVectorNew;
+//        VectorAssembler m_fExtNew;
         
         
         Eigen::SparseMatrix<DataType> m_P;
@@ -93,7 +93,7 @@ namespace Gauss {
 #ifdef GAUSS_PARDISO
         
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
-        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_res;
+//        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_res;
 #else
 #endif
         
@@ -116,12 +116,17 @@ void TimeStepperImplEigenFitLinearSMWImpl<DataType, MatrixAssembler, VectorAssem
     ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
     ASSEMBLEEND(massMatrix);
     
+//    Eigen::saveMarket(*massMatrix, "massMatrix_woP.dat");
+
     
     //get stiffness matrix
     ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
     ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
     ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
     ASSEMBLEEND(stiffnessMatrix);
+    
+//    Eigen::saveMarket(*stiffnessMatrix, "stiffnessMatrix_woP.dat");
+
     
     //Need to filter internal forces seperately for this applicat
     ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
@@ -150,7 +155,7 @@ void TimeStepperImplEigenFitLinearSMWImpl<DataType, MatrixAssembler, VectorAssem
         //Grab the state
         Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
         Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
-        Eigen::VectorXd qDotOld = qDot; // deep copy
+//        Eigen::VectorXd qDotOld = qDot; // deep copy
         
         
         //setup RHS
@@ -232,67 +237,67 @@ void TimeStepperImplEigenFitLinearSMWImpl<DataType, MatrixAssembler, VectorAssem
         q = q + dt*qDot;
         
         
-        // calculate the residual. brute force for now. ugly
-        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
-        MatrixAssembler &massMatrixNew = m_massMatrixNew;
-        MatrixAssembler &stiffnessMatrixNew = m_stiffnessMatrixNew;
-        VectorAssembler &forceVectorNew = m_forceVectorNew;
-        VectorAssembler &fExtNew = m_fExtNew;
-        
-        //get mass matrix
-        ASSEMBLEMATINIT(massMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-        ASSEMBLELIST(massMatrixNew, world.getSystemList(), getMassMatrix);
-        ASSEMBLEEND(massMatrixNew);
-        
-        
-        //get stiffness matrix
-        ASSEMBLEMATINIT(stiffnessMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-        ASSEMBLELIST(stiffnessMatrixNew, world.getSystemList(), getStiffnessMatrix);
-        ASSEMBLELIST(stiffnessMatrixNew, world.getForceList(), getStiffnessMatrix);
-        ASSEMBLEEND(stiffnessMatrixNew);
-        
-        //Need to filter internal forces seperately for this applicat
-        ASSEMBLEVECINIT(forceVectorNew, world.getNumQDotDOFs());
-        ASSEMBLELIST(forceVectorNew, world.getSystemList(), getImpl().getInternalForce);
-        ASSEMBLEEND(forceVectorNew);
-        
-        ASSEMBLEVECINIT(fExtNew, world.getNumQDotDOFs());
-        ASSEMBLELIST(fExtNew, world.getSystemList(), getImpl().getBodyForce);
-        ASSEMBLEEND(fExtNew);
-        
-        //constraint Projection
-        //    std::cout<<m_P.rows()<<std::endl;
-        //    std::cout<<massMatrix.rows()<<std::endl;
-        (*massMatrixNew) = m_P*(*massMatrixNew)*m_P.transpose();
-        (*stiffnessMatrixNew) = m_P*(*stiffnessMatrixNew)*m_P.transpose();
-        (*forceVectorNew) = m_P*(*forceVectorNew);
-        
-        static_cast<EigenFitLinear*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitLinearData(world.getState(),massMatrixNew,stiffnessMatrixNew,m_coarseUs,Y,Z);
-        
-        //    Correct Forces
-        (*forceVectorNew) = (*forceVectorNew) + Y*m_coarseUs.first.transpose()*(*forceVectorNew) + m_P*(*fExtNew);
-        
-//        //setup RHS
-//        (*forceVectorNew) = (*massMatrixNew)*m_P*qDot + dt*(*forceVectorNew);
-//
-#ifdef GAUSS_PARDISO
-        // only works for pardiso now
-        m_pardiso_res.symbolicFactorization(*massMatrixNew);
-        m_pardiso_res.numericalFactorization();
-        m_pardiso_res.solve(*forceVectorNew);
-        
-        std::ofstream ofile;
-        ofile.open("residualSI.txt", std::ios::app); //app is append which means it will put the text at the end
-        ofile << (m_P* (qDot - qDotOld) - dt * (m_pardiso_res.getX())).norm() << std::endl;
-        ofile.close();
-#endif
+//        // calculate the residual. brute force for now. ugly
+//        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
+//        MatrixAssembler &massMatrixNew = m_massMatrixNew;
+//        MatrixAssembler &stiffnessMatrixNew = m_stiffnessMatrixNew;
+//        VectorAssembler &forceVectorNew = m_forceVectorNew;
+//        VectorAssembler &fExtNew = m_fExtNew;
+//        
+//        //get mass matrix
+//        ASSEMBLEMATINIT(massMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+//        ASSEMBLELIST(massMatrixNew, world.getSystemList(), getMassMatrix);
+//        ASSEMBLEEND(massMatrixNew);
+//        
+//        
+//        //get stiffness matrix
+//        ASSEMBLEMATINIT(stiffnessMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+//        ASSEMBLELIST(stiffnessMatrixNew, world.getSystemList(), getStiffnessMatrix);
+//        ASSEMBLELIST(stiffnessMatrixNew, world.getForceList(), getStiffnessMatrix);
+//        ASSEMBLEEND(stiffnessMatrixNew);
+//        
+//        //Need to filter internal forces seperately for this applicat
+//        ASSEMBLEVECINIT(forceVectorNew, world.getNumQDotDOFs());
+//        ASSEMBLELIST(forceVectorNew, world.getSystemList(), getImpl().getInternalForce);
+//        ASSEMBLEEND(forceVectorNew);
+//        
+//        ASSEMBLEVECINIT(fExtNew, world.getNumQDotDOFs());
+//        ASSEMBLELIST(fExtNew, world.getSystemList(), getImpl().getBodyForce);
+//        ASSEMBLEEND(fExtNew);
+//        
+//        //constraint Projection
+//        //    std::cout<<m_P.rows()<<std::endl;
+//        //    std::cout<<massMatrix.rows()<<std::endl;
+//        (*massMatrixNew) = m_P*(*massMatrixNew)*m_P.transpose();
+//        (*stiffnessMatrixNew) = m_P*(*stiffnessMatrixNew)*m_P.transpose();
+//        (*forceVectorNew) = m_P*(*forceVectorNew);
+//        
+//        static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(world.getState(),massMatrixNew,stiffnessMatrixNew,m_coarseUs,Y,Z);
+//        
+//        //    Correct Forces
+//        (*forceVectorNew) = (*forceVectorNew) + Y*m_coarseUs.first.transpose()*(*forceVectorNew) + m_P*(*fExtNew);
+//        
+////        //setup RHS
+////        (*forceVectorNew) = (*massMatrixNew)*m_P*qDot + dt*(*forceVectorNew);
+////
+//#ifdef GAUSS_PARDISO
+//        // only works for pardiso now
+//        m_pardiso_res.symbolicFactorization(*massMatrixNew);
+//        m_pardiso_res.numericalFactorization();
+//        m_pardiso_res.solve(*forceVectorNew);
+//        
+//        std::ofstream ofile;
+//        ofile.open("residualSI.txt", std::ios::app); //app is append which means it will put the text at the end
+//        ofile << (m_P* (qDot - qDotOld) - dt * (m_pardiso_res.getX())).norm() << std::endl;
+//        ofile.close();
+//#endif
     }
     else // number of modes is 0, so don't need to call EigenFitLinear
     {
         //Grab the state
         Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
         Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
-        Eigen::VectorXd qDotOld = qDot; // deep copy
+//        Eigen::VectorXd qDotOld = qDot; // deep copy
         
         //    add external Forces
         (*forceVector) = (*forceVector) + m_P*(*fExt);
@@ -351,104 +356,104 @@ void TimeStepperImplEigenFitLinearSMWImpl<DataType, MatrixAssembler, VectorAssem
         
         q = q + dt*qDot;
         
-        
-        // calculate residual
-        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
-        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
-        MatrixAssembler &massMatrixNew = m_massMatrixNew;
-        MatrixAssembler &stiffnessMatrixNew = m_stiffnessMatrixNew;
-        VectorAssembler &forceVectorNew = m_forceVectorNew;
-        VectorAssembler &fExtNew = m_fExtNew;
-        
-        //get mass matrix
-        ASSEMBLEMATINIT(massMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-        ASSEMBLELIST(massMatrixNew, world.getSystemList(), getMassMatrix);
-        ASSEMBLEEND(massMatrixNew);
-        
-        
-        //get stiffness matrix
-        ASSEMBLEMATINIT(stiffnessMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-        ASSEMBLELIST(stiffnessMatrixNew, world.getSystemList(), getStiffnessMatrix);
-        ASSEMBLELIST(stiffnessMatrixNew, world.getForceList(), getStiffnessMatrix);
-        ASSEMBLEEND(stiffnessMatrixNew);
-        
-        //Need to filter internal forces seperately for this applicat
-        ASSEMBLEVECINIT(forceVectorNew, world.getNumQDotDOFs());
-        ASSEMBLELIST(forceVectorNew, world.getSystemList(), getImpl().getInternalForce);
-        ASSEMBLEEND(forceVectorNew);
-        
-        ASSEMBLEVECINIT(fExtNew, world.getNumQDotDOFs());
-        ASSEMBLELIST(fExtNew, world.getSystemList(), getImpl().getBodyForce);
-        ASSEMBLEEND(fExtNew);
-        
-        (*massMatrixNew) = m_P*(*massMatrixNew)*m_P.transpose();
-        (*stiffnessMatrixNew) = m_P*(*stiffnessMatrixNew)*m_P.transpose();
-        (*forceVectorNew) = m_P*(*forceVectorNew);
-        
-        //    add external Forces
-        (*forceVectorNew) = (*forceVectorNew) + m_P*(*fExtNew);
-        
-#ifdef GAUSS_PARDISO
-        // only works for pardiso now
-        m_pardiso_res.symbolicFactorization(*massMatrixNew);
-        m_pardiso_res.numericalFactorization();
-        m_pardiso_res.solve(*forceVectorNew);
-        
-        std::ofstream ofile;
-        ofile.open("residualSI.txt", std::ios::app); //app is append which means it will put the text at the end
-        ofile << (m_P* (qDot - qDotOld) - dt * (m_pardiso_res.getX())).norm() << std::endl;
-        ofile.close();
-#endif
+//
+//        // calculate residual
+//        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
+//        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
+//        MatrixAssembler &massMatrixNew = m_massMatrixNew;
+//        MatrixAssembler &stiffnessMatrixNew = m_stiffnessMatrixNew;
+//        VectorAssembler &forceVectorNew = m_forceVectorNew;
+//        VectorAssembler &fExtNew = m_fExtNew;
+//
+//        //get mass matrix
+//        ASSEMBLEMATINIT(massMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+//        ASSEMBLELIST(massMatrixNew, world.getSystemList(), getMassMatrix);
+//        ASSEMBLEEND(massMatrixNew);
+//
+//
+//        //get stiffness matrix
+//        ASSEMBLEMATINIT(stiffnessMatrixNew, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+//        ASSEMBLELIST(stiffnessMatrixNew, world.getSystemList(), getStiffnessMatrix);
+//        ASSEMBLELIST(stiffnessMatrixNew, world.getForceList(), getStiffnessMatrix);
+//        ASSEMBLEEND(stiffnessMatrixNew);
+//
+//        //Need to filter internal forces seperately for this applicat
+//        ASSEMBLEVECINIT(forceVectorNew, world.getNumQDotDOFs());
+//        ASSEMBLELIST(forceVectorNew, world.getSystemList(), getImpl().getInternalForce);
+//        ASSEMBLEEND(forceVectorNew);
+//
+//        ASSEMBLEVECINIT(fExtNew, world.getNumQDotDOFs());
+//        ASSEMBLELIST(fExtNew, world.getSystemList(), getImpl().getBodyForce);
+//        ASSEMBLEEND(fExtNew);
+//
+//        (*massMatrixNew) = m_P*(*massMatrixNew)*m_P.transpose();
+//        (*stiffnessMatrixNew) = m_P*(*stiffnessMatrixNew)*m_P.transpose();
+//        (*forceVectorNew) = m_P*(*forceVectorNew);
+//
+//        //    add external Forces
+//        (*forceVectorNew) = (*forceVectorNew) + m_P*(*fExtNew);
+//
+//#ifdef GAUSS_PARDISO
+//        // only works for pardiso now
+//        m_pardiso_res.symbolicFactorization(*massMatrixNew);
+//        m_pardiso_res.numericalFactorization();
+//        m_pardiso_res.solve(*forceVectorNew);
+//
+//        std::ofstream ofile;
+//        ofile.open("residualSI.txt", std::ios::app); //app is append which means it will put the text at the end
+//            ofile << (m_P* (qDot - qDotOld) - dt * (m_pardiso_res.getX())).norm() << std::endl;
+//        ofile.close();
+//#endif
     }
     
     
-    
-    //
-    //#ifdef EDWIN_DEBUG
-    //    std::ofstream ofile;
-    //    ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
-    //    ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
-    //    ofile.close();
-    ////    unsigned int file_ind = 0;
-    ////    std::string name = "pos";
-    ////    std::string fformat = ".obj";
-    ////    std::string filename = name + std::to_string(file_ind) + fformat;
-    ////    struct stat buf;
-    ////    while (stat(filename.c_str(), &buf) != -1)
-    ////    {
-    ////        file_ind++;
-    ////        filename = name + std::to_string(file_ind) + fformat;
-    ////    }
-    //    unsigned int file_ind = 0;
-    //    std::string name = "pos";
-    //    std::string fformat = ".obj";
-    //    std::string filename = name + std::to_string(file_ind) + fformat;
-    //    struct stat buf;
-    //    while (stat(filename.c_str(), &buf) != -1)
-    //    {
-    //        file_ind++;
-    //        filename = name + std::to_string(file_ind) + fformat;
-    //    }
-    //
-    ////    unsigned int idx;
-    ////    idx = 0;
-    ////    // getGeometry().first is V
-    ////    Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
-    ////
-    ////    for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
-    ////
-    ////        // because getFinePosition is in EigenFitLinear, not another physical system Impl, so don't need getImpl()
-    ////        V_disp(vertexId,0) += q(idx);
-    ////        idx++;
-    ////        V_disp(vertexId,1) += q(idx);
-    ////        idx++;
-    ////        V_disp(vertexId,2) += q(idx);
-    ////        idx++;
-    ////    }
-    ////    igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
-    ////    saveMarket(V_disp, "V.dat");
-    ////    saveMarket(std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second, "F.dat");
-    //#endif
+
+//    
+//#ifdef EDWIN_DEBUG
+//    std::ofstream ofile;
+//    ofile.open("KE.txt", std::ios::app); //app is append which means it will put the text at the end
+//    ofile << std::get<0>(world.getSystemList().getStorage())[0]->getImpl().getKineticEnergy(world.getState()) << std::endl;
+//    ofile.close();
+////    unsigned int file_ind = 0;
+////    std::string name = "pos";
+////    std::string fformat = ".obj";
+////    std::string filename = name + std::to_string(file_ind) + fformat;
+////    struct stat buf;
+////    while (stat(filename.c_str(), &buf) != -1)
+////    {
+////        file_ind++;
+////        filename = name + std::to_string(file_ind) + fformat;
+////    }
+//    unsigned int file_ind = 0;
+//    std::string name = "pos";
+//    std::string fformat = ".obj";
+//    std::string filename = name + std::to_string(file_ind) + fformat;
+//    struct stat buf;
+//    while (stat(filename.c_str(), &buf) != -1)
+//    {
+//        file_ind++;
+//        filename = name + std::to_string(file_ind) + fformat;
+//    }
+//
+////    unsigned int idx;
+////    idx = 0;
+////    // getGeometry().first is V
+////    Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
+////    
+////    for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+////        
+////        // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+////        V_disp(vertexId,0) += q(idx);
+////        idx++;
+////        V_disp(vertexId,1) += q(idx);
+////        idx++;
+////        V_disp(vertexId,2) += q(idx);
+////        idx++;
+////    }
+////    igl::writeOBJ(filename,V_disp,std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second);
+////    saveMarket(V_disp, "V.dat");
+////    saveMarket(std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().second, "F.dat");
+//#endif
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

@@ -62,7 +62,7 @@ public:
     // the constructor will take the two mesh parameters, one coarse one fine.
     // The coarse mesh data will be passed to the parent class constructor to constructor
     // the fine mesh data will be used to initialize the members specific to the EigenFit class
-    EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraintDir, double constraintTol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes) : PhysicalSystemImpl(Vc,Fc)
+    EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraintDir, double constraintTol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes, std::string cmeshname, std::string fmeshname ) : PhysicalSystemImpl(Vc,Fc)
     {
         if(numModes != 0)
         {
@@ -166,7 +166,7 @@ public:
 
                 // read constraints
                 
-                Eigen::loadMarketVector(fixedVerts,  "def_init/brick_surf_3_fixed_min_verts.mtx");
+                Eigen::loadMarketVector(fixedVerts,  "def_init/" + fmeshname + "_fixed_min_verts.mtx");
                 //
                 for(unsigned int ii=0; ii<fixedVerts.rows(); ++ii) {
                     fixedConstraints.push_back(new ConstraintFixedPoint<double>(&m_fineMeshSystem->getQ()[fixedVerts[ii]], Eigen::Vector3d(0,0,0)));
@@ -179,7 +179,7 @@ public:
                 m_fineP = fineP;
                 
                 Eigen::VectorXi coarse_constrait_indices;
-                Eigen::loadMarketVector(coarse_constrait_indices,  "def_init/brick_surf_4_fixed_min_verts.mtx");
+                Eigen::loadMarketVector(coarse_constrait_indices,  "def_init/" + cmeshname + "_fixed_min_verts.mtx");
                 
                 coarseP = fixedPointProjectionMatrixCoarse(coarse_constrait_indices);
                 m_coarseP = coarseP;

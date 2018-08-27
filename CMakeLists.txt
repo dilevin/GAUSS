@@ -8,6 +8,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/ThirdParty/libi
 
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
+option(GAUSS_USE_UI     "Use Gauss' UI Library" ON)
 
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
@@ -213,7 +214,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/RigidBodies)
 
 #UI package has to come last
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
+if(GAUSS_USE_UI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
+endif(GAUSS_USE_UI)
 
 set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/LBFGS++/include)
 
@@ -228,11 +231,15 @@ if(USE_MATLAB)
 endif(USE_MATLAB)
 
 #Init GUI Stuff
-include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)
-initUI()
+if(GAUSS_USE_UI)
+    include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)
+    initUI()
+endif(GAUSS_USE_UI)
 
-#Example codes
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+#Example codes 
+if(GAUSS_USE_UI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+endif(GAUSS_USE_UI)
 #Disable tests for now because I'm not using them and they only build on one machine 
 #add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)
 

@@ -6,7 +6,7 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEigenFitSMW.h>
+#include <TimeStepperEigenFitSMWIM.h>
 #include <EigenFit.h>
 #include <fstream>
 #include <igl/boundary_facets.h>
@@ -31,7 +31,7 @@ std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 //                      std::tuple<ForceSpringFEMParticle<double> *>,
 //                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 //typedef TimeStepperEigenFitSMW<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double>> MyTimeStepper;
-typedef TimeStepperEigenFitSMW<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
+typedef TimeStepperEigenFitSMWIM<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -523,12 +523,18 @@ int main(int argc, char **argv) {
         double poisson = 0.45;
         int constraint_dir = 0; // constraint direction. 0 for x, 1 for y, 2 for z
         double constraint_tol = 1e-2;
+        bool dynamic_flag = true;
+        int const_profile = 0;
+        bool hausdorff = false;
+        int numModes = 3;
         
         // no constraint switch so just create the eigenfit obj with constraint switch set to 1
         // the flag indicate whether to recalculated or not
         // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
         // also use the last two args to determine how many modes to fix. default not using hausdorff distance, and use 10 modes. have to put it here now.  ugly
-        EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, 0,false,0," "," ");
+        //        EigenFit *test = new EigenFit(V,F,Vf,Ff,dynamic_flag,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes,cmeshnameActual,fmeshnameActual);
+        
+        EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes," "," ");
         
         // set material
         for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {

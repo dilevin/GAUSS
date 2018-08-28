@@ -523,16 +523,16 @@ public:
         }
 //        //        m_R(0) = 0.9;
 //        hard coded for twisted bar 
-//        m_R(0) = 0.908096;
-//        m_R(1) = 0.974989;
-//        m_R(2) = 0.888009;
-//        m_R(3) = 0.921152;
-//        m_R(4) = 0.99383;
-//        m_R(5) = 0.975486;
-//        m_R(6) = 0.877183;
-//        m_R(7) = 0.880564;
-//        m_R(8) = 0.965731;
-//        m_R(9) = 0.904772;
+        m_R(0) = 0.908096;
+        m_R(1) = 0.974989;
+        m_R(2) = 0.888009;
+        m_R(3) = 0.921152;
+        m_R(4) = 0.99383;
+        m_R(5) = 0.975486;
+        m_R(6) = 0.877183;
+        m_R(7) = 0.880564;
+        m_R(8) = 0.965731;
+        m_R(9) = 0.904772;
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
         

@@ -139,7 +139,13 @@ public:
             else if (constraint_switch == 2)
             {
                 
-                Eigen::VectorXi fineMovingVerts = minVertices(m_fineMeshSystem, constraintDir, constraintTol);//indices for moving parts
+//                Eigen::VectorXi fineMovingVerts = minVertices(m_fineMeshSystem, constraintDir, constraintTol);//indices for moving parts
+                Eigen::VectorXi fineMovingVerts;
+                
+                // read constraints
+                
+                Eigen::loadMarketVector(fineMovingVerts,  "def_init/" + fmeshname + "_fixed_min_verts.mtx");
+                
                 std::vector<ConstraintFixedPoint<double> *> fineMovingConstraints;
                 
                 for(unsigned int ii=0; ii<fineMovingVerts.rows(); ++ii) {
@@ -154,7 +160,10 @@ public:
                 // only need to record one because only need to know if it's 0, 3, or 6. either fine or coarse is fine
                 m_numConstraints = fineMovingVerts.size();
                 
-                Eigen::VectorXi coarseMovingVerts = minVertices(this, constraintDir, constraintTol);
+//                Eigen::VectorXi coarseMovingVerts = minVertices(this, constraintDir, constraintTol);
+                Eigen::VectorXi coarseMovingVerts;
+                Eigen::loadMarketVector(coarseMovingVerts,  "def_init/" + cmeshname + "_fixed_min_verts.mtx");
+                
                 coarseP = fixedPointProjectionMatrixCoarse(coarseMovingVerts);
                 m_coarseP = coarseP;
                 
@@ -293,6 +302,78 @@ public:
     ~EigenFit() {delete fine_pos0;
     }
     
+    void calculateFineMesh(){
+        World<double, std::tuple<PhysicalSystemImpl *>,
+        std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
+        std::tuple<ConstraintFixedPoint<double> *> > &world = m_fineWorld;
+        
+//        Eigen::Map<Eigen::VectorXd> fine_q = mapStateEigen<0>(m_fineWorld);
+        
+        //            double pd_fine_pos[world.getNumQDOFs()]; // doesn't work for MSVS
+//        Eigen::Map<Eigen::VectorXd> eigen_fine_pos0(fine_pos0,world.getNumQDOFs());
+        
+//        Eigen::VectorXx<double> posFull;
+//        posFull = this->getFinePositionFull(q);
+        //
+//        fine_q = posFull - eigen_fine_pos0;
+//        fine_q.setZero();
+        
+        //        lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
+        AssemblerEigenSparseMatrix<double> &fineStiffnessMatrix = m_fineStiffnessMatrix;
+        
+        //            std::cout<<
+        
+        //get stiffness matrix
+        ASSEMBLEMATINIT(fineStiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+        ASSEMBLELIST(fineStiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
+        ASSEMBLELIST(fineStiffnessMatrix, world.getForceList(), getStiffnessMatrix);
+        ASSEMBLEEND(fineStiffnessMatrix);
+//        Eigen::saveMarket(fine_q, "fineq0.dat");
+        
+        // for edwin debug
+        AssemblerEigenVector<double> &fineforceVector = m_fineforceVector;
+        AssemblerEigenVector<double> &finefExt = m_finefExt;
+        
+        //Need to filter internal forces seperately for this applicat
+        ASSEMBLEVECINIT(fineforceVector, world.getNumQDotDOFs());
+        ASSEMBLELIST(fineforceVector, world.getSystemList(), getImpl().getInternalForce);
+        ASSEMBLEEND(fineforceVector);
+        
+        ASSEMBLEVECINIT(finefExt, world.getNumQDotDOFs());
+        ASSEMBLELIST(finefExt, world.getSystemList(), getImpl().getBodyForce);
+        ASSEMBLEEND(finefExt);
+        
+        // add external force
+        (*fineforceVector) = m_fineP * (*fineforceVector);
+        
+        // for force projection
+        //#ifdef GAUSS_PARDISO
+        //
+        //            m_pardiso_test.symbolicFactorization(*m_fineMassMatrix);
+        //            m_pardiso_test.numericalFactorization();
+        //            m_pardiso_test.solve(*fineforceVector);
+        //            minvf = m_pardiso_test.getX();
+        //#endif
+        
+        (*fineforceVector) = (*fineforceVector) + m_fineP *(*finefExt);
+        
+        //constraint Projection
+        (*fineStiffnessMatrix) = m_fineP*(*fineStiffnessMatrix)*m_fineP.transpose();
+        
+//        Eigen::saveMarket(*fineStiffnessMatrix, "finestiffnessmatrix0.dat");
+//        Eigen::saveMarket(m_fineP, "m_fineP0.dat");
+//        std::cout<<"stop output\n";
+        
+        
+        //Eigendecomposition for the embedded fine mesh
+        std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
+        m_Us = generalizedEigenvalueProblem((*fineStiffnessMatrix), (*m_fineMassMatrix), m_numModes,0.00);
+        
+        fineEigMassProj = m_Us;
+        fineEig = m_Us;
+        fineEigMassProj.first = (*m_fineMassMatrix)*fineEigMassProj.first;
+    }
+         
     // calculate data, TODO: the first two parameter should be const
     template<typename MatrixAssembler>
 //    void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
@@ -361,16 +442,18 @@ public:
             posFull = this->getFinePositionFull(q);
 //
             fine_q = posFull - eigen_fine_pos0;
-
             
             //        lambda can't capture member variable, so create a local one for lambda in ASSEMBLELIST
             AssemblerEigenSparseMatrix<double> &fineStiffnessMatrix = m_fineStiffnessMatrix;
+            
+//            std::cout<<
             
             //get stiffness matrix
             ASSEMBLEMATINIT(fineStiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
             ASSEMBLELIST(fineStiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
             ASSEMBLELIST(fineStiffnessMatrix, world.getForceList(), getStiffnessMatrix);
             ASSEMBLEEND(fineStiffnessMatrix);
+//            Eigen::saveMarket(fine_q, "fineq0.dat");
             
             // for edwin debug
             AssemblerEigenVector<double> &fineforceVector = m_fineforceVector;
@@ -401,6 +484,11 @@ public:
             
             //constraint Projection
             (*fineStiffnessMatrix) = m_fineP*(*fineStiffnessMatrix)*m_fineP.transpose();
+            
+//            Eigen::saveMarket(*fineStiffnessMatrix, "finestiffnessmatrix0.dat");
+//            Eigen::saveMarket(m_fineP, "m_fineP0.dat");
+//            std::cout<<"stop output\n";
+            
             
             //Eigendecomposition for the embedded fine mesh
             std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > m_Us;
@@ -523,16 +611,18 @@ public:
         }
 //        //        m_R(0) = 0.9;
 //        hard coded for twisted bar 
-        m_R(0) = 0.908096;
-        m_R(1) = 0.974989;
-        m_R(2) = 0.888009;
-        m_R(3) = 0.921152;
-        m_R(4) = 0.99383;
-        m_R(5) = 0.975486;
-        m_R(6) = 0.877183;
-        m_R(7) = 0.880564;
-        m_R(8) = 0.965731;
-        m_R(9) = 0.904772;
+        m_R(0) = 0.843905;
+        m_R(1) = 0.943746;
+        m_R(2) = 0.826604;
+        m_R(3) = 0.872235;
+        m_R(4) = 0.982759;
+        m_R(5) = 0.959048;
+        m_R(6) = 0.814898;
+        m_R(7) = 0.830976;
+        m_R(8) = 0.946558;
+        m_R(9) = 0.857582;
+
+
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
         

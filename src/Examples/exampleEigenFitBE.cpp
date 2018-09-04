@@ -6,10 +6,12 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEigenFitSMWIM.h>
+#include <TimeStepperEigenFitSMWBE.h>
 #include <EigenFit.h>
 #include <fstream>
 #include <igl/boundary_facets.h>
+#include <igl/volume.h>
+#include <igl/dihedral_angles.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -31,7 +33,7 @@ std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 //                      std::tuple<ForceSpringFEMParticle<double> *>,
 //                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 //typedef TimeStepperEigenFitSMW<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double>> MyTimeStepper;
-typedef TimeStepperEigenFitSMWIM<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
+typedef TimeStepperEigenFitSMWBE<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -203,8 +205,13 @@ int main(int argc, char **argv) {
         else if (const_profile == 2)
         {
             
-            
-            movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
+            Eigen::loadMarketVector(movingVerts, "def_init/" + cmeshnameActual + "_fixed_min_verts.mtx");
+            //
+//            for(unsigned int ii=0; ii<fixedVerts.rows(); ++ii) {
+//                fixedConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[fixedVerts[ii]], Eigen::Vector3d(0,0,0)));
+//                world.addConstraint(fixedConstraints[ii]);
+//            }
+//            movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
             //
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
                 movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
@@ -311,6 +318,33 @@ int main(int argc, char **argv) {
         
         for(istep=0; istep<numSteps ; ++istep) {
             stepper.step(world);
+            
+            // acts like the "callback" block for moving constraint
+            if (const_profile == 2)
+            {
+                // constraint profile 2 will move some vertices
+                //script some motion
+                for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
+                    
+                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
+                    //
+                    //                    if ((istep%150) < 50) {
+                    //                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    //                        v_q = new_q;
+                    //                    }
+                    //                    else if ((istep%150) < 100)
+                    //                    {}
+                    //                    else
+                    //                    {
+                    //                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    //                        v_q = new_q;
+                    //                    }
+                    Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,-1.0/100,0.0);
+                    v_q = new_q;
+                    
+                }
+            }
+            
             //output data stream into text
             // the following ones append one number to an opened file along the simulation
             std::ofstream ofile;
@@ -361,13 +395,13 @@ int main(int argc, char **argv) {
             // output mesh position with only surface mesh
             igl::writeOBJ("surfpos" + std::to_string(file_ind) + ".obj",V_disp,surfF);
             
-            
             if (numModes != 0) {
                 // declare variable for fine mesh rest pos
                 Eigen::MatrixXd Vf_disp;
                 
                 // embedded V
                 auto fine_q = mapStateEigen(test->getFineWorld());
+                fine_q = (*(test->N)) * q;
                 idxc = 0; // reset index counter
                 Vf_disp = std::get<0>(test->getFineWorld().getSystemList().getStorage())[0]->getGeometry().first;
                 // output mesh position with only surface mesh
@@ -383,39 +417,29 @@ int main(int argc, char **argv) {
                 // output mesh position with only surface mesh
                 igl::writeOBJ("finesurfpos" + std::to_string(file_ind) + ".obj",Vf_disp,surfFf);
                 
+//
+                Eigen::MatrixXd dangle;
+                Eigen::MatrixXd dcosangle;
+                igl::dihedral_angles(Vf_disp,Ff,dangle,dcosangle);
+
+
+                ofile.open("dangle_min.txt", std::ios::app); //app is append which means it will put the text at the end
+                ofile << dangle.minCoeff() << std::endl;
+                ofile.close();
+                
+                Eigen::MatrixXd tvolume;
+                igl::volume(Vf_disp,Ff,tvolume);
+                
+                ofile.open("vol_ratio.txt", std::ios::app); //app is append which means it will put the text at the end
+                ofile << tvolume.minCoeff() / tvolume.maxCoeff() << std::endl;
+                ofile.close();
+                
+                
                 // output full state coarse mesh data
                 Eigen::saveMarketVector(q, cmeshnameActual + "FullState" + std::to_string(file_ind) + ".mtx");
                 // fine mesh data from embedded mesh in eigenfit
                 Eigen::saveMarketVector(fine_q, fmeshnameActual + "FullState" + std::to_string(file_ind) + ".mtx");
                 
-            
-            
-            // acts like the "callback" block for moving constraint
-            if (const_profile == 2)
-            {
-                // constraint profile 2 will move some vertices
-                //script some motion
-                for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-                    
-                    auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
-                    //
-                    //                    if ((istep%150) < 50) {
-                    //                        Eigen::Vector3d new_q = (istep%150)*Eigen::Vector3d(0.0,-1.0/100,0.0);
-                    //                        v_q = new_q;
-                    //                    }
-                    //                    else if ((istep%150) < 100)
-                    //                    {}
-                    //                    else
-                    //                    {
-                    //                        Eigen::Vector3d new_q =  (150-(istep%150))*Eigen::Vector3d(0.0,-1.0/100,0.0);
-                    //                        v_q = new_q;
-                    //                    }
-                    Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,-1.0/100,0.0);
-                    v_q = new_q;
-                    
-                }
-            }
-            
                 // project velocity onto the eigenspace to check how effective Eigenfit should be
                 //            auto coarseVel = mapStateEigen<1>(world);
                 //            auto fineVel = mapStateEigen<1>(test->getFineWorld());
@@ -454,51 +478,51 @@ int main(int argc, char **argv) {
                 
                 //            std::cout<<(test->N->cols())<<std::endl;
                 
-                //// output eigen deformation
-                //                unsigned int mode = 0;
-                //                unsigned int idxc = 0;
-                //                unsigned int idxf = 0;
-                //                Eigen::VectorXd coarse_eig_def;
-                //                Eigen::VectorXd fine_eig_def;
-                //                for (mode = 0; mode < numModes; ++mode) {
-                //                    coarse_eig_def = (test->m_coarseP.transpose()*test->coarseEig.first.col(mode)).transpose();
-                //                    fine_eig_def = (test->m_fineP.transpose()*test->fineEig.first.col(mode)).transpose();
-                //
-                //                    idxc = 0;
-                //                    idxf = 0;
-                //                    // getGeometry().first is V
-                //                    Eigen::MatrixXd coarse_V_disp_p = V_disp;
-                //                    Eigen::MatrixXd coarse_V_disp_n = V_disp;
-                //                    Eigen::MatrixXd fine_V_disp_p = Vf_disp;
-                //                    //            Eigen::MatrixXd coarse_V_disp_n = this->getImpl().getV();
-                ////                    for(unsigned int vertexId=0;  vertexId < test->getImpl().getV().rows(); ++vertexId) {
-                ////                        //        //
-                ////                        coarse_V_disp_p(vertexId,0) += (1*coarse_eig_def(idxc));
-                ////                        coarse_V_disp_n(vertexId,0) -= (1*coarse_eig_def(idxc));
-                ////
-                ////                        idxc++;
-                ////                        coarse_V_disp_p(vertexId,1) += (1*coarse_eig_def(idxc));
-                ////                        coarse_V_disp_n(vertexId,1) -= (1*coarse_eig_def(idxc));
-                ////                        idxc++;
-                ////                        coarse_V_disp_p(vertexId,2) += (1*coarse_eig_def(idxc));
-                ////                        coarse_V_disp_n(vertexId,2) -= (1*coarse_eig_def(idxc));
-                ////                        idxc++;
-                ////                    }
-                ////                    igl::writeOBJ(cmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+"p.obj",coarse_V_disp_p, surfF);
-                ////                    igl::writeOBJ(cmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+"n.obj",coarse_V_disp_n, surfF);
-                //
-                ////                    for(unsigned int vertexId=0;  vertexId < Vf.rows(); ++vertexId) {
-                ////                        //        //
-                ////                        fine_V_disp_p(vertexId,0) += (1*fine_eig_def(idxf));
-                ////                        idxf++;
-                ////                        fine_V_disp_p(vertexId,1) += (1*fine_eig_def(idxf));
-                ////                        idxf++;
-                ////                        fine_V_disp_p(vertexId,2) += (1*fine_eig_def(idxf));
-                ////                        idxf++;
-                ////                    }
-                ////                    igl::writeOBJ(fmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+".obj",fine_V_disp_p, surfFf);
-                //
-                //                }
+                // output eigen deformation
+//                unsigned int mode = 0;
+//                unsigned int idxc = 0;
+//                unsigned int idxf = 0;
+//                Eigen::VectorXd coarse_eig_def;
+//                Eigen::VectorXd fine_eig_def;
+//                for (mode = 0; mode < numModes; ++mode) {
+//                    coarse_eig_def = (test->m_coarseP.transpose()*test->coarseEig.first.col(mode)).transpose();
+//                    fine_eig_def = (test->m_fineP.transpose()*test->fineEig.first.col(mode)).transpose();
+//
+//                    idxc = 0;
+//                    idxf = 0;
+//                    // getGeometry().first is V
+//                    Eigen::MatrixXd coarse_V_disp_p = V_disp;
+//                    Eigen::MatrixXd coarse_V_disp_n = V_disp;
+//                    Eigen::MatrixXd fine_V_disp_p = Vf_disp;
+//
+//                    for(unsigned int vertexId=0;  vertexId < test->getImpl().getV().rows(); ++vertexId) {
+//                        //        //
+//                        coarse_V_disp_p(vertexId,0) += (1*coarse_eig_def(idxc));
+//                        coarse_V_disp_n(vertexId,0) -= (1*coarse_eig_def(idxc));
+//
+//                        idxc++;
+//                        coarse_V_disp_p(vertexId,1) += (1*coarse_eig_def(idxc));
+//                        coarse_V_disp_n(vertexId,1) -= (1*coarse_eig_def(idxc));
+//                        idxc++;
+//                        coarse_V_disp_p(vertexId,2) += (1*coarse_eig_def(idxc));
+//                        coarse_V_disp_n(vertexId,2) -= (1*coarse_eig_def(idxc));
+//                        idxc++;
+//                    }
+//                    igl::writeOBJ(cmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+"p.obj",coarse_V_disp_p, surfF);
+//                    igl::writeOBJ(cmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+"n.obj",coarse_V_disp_n, surfF);
+//
+//                    for(unsigned int vertexId=0;  vertexId < Vf.rows(); ++vertexId) {
+//                        //        //
+//                        fine_V_disp_p(vertexId,0) += (1*fine_eig_def(idxf));
+//                        idxf++;
+//                        fine_V_disp_p(vertexId,1) += (1*fine_eig_def(idxf));
+//                        idxf++;
+//                        fine_V_disp_p(vertexId,2) += (1*fine_eig_def(idxf));
+//                        idxf++;
+//                    }
+//                    igl::writeOBJ(fmeshnameActual+"mode"+std::to_string(mode)+"_"+std::to_string(file_ind)+".obj",fine_V_disp_p, surfFf);
+//
+//                }
             }
         }
         

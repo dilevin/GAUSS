@@ -20,18 +20,19 @@ namespace Gauss {
         template<   typename DataType, unsigned int NUM,
                     template<typename Type, typename Energy> class QuadratureRuleT,
                     template<typename Type, typename Energy> class QuadratureRuleU,
+                    template<typename Type, typename Energy> class QuadratureRuleBF,
                     template<typename Type, typename Func> class KineticEnergy,
                     template<typename Type, typename Func> class PotentialEnergy,
                     template<typename Type, typename Func> class BodyForce,
                     template<typename Type> class ShapeFunction >
         class ElementBase  : public QuadratureRuleU<DataType, PotentialEnergy<DataType, ShapeFunction<DataType> > >,
                          public QuadratureRuleT<DataType, KineticEnergy<DataType, ShapeFunction<DataType> > >,
-                         public QuadratureRuleU<DataType, BodyForce<DataType, ShapeFunction<DataType> > > {
+                         public QuadratureRuleBF<DataType, BodyForce<DataType, ShapeFunction<DataType> > > {
         public:
                              
             using QuadratureT = QuadratureRuleT<DataType, KineticEnergy<DataType, ShapeFunction<DataType> > >;
             using QuadratureU = QuadratureRuleU<DataType, PotentialEnergy<DataType, ShapeFunction<DataType> > >;
-            using QuadratureBF = QuadratureRuleU<DataType, BodyForce<DataType, ShapeFunction<DataType> > >;
+            using QuadratureBF = QuadratureRuleBF<DataType, BodyForce<DataType, ShapeFunction<DataType> > >;
 
             using PotentialEnergy<DataType, ShapeFunction<DataType> >::getCauchyStress;
                              
@@ -111,7 +112,7 @@ namespace Gauss {
         template<typename Type, typename Func> class PotentialEnergy,
         template<typename Type, typename Func> class BodyForce,
         template<typename Type> class ShapeFunction >
-        using Element = ElementBase<DataType, N, QuadratureRule, QuadratureRule, KineticEnergy, PotentialEnergy, BodyForce, ShapeFunction>;
+        using Element = ElementBase<DataType, N, QuadratureRule, QuadratureRule, QuadratureRule, KineticEnergy, PotentialEnergy, BodyForce, ShapeFunction>;
         
     }
 }

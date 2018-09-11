@@ -82,11 +82,12 @@ namespace Gauss {
     template <typename DataType, typename DOF>
     class PositionEigen {
         public:
-            inline PositionEigen(DOF *dof=nullptr) { m_dof = dof; }
-            inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const { return mapDOFEigen(*m_dof, state); }
+        inline PositionEigen(DOF *dof=nullptr, Eigen::Vector3x<DataType> p = Eigen::Vector3x<DataType>()) { m_dof = dof; m_p = p; }
+            inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const { return m_p+ mapDOFEigen(*m_dof, state); }
             inline DOF * getDOF() { return m_dof; }
         protected:
             DOF *m_dof;
+        Eigen::Vector3x<DataType> m_p;
     };
     
     //Modal Analysis using Spectra

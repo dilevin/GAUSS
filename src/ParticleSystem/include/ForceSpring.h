@@ -126,7 +126,7 @@ namespace Gauss {
                       0,  0,  1;
                 
                 Eigen::Matrix<double, 6,6> Hspring;
-                Hspring = a*B*B.transpose() - c*B*dqN*dqN.transpose()*B.transpose();
+                Hspring = -a*B*B.transpose() - c*B*dqN*dqN.transpose()*B.transpose();
                 assign(H, Hspring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}}, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 
             }

@@ -11,9 +11,9 @@
 
 namespace Gauss {
     
-    template<typename DataType, template <typename D, typename E> class QuadratureRuleT, template <typename H, typename I> class QuadratureRuleU, template <typename F, typename G> class EnergyPotential>
+    template<typename DataType, template <typename D, typename E> class QuadratureRuleT, template <typename H, typename I> class QuadratureRuleU, template <typename H, typename I> class QuadratureRuleBF, template <typename F, typename G> class EnergyPotential>
     class Renderable<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
-    FEM::ElementBase<DataType, 3, QuadratureRuleT, QuadratureRuleU,
+    FEM::ElementBase<DataType, 3, QuadratureRuleT, QuadratureRuleU, QuadratureRuleBF,
     FEM::EnergyKineticNonLumped,
     EnergyPotential,
     FEM::BodyForceGravity,
@@ -22,7 +22,7 @@ namespace Gauss {
     public:
         
         using FEMSystem = PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType,
-        FEM::ElementBase<DataType, 3, QuadratureRuleT, QuadratureRuleU,
+        FEM::ElementBase<DataType, 3, QuadratureRuleT, QuadratureRuleU, QuadratureRuleBF,
         FEM::EnergyKineticNonLumped,
         EnergyPotential,
         FEM::BodyForceGravity,

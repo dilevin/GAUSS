@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
     
     //new code -- load tetgen files
     Eigen::MatrixXd V;
+    
     Eigen::MatrixXi F;
     
     readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");

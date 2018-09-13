@@ -1,14 +1,12 @@
 //
-//  TimeStepperEigenFitSMWBE.h
+//  TimeStepperEigenFitFunctionalSMWBE.h
 //  Gauss
 //
-//  Created by Edwin Chen on 2018-05-15.
-//
+//  Created by Yu Ju Edwin Chen on 2018-09-04.
 //
 
-#ifndef TimeStepperEigenFitSMWBE_h
-#define TimeStepperEigenFitSMWBE_h
-
+#ifndef TimeStepperEigenFitFunctionalSMWBE_h
+#define TimeStepperEigenFitFunctionalSMWBE_h
 
 
 #include <World.h>
@@ -29,12 +27,12 @@ namespace Gauss {
     
     //Given Initial state, step forward in time using linearly implicit Euler Integrator
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-    class TimeStepperImplEigenFitSMWBEImpl
+    class TimeStepperImplEigenFitFunctionalSMWBEImpl
     {
     public:
         
         template<typename Matrix>
-        TimeStepperImplEigenFitSMWBEImpl(Matrix &P, unsigned int numModes) {
+        TimeStepperImplEigenFitFunctionalSMWBEImpl(Matrix &P, unsigned int numModes) {
             
             m_numModes = (numModes);
             
@@ -56,11 +54,11 @@ namespace Gauss {
             
         }
         
-        TimeStepperImplEigenFitSMWBEImpl(const TimeStepperImplEigenFitSMWBEImpl &toCopy) {
+        TimeStepperImplEigenFitFunctionalSMWBEImpl(const TimeStepperImplEigenFitFunctionalSMWBEImpl &toCopy) {
             
         }
         
-        ~TimeStepperImplEigenFitSMWBEImpl() { }
+        ~TimeStepperImplEigenFitFunctionalSMWBEImpl() { }
         
         //Methods
         //init() //initial conditions will be set at the begining
@@ -132,7 +130,7 @@ namespace Gauss {
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
-int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
+void TimeStepperImplEigenFitFunctionalSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
     
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
     MatrixAssembler &massMatrix = m_massMatrix;
@@ -214,20 +212,14 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
         (*forceVector) = m_P*(*forceVector);
         //Eigendecomposition
         
-        // if number of modes not equals to 0, use EigenFit
+        // if number of modes not equals to 0, use EigenFitFunctional
         if (m_numModes != 0) {
             
             
             q = eigen_q_old + dt*qDot;
             
             //        using the current deformed state to do eigenfit
-            try{
-                if(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z)) throw 1;
-            }catch(...)
-            {
-                std::cout<<"hausdorff distance check fail\n";
-                return 2;
-            }
+            static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitDataFunctional(q,qDot,dt,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
             
             
             //    Correct Forces
@@ -253,7 +245,7 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             std::cout<<"res_old: "<<res_old << std::endl;
             //        eigen_v_old = qDot;
             
-//            std::cout<< "qDot - eigen_v_old: "<<(qDot - eigen_v_old).norm() << std::endl;
+            //            std::cout<< "qDot - eigen_v_old: "<<(qDot - eigen_v_old).norm() << std::endl;
             
             Eigen::VectorXd x0;
             Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = -(*m_massMatrix)+ dt*dt*(*m_stiffnessMatrix);
@@ -330,15 +322,9 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             
             auto Dv = m_P.transpose()*x0;
             
-//            eigen_v_temp = qDot;
+            //            eigen_v_temp = qDot;
             eigen_v_temp = qDot + Dv*step_size;
-            //        qDot = eigen_v_old + Dv*step_size;
-            //        qDot  = qDot;
-//            std::cout<< "eigen_v_old - eigen_v_temp: "<<(eigen_v_old - eigen_v_temp).norm() << std::endl;
             
-            //        std::cout<<"m_P "<<m_P.rows() << " " <<m_P.cols() << std::endl;
-            //        std::cout<<"x0 "<<x0.rows()<< std::endl;
-            //        std::cout<<"qDot "<<qDot.rows()<< std::endl;
             //update state
             q = eigen_q_old + dt*eigen_v_temp;
             
@@ -366,7 +352,7 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
             
             (*forceVector) = m_P*(*forceVector);
-            static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+            static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitDataFunctional(q,qDot,dt,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
             
             //    Correct Forces
             (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
@@ -377,51 +363,6 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             m_pardiso_mass.solve(*forceVector);
             std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm()<< std::endl;
             res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm();
-            
-//            while (res > res_old + c1 * step_size * res * 2) {
-//                res_old = res;
-//                it_inner = it_inner + 1;
-//                if (it_inner > 40) {
-//                    std::cout<<"warning: line search more than 40 iterations." << std::endl;
-//                }
-//                step_size = 0.9 * step_size;
-//                eigen_v_temp = qDot + step_size*Dv;
-//                q = eigen_q_old + dt*eigen_v_temp;
-//
-//                // calculate the residual. brute force for now. ugly
-//                //get stiffness matrix
-//                ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-//                ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-//                ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-//                ASSEMBLEEND(stiffnessMatrix);
-//
-//                //Need to filter internal forces seperately for this applicat
-//                ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
-//                ASSEMBLELIST(forceVector, world.getSystemList(), getImpl().getInternalForce);
-//                ASSEMBLEEND(forceVector);
-//
-//                ASSEMBLEVECINIT(fExt, world.getNumQDotDOFs());
-//                ASSEMBLELIST(fExt, world.getSystemList(), getImpl().getBodyForce);
-//                ASSEMBLEEND(fExt);
-//
-//                //constraint Projection
-//                //        (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
-//                (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
-//
-//                (*forceVector) = m_P*(*forceVector);
-//                static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
-//
-//                //    Correct Forces
-//                (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
-//
-//                // add external force
-//                (*forceVector) = (*forceVector) + m_P*(*fExt);
-//
-//                m_pardiso_mass.solve(*forceVector);
-//                std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm()<< std::endl;
-//                res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm();
-//
-//            }
             
             qDot = eigen_v_temp;
         }
@@ -449,8 +390,8 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             std::cout<<"res_old: "<<res_old << std::endl;
             //        eigen_v_old = qDot;
             
-//            std::cout<< "qDot - eigen_v_old: "<<(qDot - eigen_v_old).norm() << std::endl;
-//
+            //            std::cout<< "qDot - eigen_v_old: "<<(qDot - eigen_v_old).norm() << std::endl;
+            //
             
             Eigen::VectorXd x0;
             Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = -(*m_massMatrix)+ dt*dt*(*m_stiffnessMatrix);
@@ -496,12 +437,12 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             
             
             step_size = 1;
-//            eigen_v_temp = qDot;
+            //            eigen_v_temp = qDot;
             eigen_v_temp = qDot + Dv*step_size;
             //        qDot = eigen_v_old + Dv*step_size;
             //        qDot  = qDot;
-//            std::cout<< "Dv" << Dv << std::endl;
-//            std::cout<< "eigen_v_old - eigen_v_temp: "<<(eigen_v_old - eigen_v_temp).norm() << std::endl;
+            //            std::cout<< "Dv" << Dv << std::endl;
+            //            std::cout<< "eigen_v_old - eigen_v_temp: "<<(eigen_v_old - eigen_v_temp).norm() << std::endl;
             
             //        std::cout<<"m_P "<<m_P.rows() << " " <<m_P.cols() << std::endl;
             //        std::cout<<"x0 "<<x0.rows()<< std::endl;
@@ -537,47 +478,6 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
             m_pardiso_mass.solve(*forceVector);
             std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm()<< std::endl;
             res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm();
-//
-//            while (res > res_old + c1 * step_size * res * 2) {
-//                res_old = res;
-//                it_inner = it_inner + 1;
-//                if (it_inner > 40) {
-//                    std::cout<<"warning: line search more than 40 iterations." << std::endl;
-//                }
-//                step_size = 0.9 * step_size;
-//                eigen_v_temp = qDot + step_size*Dv;
-//                q = eigen_q_old + dt*eigen_v_temp;
-//
-//                // calculate the residual. brute force for now. ugly
-//                //get stiffness matrix
-//                ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
-//                ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-//                ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-//                ASSEMBLEEND(stiffnessMatrix);
-//
-//                //Need to filter internal forces seperately for this applicat
-//                ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());
-//                ASSEMBLELIST(forceVector, world.getSystemList(), getImpl().getInternalForce);
-//                ASSEMBLEEND(forceVector);
-//
-//                ASSEMBLEVECINIT(fExt, world.getNumQDotDOFs());
-//                ASSEMBLELIST(fExt, world.getSystemList(), getImpl().getBodyForce);
-//                ASSEMBLEEND(fExt);
-//
-//                //constraint Projection
-//                //        (*massMatrix) = m_P*(*massMatrix)*m_P.transpose();
-//                (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
-//
-//                (*forceVector) = m_P*(*forceVector);
-//
-//                // add external force
-//                (*forceVector) = (*forceVector) + m_P*(*fExt);
-//
-//                m_pardiso_mass.solve(*forceVector);
-//                std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm()<< std::endl;
-//                res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm();
-//
-//            }
             
             qDot = eigen_v_temp;
         }
@@ -589,13 +489,40 @@ int TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>
     
     q = eigen_q_old + dt*qDot;
     
-    return 0;
+//    std::cout<<"eigenvector size: "<<m_coarseUs.first.rows()<<" "<<m_coarseUs.first.cols()<<std::endl;
+//    std::cout<<"v size: "<<qDot.rows()<<" "<<qDot.cols()<<std::endl;
+//    Eigen::VectorXd reduced_v = m_coarseUs.first.transpose() * m_P* qDot;
+//    std::cout<<"v reduced size: "<<reduced_v.rows()<<std::endl;
+//
+//    Eigen::VectorXd fine_q = mapStateEigen<0>(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->getFineWorld());
+//    std::cout<<"size fine q: "<<fine_q.rows()<<std::endl;
+//
+////    std::cout<<"fine_q: "<<fine_q<<std::endl;
+//
+//    Eigen::VectorXd fine_v = mapStateEigen<1>(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->getFineWorld());
+//
+//    fine_v = (static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->fineEigMassProj.first) * reduced_v;
+//    std::cout<<"size: "<<fine_v.rows()<<std::endl;
+    
+//    std::cout<<"size: "<<(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->fineEigMassProj.first).rows()<<" "<<(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->fineEigMassProj.first).cols()<<std::endl;
+//    fine_q = fine_q + dt * (static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_fineP).transpose() * fine_v;
+
+//    
+//    Eigen::Map<Eigen::VectorXd> eigen_fine_q_transfered((static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->fine_q_transfered),fine_q.rows());
+//    std::cout<<"size eigen_fine_q_transfered: "<<eigen_fine_q_transfered.rows()<<std::endl;
+//    
+//       eigen_fine_q_transfered  = fine_q + dt * (static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_fineP).transpose() * fine_v;
+//    
+//    std::cout<<"size transfered: "<<((static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->m_fineP).transpose() * fine_v).rows()<<std::endl;
+//    
+//    std::cout<<"fine_q: "<<eigen_fine_q_transfered<<std::endl;
+
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-using TimeStepperEigenFitSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
+using TimeStepperEigenFitFunctionalSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitFunctionalSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
 
 
+#endif /* TimeStepperEigenFitFunctionalSMWBE_h */
 
 
-#endif /* TimeStepperEigenFitSMWBE_h */

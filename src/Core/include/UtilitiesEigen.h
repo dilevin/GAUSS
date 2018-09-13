@@ -16,6 +16,15 @@
 #include <Utilities.h>
 #include <World.h>
 
+//Modal Analysis using Spectra
+#include <GenEigsComplexShiftSolver.h>
+#include <SymGEigsSolver.h>
+#include <GenEigsRealShiftSolver.h>
+#include <MatOp/SparseGenMatProd.h>
+#include <MatOp/SparseCholesky.h>
+#include <MatOp/SparseSymShiftSolve.h>
+#include <SymGEigsSolver.h>
+#include <stdexcept>
 
 //some useful types
 namespace Eigen {
@@ -90,18 +99,6 @@ namespace Gauss {
         Eigen::Vector3x<DataType> m_p;
     };
     
-    //Modal Analysis using Spectra
-
-    //Temp test Spectre
-    #include <GenEigsComplexShiftSolver.h>
-    #include <SymGEigsSolver.h>
-    #include <GenEigsRealShiftSolver.h>
-    #include <MatOp/SparseGenMatProd.h>
-    #include <MatOp/SparseCholesky.h>
-    #include <MatOp/SparseSymShiftSolve.h>
-    #include <SymGEigsSolver.h>
-    #include <stdexcept>
-
     //Define a new spectra shift and invert for "mass" shifting the generalized eigenproblem (cut and paste from Spectra's SymShiftSolve
     namespace Spectra {
         

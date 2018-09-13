@@ -9,7 +9,6 @@ matrix:
       compiler: clang
       script:
         - git submodule update --init --recursive
-        - git submodule update --recursive --remote
         - brew update
         - brew upgrade cmake
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-mac-x64-5.9.0.dmg
@@ -23,7 +22,6 @@ matrix:
       group: deprecated-2017Q4
       script: 
         - git submodule update --init --recursive
-        -  git submodule update --recursive --remote
         - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
         - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
         - wget http://download.qt.io/official_releases/qt/5.9/5.9.0/qt-opensource-linux-x64-5.9.0.run

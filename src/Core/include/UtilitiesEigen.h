@@ -17,13 +17,13 @@
 #include <World.h>
 
 //Modal Analysis using Spectra
-#include <Spectra/GenEigsComplexShiftSolver.h>
-#include <Spectra/SymGEigsSolver.h>
-#include <Spectra/GenEigsRealShiftSolver.h>
-#include <Spectra/MatOp/SparseGenMatProd.h>
-#include <Spectra/MatOp/SparseCholesky.h>
-#include <Spectra/MatOp/SparseSymShiftSolve.h>
-#include <Spectra/SymGEigsSolver.h>
+#include <GenEigsComplexShiftSolver.h>
+#include <SymGEigsSolver.h>
+#include <GenEigsRealShiftSolver.h>
+#include <MatOp/SparseGenMatProd.h>
+#include <MatOp/SparseCholesky.h>
+#include <MatOp/SparseSymShiftSolve.h>
+#include <SymGEigsSolver.h>
 #include <stdexcept>
 
 //some useful types
@@ -39,10 +39,10 @@ namespace Eigen {
     
     template<typename DataType>
     using MatrixXx = Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>;
-
+    
     template<typename DataType>
     using Matrix33x = Eigen::Matrix<DataType, 3, 3>;
-
+    
     //Comes up a lot in constitutive models
     template<typename DataType>
     using Matrix66x = Eigen::Matrix<DataType, 6,6>;
@@ -61,7 +61,7 @@ namespace Gauss {
         std::tuple<double *, unsigned int> ptr = world.getState().template getStatePtr<Property>();
         return Eigen::Map<Eigen::VectorXd>(std::get<0>(ptr), std::get<1>(ptr));
     }
-
+    
     //state ptr for the whole thing
     template<typename World>
     Eigen::Map<Eigen::VectorXd> mapStateEigen(World &world) {
@@ -77,7 +77,7 @@ namespace Gauss {
         std::tuple<double *, unsigned int> qPtr = dof.getPtr(world.getState());
         //set position DOF and check
         return Eigen::Map<Eigen::VectorXd>(std::get<0>(qPtr), dof.getNumScalarDOF());
-
+        
     }
     
     template<typename DOF, typename DataType>
@@ -90,16 +90,15 @@ namespace Gauss {
     //functor for getting position of a DOF
     template <typename DataType, typename DOF>
     class PositionEigen {
-        public:
+    public:
         inline PositionEigen(DOF *dof=nullptr, Eigen::Vector3x<DataType> p = Eigen::Vector3x<DataType>()) { m_dof = dof; m_p = p; }
-            inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const { return m_p+ mapDOFEigen(*m_dof, state); }
-            inline DOF * getDOF() { return m_dof; }
-        protected:
-            DOF *m_dof;
+        inline Eigen::Vector3x<DataType> operator()(const State<DataType> &state) const { return m_p+ mapDOFEigen(*m_dof, state); }
+        inline DOF * getDOF() { return m_dof; }
+    protected:
+        DOF *m_dof;
         Eigen::Vector3x<DataType> m_p;
     };
 }
-
 //Define a new spectra shift and invert for "mass" shifting the generalized eigenproblem (cut and paste from Spectra's SymShiftSolve
 namespace Spectra {
     
@@ -191,7 +190,7 @@ template<typename DataType, int Flags, typename Indices>
 auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
                                   const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
                                   unsigned int numVecs) {
-
+    
     //Spectra seems to freak out if you use row storage, this copy just ensures everything is setup the way the solver likes
     Eigen::SparseMatrix<DataType> K = A;
     Eigen::SparseMatrix<DataType> M = B;
@@ -206,7 +205,7 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
     
     // Construct eigen solver object, requesting the smallest three eigenvalues
     Spectra::SymGEigsSolver<DataType, Spectra::SMALLEST_MAGN, Spectra::SparseSymMatProd<DataType>, Spectra::SparseCholesky<DataType>, Spectra::GEIGS_CHOLESKY > eigs(&Aop, &Bop, numVecs, 5*numVecs);
-   
+    
     
     // Initialize and compute
     eigs.init();

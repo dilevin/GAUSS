@@ -40,7 +40,7 @@ namespace Gauss {
                 unsigned int NUM,
                 template <typename D, typename E> class QuadratureRuleT,
                 template <typename H, typename I> class QuadratureRuleU,
-                template <typename H, typename I> class QuadratureRuleBF,
+                template <typename H1, typename I1> class QuadratureRuleBF,
                 template <typename J, typename K> class EnergyKinetic,
                 template <typename L, typename M> class EnergyPotential,
                 template <typename N, typename O> class BodyForce,

@@ -17,6 +17,6 @@ cd ./build
 
 
 echo "Building make files (this can fail if homebrew CMake version is wrong)"
-cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DEigen4_DIR=/usr/local/Cellar/eigen/3.3.4/include/eigen3 -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.9.0/5.9/clang_64/lib/cmake -DCMAKE_BUILD_TYPE=Release
 
 make -j 2 all

@@ -1,5 +1,7 @@
 #!/bin/sh
 echo "Install Gauss on OSX"
+git submodule update --init --recursive
+
 echo "Download Qt"
 brew update
 brew install cmake

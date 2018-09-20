@@ -1,13 +1,13 @@
 //
-//  TimeStepperEigenFitSMWBE.h
+//  TimeStepperEigenFitStvkSMWBE.h
 //  Gauss
 //
 //  Created by Edwin Chen on 2018-05-15.
 //
 //
 
-#ifndef TimeStepperEigenFitSMWBE_h
-#define TimeStepperEigenFitSMWBE_h
+#ifndef TimeStepperEigenFitStvkSMWBE_h
+#define TimeStepperEigenFitStvkSMWBE_h
 
 
 
@@ -20,7 +20,7 @@
 #include <UtilitiesMATLAB.h>
 #include <Eigen/SparseCholesky>
 #include <SolverPardiso.h>
-#include <EigenFit.h>
+#include <EigenFitStvk.h>
 #include <limits>
 
 
@@ -29,12 +29,12 @@ namespace Gauss {
     
     //Given Initial state, step forward in time using linearly implicit Euler Integrator
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-    class TimeStepperImplEigenFitSMWBEImpl
+    class TimeStepperImplEigenFitStvkSMWBEImpl
     {
     public:
         
         template<typename Matrix>
-        TimeStepperImplEigenFitSMWBEImpl(Matrix &P, unsigned int numModes) {
+        TimeStepperImplEigenFitStvkSMWBEImpl(Matrix &P, unsigned int numModes) {
             
             m_numModes = (numModes);
             
@@ -56,11 +56,11 @@ namespace Gauss {
             
         }
         
-        TimeStepperImplEigenFitSMWBEImpl(const TimeStepperImplEigenFitSMWBEImpl &toCopy) {
+        TimeStepperImplEigenFitStvkSMWBEImpl(const TimeStepperImplEigenFitStvkSMWBEImpl &toCopy) {
             
         }
         
-        ~TimeStepperImplEigenFitSMWBEImpl() { }
+        ~TimeStepperImplEigenFitStvkSMWBEImpl() { }
         
         //Methods
         //init() //initial conditions will be set at the begining
@@ -134,7 +134,7 @@ namespace Gauss {
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
-void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
+void TimeStepperImplEigenFitStvkSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
     
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
     MatrixAssembler &massMatrix = m_massMatrix;
@@ -175,7 +175,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
     // for damping
     double a = 0.0;
     // negative for opposite sign for stiffness
-    double b = -0.00;
+    double b = -0.0;
     
     do {
         std::cout<<"it outer: " << it_outer<<std::endl;
@@ -219,16 +219,16 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         (*forceVector) = m_P*(*forceVector);
         //Eigendecomposition
         
-        // if number of modes not equals to 0, use EigenFit
+        // if number of modes not equals to 0, use EigenFitStvk
         if (m_numModes != 0) {
             
             
             try{
-                if(static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z)) throw 1;
+                if(static_cast<EigenFitStvk*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitStvkData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z)) throw 1;
             }catch(...)
             {
                 std::cout<<"hausdorff distance check fail\n";
-                static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->flag = 2;
+                static_cast<EigenFitStvk*>(std::get<0>(world.getSystemList().getStorage())[0])->flag = 2;
                 return;
             }
             
@@ -270,7 +270,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         m_pardiso.symbolicFactorization(systemMatrix, m_numModes);
         m_pardiso.numericalFactorization();
         
-        //    SMW update for Eigenfit here
+        //    SMW update for EigenFitStvk here
         
         m_pardiso.solve(eigen_rhs);
         x0 = m_pardiso.getX();
@@ -302,9 +302,10 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         
 #endif
         
+        
         if (m_numModes != 0) {
         Y = dt*Y;
-//        Y = (dt*dt-dt*b)*Y;
+        //        Y = (dt*dt-dt*b)*Y;
         //
         Z = dt*Z;
         // todo: add damping here
@@ -371,7 +372,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         
         if (m_numModes != 0) {
             
-            static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+            static_cast<EigenFitStvk*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitStvkData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
             
             //    Correct Forces
             (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
@@ -423,7 +424,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         //                (*stiffnessMatrix) = m_P*(*stiffnessMatrix)*m_P.transpose();
         //
         //                (*forceVector) = m_P*(*forceVector);
-        //                static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
+        //                static_cast<EigenFitStvk*>(std::get<0>(world.getSystemList().getStorage())[0])->calculateEigenFitStvkData(q,massMatrix,stiffnessMatrix,m_coarseUs,Y,Z);
         //
         //                //    Correct Forces
         //                (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
@@ -446,9 +447,9 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-using TimeStepperEigenFitSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
+using TimeStepperEigenFitStvkSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitStvkSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
 
 
 
 
-#endif /* TimeStepperEigenFitSMWBE_h */
+#endif /* TimeStepperEigenFitStvkSMWBE_h */

@@ -6,8 +6,8 @@
 
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEigenFitSMWBE.h>
-#include <EigenFit.h>
+#include <TimeStepperEigenFitStvkSMWBE.h>
+#include <EigenFitStvk.h>
 #include <fstream>
 #include <igl/boundary_facets.h>
 #include <igl/volume.h>
@@ -22,8 +22,8 @@ using namespace ParticleSystem; //For Force Spring
 //typedef physical entities I need
 
 //typedef scene
-//typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
-typedef PhysicalSystemFEM<double, NeohookeanHFixedTet> FEMLinearTets;
+//typedef PhysicalSystemFEM<double, StvkHFixedTet> FEMLinearTets;
+typedef PhysicalSystemFEM<double, StvkHFixedTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
@@ -32,13 +32,13 @@ std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 //typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
 //                      std::tuple<ForceSpringFEMParticle<double> *>,
 //                      std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-//typedef TimeStepperEigenFitSMW<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double>> MyTimeStepper;
-typedef TimeStepperEigenFitSMWBE<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
+//typedef TimeStepperEigenFitStvkSMW<double, AssemblerEigenSparseMatrix<double>, AssemblerEigenVector<double>> MyTimeStepper;
+typedef TimeStepperEigenFitStvkSMWBE<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double>>, AssemblerParallel<double, AssemblerEigenVector<double>> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
 
-//typedef TimeStepperEigenFitSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+//typedef TimeStepperEigenFitStvkSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 //AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 //typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     //    11. step size
     
     
-    std::cout<<"Test Neohookean FEM EigenFit\n";
+    std::cout<<"Test Stvk FEM EigenFitStvk\n";
     
     //Setup Physics
     MyWorld world;
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
         // the flag indicate whether to recalculated or not
         // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
         // also use the last two args to determine how many modes to fix. have to put it here now. ugly
-        EigenFit *test = new EigenFit(V,F,Vf,Ff,dynamic_flag,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes,cmeshnameActual,fmeshnameActual);
+        EigenFitStvk *test = new EigenFitStvk(V,F,Vf,Ff,dynamic_flag,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes,cmeshnameActual,fmeshnameActual);
         
         
         world.addSystem(test);
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
             }
             // read constraints
             
-//            Eigen::loadMarketVector(fixedVerts, "def_init/" + cmeshnameActual + "_fixed_min_verts.mtx");
+            //            Eigen::loadMarketVector(fixedVerts, "def_init/" + cmeshnameActual + "_fixed_min_verts.mtx");
             //
             movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
             
@@ -212,8 +212,8 @@ int main(int argc, char **argv) {
         
         // initialize the state (position and velocity)
         auto q = mapStateEigen(world);
-//        std::cout<<q.rows()<<std::endl;
-//        std::cout<<q.cols()<<std::endl;
+        //        std::cout<<q.rows()<<std::endl;
+        //        std::cout<<q.cols()<<std::endl;
         //        q.setZero();
         
         
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
         }
         else
         {
-          std::cout<<"warning: wrong initial deformation\n";
+            std::cout<<"warning: wrong initial deformation\n";
         }
         
         MyTimeStepper stepper(step_size,P,numModes);
@@ -272,10 +272,10 @@ int main(int argc, char **argv) {
                     
                     auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
                     //
-                                        if ((istep) < 50) {
-                                            Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(-1.0/100,0.0,0.0);
-                                            v_q = new_q;
-                                        }
+                    if ((istep) < 50) {
+                        Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(-1.0/100,0.0,0.0);
+                        v_q = new_q;
+                    }
                     
                 }
             }
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
                         Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,0.0,-1.0/100);
                         v_q = new_q;
                     }
-
+                    
                     
                 }
             }else if (const_profile == 7)
@@ -318,7 +318,7 @@ int main(int argc, char **argv) {
                     auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
                     //
                     if ((istep) < 250) {
-//                        Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,0.0,-1.0/100);
+                        //                        Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,0.0,-1.0/100);
                         v_q(0) += 0.1*Xvel(istep);
                         v_q(1) += 0.1*Yvel(istep);
                         v_q(2) += 0.1*Zvel(istep);
@@ -347,9 +347,9 @@ int main(int argc, char **argv) {
                         else{ v_q(0) += std::min(Yvel(istep),0.005);}
                         if(Zvel(istep) <= 0){   v_q(2) += std::max(Zvel(istep),-0.005);}
                         else{ v_q(0) += std::min(Zvel(istep),0.005);}
-//
-//                            v_q(1) += Yvel(istep);
-//                        v_q(2) += Zvel(istep);
+                        //
+                        //                            v_q(1) += Yvel(istep);
+                        //                        v_q(2) += Zvel(istep);
                     }
                     
                     
@@ -385,7 +385,7 @@ int main(int argc, char **argv) {
             idxc = 0;
             Eigen::MatrixXd V_disp = std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first;
             // output mesh position with only surface mesh
-//            igl::writeOBJ("surfpos_rest" + std::to_string(file_ind) + ".obj",V_disp,surfF);
+            //            igl::writeOBJ("surfpos_rest" + std::to_string(file_ind) + ".obj",V_disp,surfF);
             
             
             // get the mesh position
@@ -411,10 +411,10 @@ int main(int argc, char **argv) {
                 
                 // embedded V
                 auto fine_q = mapStateEigen<0>(test->getFineWorld());
-//                std::cout<<"N rows: " <<(*(test->N)).rows() <<"\n";
-//                std::cout<<"N cols: " <<(*(test->N)).cols() <<"\n";
-//                std::cout<<"q rows: " <<q.rows() <<"\n";
-//                std::cout<<"fine q rows: " <<fine_q.rows() <<"\n";
+                //                std::cout<<"N rows: " <<(*(test->N)).rows() <<"\n";
+                //                std::cout<<"N cols: " <<(*(test->N)).cols() <<"\n";
+                //                std::cout<<"q rows: " <<q.rows() <<"\n";
+                //                std::cout<<"fine q rows: " <<fine_q.rows() <<"\n";
                 fine_q = (*(test->N)) * q.head(q.rows()/2);
                 idxc = 0; // reset index counter
                 Vf_disp = std::get<0>(test->getFineWorld().getSystemList().getStorage())[0]->getGeometry().first;
@@ -430,14 +430,14 @@ int main(int argc, char **argv) {
                 }
                 // output mesh position with only surface mesh
                 igl::writeOBJ("finesurfpos" + std::to_string(file_ind) + ".obj",Vf_disp,surfFf);
-
+                
             }
         }
         
     }
     else
     {
-        // using all default paramters for eigenfit
+        // using all default paramters for EigenFitStvk
         
         //    default example meshes
         std::string cmeshname = "/meshesTetWild/brick/brick_surf_4";
@@ -461,13 +461,13 @@ int main(int argc, char **argv) {
         bool hausdorff = false;
         int numModes = 3;
         
-        // no constraint switch so just create the eigenfit obj with constraint switch set to 1
+        // no constraint switch so just create the EigenFitStvk obj with constraint switch set to 1
         // the flag indicate whether to recalculated or not
         // need to pass the material and constraint parameters to embedding too. need to do it again below. ugly
         // also use the last two args to determine how many modes to fix. default not using hausdorff distance, and use 10 modes. have to put it here now.  ugly
-        //        EigenFit *test = new EigenFit(V,F,Vf,Ff,dynamic_flag,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes,cmeshnameActual,fmeshnameActual);
+        //        EigenFitStvk *test = new EigenFitStvk(V,F,Vf,Ff,dynamic_flag,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes,cmeshnameActual,fmeshnameActual);
         
-        EigenFit *test = new EigenFit(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes," "," ");
+        EigenFitStvk *test = new EigenFitStvk(V,F,Vf,Ff,true,youngs,poisson,constraint_dir,constraint_tol, const_profile,hausdorff,numModes," "," ");
         
         // set material
         for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {

@@ -1,5 +1,5 @@
 //
-//  EigenFit.h
+//  EigenFitStvk.h
 //  Gauss
 //
 //  Created by Edwin Chen on 2018-05-11.
@@ -7,8 +7,8 @@
 //
 //#define EDWIN_DEBUG
 
-#ifndef EigenFit_h
-#define EigenFit_h
+#ifndef EigenFitStvk_h
+#define EigenFitStvk_h
 
 
 #include <FEMIncludes.h>
@@ -31,15 +31,15 @@ using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
 // subclass a hard-coded templated class from PhysicalSystemFEM
-// this means that this EigenFit only works for NeohookeanHFixedTets
-class EigenFit: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
-    //class EigenFit: public PhysicalSystemFEM<double, NeohookeanHFixedTet>{
+// this means that this EigenFitStvk only works for StvkHFixedTets
+class EigenFitStvk: public PhysicalSystemFEM<double, StvkHFixedTet>{
+    //class EigenFitStvk: public PhysicalSystemFEM<double, StvkHFixedTet>{
     
 public:
     // alias the hard-coded template name. Easier to read
-    // the following lines read: the Physical System Implementation used here is a neo-hookean tet class
-    //    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
-    using PhysicalSystemImpl = PhysicalSystemFEM<double, NeohookeanHFixedTet>;
+    // the following lines read: the Physical System Implementation used here is a stvk tet class
+    //    using PhysicalSystemImpl = PhysicalSystemFEM<double, StvkHFixedTet>;
+    using PhysicalSystemImpl = PhysicalSystemFEM<double, StvkHFixedTet>;
     
     // use all the default function for now
     using PhysicalSystemImpl::getEnergy;
@@ -61,8 +61,8 @@ public:
     // constructor
     // the constructor will take the two mesh parameters, one coarse one fine.
     // The coarse mesh data will be passed to the parent class constructor to constructor
-    // the fine mesh data will be used to initialize the members specific to the EigenFit class
-    EigenFit(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraintDir, double constraintTol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes, std::string cmeshname, std::string fmeshname ) : PhysicalSystemImpl(Vc,Fc)
+    // the fine mesh data will be used to initialize the members specific to the EigenFitStvk class
+    EigenFitStvk(Eigen::MatrixXx<double> &Vc, Eigen::MatrixXi &Fc,Eigen::MatrixXx<double> &Vf, Eigen::MatrixXi &Ff, bool flag, double youngs, double poisson, int constraintDir, double constraintTol, unsigned int cswitch, unsigned int hausdorff_dist, unsigned int numModes, std::string cmeshname, std::string fmeshname ) : PhysicalSystemImpl(Vc,Fc)
     {
         if(numModes != 0)
         {
@@ -338,7 +338,7 @@ public:
     }
     
     
-    ~EigenFit() {delete fine_pos0;
+    ~EigenFitStvk() {delete fine_pos0;
     }
     
     void calculateFineMesh(){
@@ -402,8 +402,8 @@ public:
     
     // calculate data, TODO: the first two parameter should be const
     template<typename MatrixAssembler>
-    //    void calculateEigenFitData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
-    bool calculateEigenFitData(const Eigen::VectorXx<double> &q, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
+    //    void calculateEigenFitStvkData(State<double> &state, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
+    bool calculateEigenFitStvkData(const Eigen::VectorXx<double> &q, MatrixAssembler &coarseMassMatrix, MatrixAssembler &coarseStiffnessMatrix,  std::pair<Eigen::MatrixXx<double>, Eigen::VectorXx<double> > &m_coarseUs, Eigen::MatrixXd &Y, Eigen::MatrixXd &Z){
         
         
         // matrices passed in already eliminated the constraints
@@ -513,7 +513,7 @@ public:
                 Eigen::MatrixXd fine_V_disp = std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first;
                 for(unsigned int vertexId=0;  vertexId < std::get<0>(m_fineWorld.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
                     
-                    // because getFinePosition is in EigenFit, not another physical system Impl, so don't need getImpl()
+                    // because getFinePosition is in EigenFitStvk, not another physical system Impl, so don't need getImpl()
                     fine_V_disp(vertexId,0) += (1*fine_eig_def(idx));
                     idx++;
                     fine_V_disp(vertexId,1) += (1*fine_eig_def(idx));
@@ -582,14 +582,14 @@ public:
             }
             ratio_calculated = true;
         }
-//
-//        m_R(0) = 0.685529;
-//        m_R(1) = 0.818259;
-//        m_R(2) = 0.812515;
-//        m_R(3) = 0.704663;
-//        m_R(4) = 0.657531;
-//
-//        std::cout<<m_R<<std::endl;
+        //
+        //        m_R(0) = 0.685529;
+        //        m_R(1) = 0.818259;
+        //        m_R(2) = 0.812515;
+        //        m_R(3) = 0.704663;
+        //        m_R(4) = 0.657531;
+        //
+        //        std::cout<<m_R<<std::endl;
         Y = (*coarseMassMatrix)*m_coarseUs.first*(m_R-m_I).asDiagonal();
         Z =  (m_coarseUs.second.asDiagonal()*m_coarseUs.first.transpose()*(*coarseMassMatrix));
         
@@ -845,5 +845,5 @@ private:
     
 };
 
-#endif /* EigenFit_h */
+#endif /* EigenFitStvk_h */
 

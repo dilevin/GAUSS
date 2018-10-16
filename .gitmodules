@@ -10,6 +10,3 @@
 [submodule "ThirdParty/eigen-gurobi"]
 	path = ThirdParty/eigen-gurobi
 	url = https://github.com/dilevin/eigen-gurobi.git
-[submodule "ThirdParty/libigl"]
-	path = ThirdParty/libigl
-	url = https://github.com/libigl/libigl.git

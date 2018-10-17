@@ -37,6 +37,8 @@ typedef TimeStepperEigenFitSMWBE<double, AssemblerParallel<double, AssemblerEige
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
+using std::cout;
+using std::endl;
 
 //typedef TimeStepperEigenFitSI<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 //AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
@@ -74,7 +76,7 @@ int main(int argc, char **argv) {
     //    11. step size
     
     
-    std::cout<<"Test Neohookean FEM EigenFit\n";
+    std::cout<<"Test Neohookean FEM EigenFit with backward Euler solver\n";
     
     //Setup Physics
     MyWorld world;
@@ -136,13 +138,47 @@ int main(int argc, char **argv) {
         
         
         world.addSystem(test);
-        
+        cout<<"haus:"<<hausdorff<<endl;
         
         // projection matrix for constraints
         Eigen::SparseMatrix<double> P;
         
-        // constraint profile should be 2
-        if(const_profile == 2)
+        // constraint switch
+        std::cout<<"const: "<<const_profile<<std::endl;
+        if ((const_profile) == 0) {
+            
+            //            zero gravity
+            Eigen::Vector3x<double> g;
+            g(0) = 0;
+            g(1) = 0;
+            g(2) = 0;
+            
+            for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
+                
+                test->getImpl().getElement(iel)->setGravity(g);
+                
+            }
+            
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            
+            //            set the projection matrix to identity because there is no constraint to project
+            //            Eigen::SparseMatrix<double> P;
+            P.resize(V.rows()*3,V.rows()*3);
+            P.setIdentity();
+            //            std::cout<<P.rows();
+            //            no constraints
+        }
+        else if(const_profile == 1)
+        {
+            //    default constraint
+            fixDisplacementMin(world, test,constraint_dir,constraint_tol);
+            world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
+            
+            // construct the projection matrix for stepper
+            Eigen::VectorXi indices = minVertices(test, constraint_dir,constraint_tol);
+            P = fixedPointProjectionMatrix(indices, *test,world);
+        }
+        else if(const_profile == 2)
         {
             //            zero gravity
             Eigen::Vector3x<double> g;
@@ -186,7 +222,10 @@ int main(int argc, char **argv) {
 //            Eigen::loadMarketVector(fixedVerts, "def_init/" + cmeshnameActual + "_fixed_min_verts.mtx");
             //
             movingVerts = minVertices(test, constraint_dir, constraint_tol);//indices for moving parts
-            
+//            std::cout<<"constraint_dir"<<constraint_dir<<std::endl;
+//            std::cout<<"constraint_tol"<<constraint_tol<<std::endl;
+//            std::cout<<"mov vert: "<<movingVerts<<std::endl;
+//            std::cout<<"mov vert size: "<<movingVerts.rows()<<std::endl;
             for(unsigned int ii=0; ii<movingVerts.rows(); ++ii) {
                 movingConstraints.push_back(new ConstraintFixedPoint<double>(&test->getQ()[movingVerts[ii]], Eigen::Vector3d(0,0,0)));
                 world.addConstraint(movingConstraints[ii]);
@@ -202,7 +241,6 @@ int main(int argc, char **argv) {
             std::cout<<"warning: wrong constraint profile\n";
         }
         
-        
         // set material
         for(unsigned int iel=0; iel<test->getImpl().getF().rows(); ++iel) {
             
@@ -211,11 +249,7 @@ int main(int argc, char **argv) {
         }
         
         // initialize the state (position and velocity)
-        auto q = mapStateEigen(world);
-//        std::cout<<q.rows()<<std::endl;
-//        std::cout<<q.cols()<<std::endl;
-        //        q.setZero();
-        
+        auto q = mapStateEigen(world);        
         
         if (strcmp(argv[6],"0")==0) {
             // if specified no initial deformation
@@ -223,7 +257,29 @@ int main(int argc, char **argv) {
         }
         else
         {
-          std::cout<<"warning: wrong initial deformation\n";
+            // load the initial deformation (and velocity) from file)
+            std::string qfileName(argv[6]);
+            Eigen::VectorXd  tempv;
+            Eigen::loadMarketVector(tempv,qfileName);
+            
+            std::cout<<"original state size "<<q.rows()<<"\nloaded state size "<<tempv.rows();
+            q = tempv;
+            
+            unsigned int idxc = 0;
+            
+            // get the mesh position
+            for(unsigned int vertexId=0;  vertexId < std::get<0>(world.getSystemList().getStorage())[0]->getGeometry().first.rows(); ++vertexId) {
+                
+                Vtemp(vertexId,0) += q(idxc);
+                idxc++;
+                Vtemp(vertexId,1) += q(idxc);
+                idxc++;
+                Vtemp(vertexId,2) += q(idxc);
+                idxc++;
+            }
+            
+            igl::writeOBJ("loadedpos.obj",Vtemp,surfF);
+            
         }
         
         MyTimeStepper stepper(step_size,P,numModes);
@@ -335,24 +391,46 @@ int main(int argc, char **argv) {
                 Eigen::VectorXd Zvel;
                 Eigen::loadMarketVector(Zvel, "mouseZvel.mtx");
                 
+//                Eigen::VectorXd one = Eigen::VectorXd::Ones(P.rows());
+//                Eigen::MatrixXd P_col_sum =   one.transpose() * P;
+//
+//                for(unsigned int vindex = 0; vindex < P.cols()/3; vindex++)
+//                {
+//                    if ((istep) < 250) {
+////                        if (P_col_sum(0,3*vindex) == 0) {
+////                            if(Xvel(istep) <= 0){   q(3*vindex) += std::max(Xvel(istep),-0.005);}
+////                            else{ q(3*vindex) += std::min(Xvel(istep),0.005);}
+////                            if(Yvel(istep) <= 0){   q(3*vindex+1) += std::max(Yvel(istep),-0.005);}
+////                            else{ q(3*vindex+1) += std::min(Yvel(istep),0.005);}
+////                            if(Zvel(istep) <= 0){   q(3*vindex+2) += std::max(Zvel(istep),-0.005);}
+////                            else{ q(3*vindex+2) += std::min(Zvel(istep),0.005);}
+////                            //
+////                        }
+//                        if (P_col_sum(0,3*vindex) == 0) {
+//                            q(3*vindex) += -0.005;
+//                            q(3*vindex+1) += -0.005;
+//                            q(3*vindex+2) += -0.005;
+//                            //
+//                        }
+//                    }
+//                }
                 for(unsigned int jj=0; jj<movingConstraints.size(); ++jj) {
-                    
+//                    std::cout<<"updating constraint "<<jj<<std::endl;
                     auto v_q = mapDOFEigen(movingConstraints[jj]->getDOF(0), world.getState());
                     //
                     if ((istep) < 250) {
                         //                        Eigen::Vector3d new_q = (istep)*Eigen::Vector3d(0.0,0.0,-1.0/100);
-                        if(Xvel(istep) <= 0){   v_q(0) += std::max(Xvel(istep),-0.005);}
-                        else{ v_q(0) += std::min(Xvel(istep),0.005);}
-                        if(Yvel(istep) <= 0){   v_q(1) += std::max(Yvel(istep),-0.005);}
-                        else{ v_q(0) += std::min(Yvel(istep),0.005);}
-                        if(Zvel(istep) <= 0){   v_q(2) += std::max(Zvel(istep),-0.005);}
-                        else{ v_q(0) += std::min(Zvel(istep),0.005);}
+                        if(Xvel(istep) <= 0){   v_q(0) += 0.5*std::max(Xvel(istep),-0.005);}
+                        else{ v_q(0) += 0.5*std::min(Xvel(istep),0.005);}
+                        if(Yvel(istep) <= 0){   v_q(1) += 0.5*std::max(Yvel(istep),-0.005);}
+                        else{ v_q(1) += 0.5*std::min(Yvel(istep),0.005);}
+                        if(Zvel(istep) <= 0){   v_q(2) += 0.5*std::max(Zvel(istep),-0.005);}
+                        else{ v_q(2) += 0.5*std::min(Zvel(istep),0.005);}
 //
 //                            v_q(1) += Yvel(istep);
 //                        v_q(2) += Zvel(istep);
                     }
-                    
-                    
+
                 }
             }
             //output data stream into text
@@ -411,10 +489,6 @@ int main(int argc, char **argv) {
                 
                 // embedded V
                 auto fine_q = mapStateEigen<0>(test->getFineWorld());
-//                std::cout<<"N rows: " <<(*(test->N)).rows() <<"\n";
-//                std::cout<<"N cols: " <<(*(test->N)).cols() <<"\n";
-//                std::cout<<"q rows: " <<q.rows() <<"\n";
-//                std::cout<<"fine q rows: " <<fine_q.rows() <<"\n";
                 fine_q = (*(test->N)) * q.head(q.rows()/2);
                 idxc = 0; // reset index counter
                 Vf_disp = std::get<0>(test->getFineWorld().getSystemList().getStorage())[0]->getGeometry().first;
@@ -440,8 +514,8 @@ int main(int argc, char **argv) {
         // using all default paramters for eigenfit
         
         //    default example meshes
-        std::string cmeshname = "/meshesTetWild/brick/brick_surf_4";
-        std::string fmeshname = "/meshesTetWild/brick/brick_surf_4";
+        std::string cmeshname = "/meshesTetWild/brick_surf/brick_surf_4";
+        std::string fmeshname = "/meshesTetWild/brick_surf/brick_surf_4";
         
         readTetgen(V, F, dataDir()+cmeshname+".node", dataDir()+cmeshname+".ele");
         readTetgen(Vf, Ff, dataDir()+fmeshname+".node", dataDir()+fmeshname+".ele");

@@ -160,6 +160,7 @@ namespace Spectra {
         {
             //sadly there's no simple setShit here
             m_solver.compute(m_stiffnessMat+sigma*m_massMat);
+
             
             if(m_solver.info()!=Eigen::Success) {
                 std::cout<<"Mass Shift: decomposition failed \n";
@@ -220,6 +221,7 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
         std::cout<<"Failure: "<<eigs.info()<<"\n";
         exit(1);
         return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
+
     }
     
 }
@@ -264,6 +266,7 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
             eigsCorrected[ii] = -(static_cast<DataType>(1)/(eigs.eigenvalues()[ii]) + shift);
             evsCorrected.col(ii)  = eigs.eigenvectors().col(ii)/sqrt(eigs.eigenvectors().col(ii).transpose()*M*eigs.eigenvectors().col(ii));
 
+
         }
         
         return std::make_pair(evsCorrected, eigsCorrected);
@@ -272,7 +275,6 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
         exit(1);
         return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
     }
-    
 
 }
 

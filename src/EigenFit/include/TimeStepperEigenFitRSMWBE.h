@@ -1,13 +1,13 @@
 //
-//  TimeStepperEigenFitSMWBE.h
+//  TimeStepperEigenFitRSMWBE.h
 //  Gauss
 //
 //  Created by Edwin Chen on 2018-05-15.
 //
 //
 
-#ifndef TimeStepperEigenFitSMWBE_h
-#define TimeStepperEigenFitSMWBE_h
+#ifndef TimeStepperEigenFitRSMWBE_h
+#define TimeStepperEigenFitRSMWBE_h
 
 
 
@@ -29,12 +29,12 @@ namespace Gauss {
     
     //Given Initial state, step forward in time using linearly implicit Euler Integrator
     template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-    class TimeStepperImplEigenFitSMWBEImpl
+    class TimeStepperImplEigenFitRSMWBEImpl
     {
     public:
         
         template<typename Matrix>
-        TimeStepperImplEigenFitSMWBEImpl(Matrix &P, unsigned int numModes) {
+        TimeStepperImplEigenFitRSMWBEImpl(Matrix &P, unsigned int numModes) {
             
             m_numModes = (numModes);
             
@@ -54,45 +54,45 @@ namespace Gauss {
             c1 = 1e-4;
             c2 = 0.9;
             
-//            a = 0.0;  
-//            b = -0.01;
+            this->a = 0.0;
+            this->b = -0.02;
             
-//            // construct the selection matrix
+            //            // construct the selection matrix
             int m = P.cols() - P.rows();
             int n = P.cols();
             Eigen::VectorXd one = Eigen::VectorXd::Ones(P.rows());
             Eigen::MatrixXd P_col_sum =   one.transpose() * P;
             std::vector<Eigen::Triplet<DataType> > triplets;
             Eigen::SparseMatrix<DataType> S;
-//            std::cout<<"P_col_sum size: "<< P_col_sum.rows()<< " " << P_col_sum.cols()<<std::endl;
+            //            std::cout<<"P_col_sum size: "<< P_col_sum.rows()<< " " << P_col_sum.cols()<<std::endl;
             S.resize(m,n);
-//
-
+            //
+            
             unsigned int row_index =0;
             for(unsigned int col_index = 0; col_index < n; col_index++) {
-
+                
                 //add triplet into matrix
-//                std::cout<<col_index<<std::endl;
+                //                std::cout<<col_index<<std::endl;
                 if (P_col_sum(0,col_index) == 0) {
                     triplets.push_back(Eigen::Triplet<DataType>(row_index,col_index,1));
                     row_index+=1;
                 }
-
+                
             }
-
+            
             S.setFromTriplets(triplets.begin(), triplets.end());
-
+            
             m_S = S;
             std::cout<<"m_S sum: "<< m_S.sum()<<std::endl;
-
-        }
-        
-        
-        TimeStepperImplEigenFitSMWBEImpl(const TimeStepperImplEigenFitSMWBEImpl &toCopy) {
             
         }
         
-        ~TimeStepperImplEigenFitSMWBEImpl() { }
+        
+        TimeStepperImplEigenFitRSMWBEImpl(const TimeStepperImplEigenFitRSMWBEImpl &toCopy) {
+            
+        }
+        
+        ~TimeStepperImplEigenFitRSMWBEImpl() { }
         
         //Methods
         //init() //initial conditions will be set at the begining
@@ -107,11 +107,11 @@ namespace Gauss {
         double* q_old = NULL;
         double* q_temp = NULL;
         
+        
         // for damping
         double a;
         // negative for opposite sign for stiffness
         double b;
-        
         
         //        int flag = 0;
     protected:
@@ -174,13 +174,8 @@ namespace Gauss {
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
-void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
+void TimeStepperImplEigenFitRSMWBEImpl<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
     
-    // TODO: should not be here... set the rayleigh damping parameter
-    a = static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->a;
-    b = static_cast<EigenFit*>(std::get<0>(world.getSystemList().getStorage())[0])->b;
-    
-   std::cout<<"b: "<<b<<std::endl;
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
     MatrixAssembler &massMatrix = m_massMatrix;
     MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
@@ -216,6 +211,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         eigen_q_old(ind) = q(ind);
         eigen_v_temp(ind) = qDot(ind);
     }
+    
     
     do {
         std::cout<<"it outer: " << it_outer<<std::endl;
@@ -277,8 +273,8 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
             
             
             // add damping
-//            (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * ( qDot);
-             (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * ( qDot) + b * (Y*(Z * (m_P *( qDot))));
+            //            (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * ( qDot);
+            (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * ( qDot) + b * (Y*(Z * (m_P *( qDot))));
         }
         else
         {
@@ -344,48 +340,47 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
 #endif
         
         if (m_numModes != 0) {
-        // Y = dt*Y;
-       Y = (-(dt*dt) + dt * b)*Y; // in original
-//       Y = ((dt*dt) + dt * b)*Y; // in test plus
-       // Y = (dt*dt - dt*b)*Y;
-        //
-        // Z = dt*Z;
-        // todo: add damping here
-        
+            // Y = dt*Y;
+            Y = (-(dt*dt) + dt * b)*Y;
+            // Y = (dt*dt - dt*b)*Y;
+            //
+            // Z = dt*Z;
+            // todo: add damping here
+            
 #ifdef GAUSS_PARDISO
-        
-        m_pardiso.solve(Y);
-        Eigen::MatrixXd APrime = Z*m_pardiso.getX();
-        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + APrime).ldlt().solve(Z*x0);
-        
-        
+            
+            m_pardiso.solve(Y);
+            Eigen::MatrixXd APrime = Z*m_pardiso.getX();
+            Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + APrime).ldlt().solve(Z*x0);
+            
+            
 #else
-        Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*solver.solve(Y)).ldlt().solve(Z*x0);
-        
+            Eigen::VectorXd bPrime = Y*(Eigen::MatrixXd::Identity(m_numModes,m_numModes) + Z*solver.solve(Y)).ldlt().solve(Z*x0);
+            
 #endif
-        
-        
+            
+            
 #ifdef GAUSS_PARDISO
-        
-        m_pardiso.solve(bPrime);
-        
-        x0 -= m_pardiso.getX();
-        
-        m_pardiso.cleanup();
+            
+            m_pardiso.solve(bPrime);
+            
+            x0 -= m_pardiso.getX();
+            
+            m_pardiso.cleanup();
 #else
-        
-        x0 -= solver.solve(bPrime);
-        
+            
+            x0 -= solver.solve(bPrime);
+            
 #endif
         }
         //        qDot = m_P.transpose()*x0;
         
         auto Dv = m_P.transpose()*x0;
-//        std::cout<<"m_S*Dv"<< m_S*Dv <<std::endl;
+        //        std::cout<<"m_S*Dv"<< m_S*Dv <<std::endl;
         eigen_v_temp = qDot;
         eigen_v_temp = eigen_v_temp + Dv*step_size;
         //update state
-//        std::cout<<"m_S*eigen_v_temp"<< m_S*eigen_v_temp <<std::endl;
+        //        std::cout<<"m_S*eigen_v_temp"<< m_S*eigen_v_temp <<std::endl;
         
         q = eigen_q_old + dt*eigen_v_temp;
         
@@ -422,7 +417,7 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
             (*forceVector) = (*forceVector) + Y*m_coarseUs.first.transpose()*(*forceVector);
             // add damping
 //            (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * (qDot);
-             (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * (qDot) + b * (Y * (Z * (m_P *(qDot))));
+             (*forceVector) = (*forceVector) -  (a * (*massMatrix) + b*(*stiffnessMatrix)) * m_P * (qDot) - b * (Y * (Z * (m_P *(qDot))));
         }
         else
         {
@@ -486,15 +481,15 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         
     } while(res > 1e-6);
     it_outer = 0;
-//    std::cout<<"m_S*qDot"<< m_S*qDot <<std::endl;
+    //    std::cout<<"m_S*qDot"<< m_S*qDot <<std::endl;
     
     q = eigen_q_old + dt*qDot;
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
-using TimeStepperEigenFitSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
+using TimeStepperEigenFitRSMWBE = TimeStepper<DataType, TimeStepperImplEigenFitRSMWBEImpl<DataType, MatrixAssembler, VectorAssembler> >;
 
 
 
 
-#endif /* TimeStepperEigenFitSMWBE_h */
+#endif /* TimeStepperEigenFitRSMWBE_h */

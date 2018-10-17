@@ -202,7 +202,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 
 #odd ordering is because implicit solver lives in Base currently
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/SolversLinear) 
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/SpectraPardiso)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Optimization)
+
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Base)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/ParticleSystem)

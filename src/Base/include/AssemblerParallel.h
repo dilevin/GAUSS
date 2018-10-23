@@ -121,7 +121,6 @@ namespace Gauss {
                 }
             }
             
-            return *this;
         }
         
         //handle operators

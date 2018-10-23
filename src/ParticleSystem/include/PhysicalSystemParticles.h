@@ -87,14 +87,17 @@ namespace Gauss {
             }
             
             //do nothing for now, fix later
-            inline auto getGeometry() { std::cout<<"Get Geometry for a Particle System not implemented yet \n";  exit(0); return nullptr; }
+            inline void setPosition(Eigen::Vector3x<DataType> p) { m_p = p; }
+            
+            //the only geometry for a particle is its position
+            inline auto getGeometry() { return m_p; }
             
         protected:
             
             DataType m_mass; //mass of particle
             DOFParticle<DataType,0> m_x;
             DOFParticle<DataType,1> m_xDot;
-            
+            Eigen::Vector3x<DataType> m_p; //original position of particle
         private:
         };
         

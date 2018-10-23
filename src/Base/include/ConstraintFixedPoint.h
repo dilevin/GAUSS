@@ -9,6 +9,7 @@
 #ifndef ConstraintFixedPoint_h
 #define ConstraintFixedPoint_h
 
+#include <array>
 #include <Constraint.h>
 #include <DOFParticle.h>
 #include <UtilitiesEigen.h>

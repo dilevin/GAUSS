@@ -15,17 +15,17 @@ namespace Gauss {
         using LinearTet = Element<DataType, 4, QuadratureExact, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionLinearTet>;
         
         template<typename DataType>
-        using NeohookeanTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookean, BodyForceGravity, ShapeFunctionLinearTet>;
+        using NeohookeanTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookean, BodyForceGravity, ShapeFunctionLinearTet>;
 
         template<typename DataType>
 
-        using NeohookeanHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookeanHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
+        using NeohookeanHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyNeohookeanHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
 
         template<typename DataType>
-        using MuscleTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionLinearTet>;
+        using MuscleTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionLinearTet>;
 
         template<typename DataType>
-        using StvkTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvk, BodyForceGravity, ShapeFunctionLinearTet>;
+        using StvkTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvk, BodyForceGravity, ShapeFunctionLinearTet>;
         
         template<typename DataType>
         using StvkHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvkHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
@@ -37,10 +37,10 @@ namespace Gauss {
         using NeohookeanHex = Element<DataType, 8, QuadratureHex8, EnergyKineticNonLumped, EnergyNeohookean, BodyForceGravity, ShapeFunctionHexTrilinear>;
         
         template<typename DataType>
-        using LinearPlaneStrainTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionPlaneLinear>;
+        using LinearPlaneStrainTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionPlaneLinear>;
 
         template<typename DataType>
-        using MuscleTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionPlaneLinear>;
+        using MuscleTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionPlaneLinear>;
 
     }
 }

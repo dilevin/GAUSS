@@ -75,6 +75,7 @@ To see if it worked, run the tests and examples
 
 #### MATLAB Interface ####
 GAUSS Includes a rudimentary MATLAB interface, tested using MATLAB 2015b and 2017a on OSX. To enable the MATLAB interface, build the project Gauss_MATLAB, then open MATLAB and issue the following commands:
+
 	addpath('{Gauss_Root_Dir}/src/MATLAB/')
 	addpath('{Gauss_Root_Dir}/build/lib/{Build_Mode_of_Gauss_MATLAB}/')
 	savepath

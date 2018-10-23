@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
         int numModes = atoi(argv[9]);
         int constraint_dir = atoi(argv[10]); // constraint direction. 0 for x, 1 for y, 2 for z
         double step_size = atof(argv[11]);
-        int dynamic_flag = atoi(argv[12]);
+        int dynamic_flag = 3;
         double a = atof(argv[13]);
         double b = atof(argv[14]);
         //

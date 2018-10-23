@@ -3,11 +3,13 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 project (Gauss)
 
+include(${PROJECT_SOURCE_DIR}/cmake/DownloadProject.cmake)
+
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/external/eigen CACHE PATH "Root include directory for Eigen3" FORCE) 
 
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
+option(GAUSS_USE_UI     "Use Gauss' UI Library" ON)
 
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
@@ -116,7 +118,19 @@ set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${FCL_DIR}/include)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${LIBCCD_DIR}/src)
 set(${GAUSS_INCLUDE_DIR} ${GAUSS_INCLUDE_DIR} ${OCTOMAP_DIR}/octomap/include)
 
-find_package(Eigen3 REQUIRED)
+
+download_project(
+        PROJ         eigen
+        SOURCE_DIR   ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/build/ThirdParty/.cache/eigen
+        QUIET
+        URL http://bitbucket.org/eigen/eigen/get/3.2.10.tar.gz
+        URL_MD5 8ad10ac703a78143a4062c9bda9d8fd3
+    )
+ 
+#set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen/cmake CACHE PATH "Root include directory for Eigen3" FORCE) 
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen/cmake CACHE PATH "Root include directory for Eigen3" FORCE) 
+set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen CACHE INTERNAL "" FORCE)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 #GTest (From Masha Shugrina)
@@ -215,7 +229,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Collisions)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/RigidBodies)
 
 #UI package has to come last
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
+if(GAUSS_USE_UI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/UI)
+endif(GAUSS_USE_UI)
 
 set(GAUSS_INCLUDE_DIR ${GAUSS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/ThirdParty/LBFGS++/include)
 
@@ -230,11 +246,15 @@ if(USE_MATLAB)
 endif(USE_MATLAB)
 
 #Init GUI Stuff
-include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)
-initUI()
+if(GAUSS_USE_UI)
+    include(${PROJECT_SOURCE_DIR}/src/UI/UISetup.txt)
+    initUI()
+endif(GAUSS_USE_UI)
 
-#Example codes
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+#Example codes 
+if(GAUSS_USE_UI)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+endif(GAUSS_USE_UI)
 #Disable tests for now because I'm not using them and they only build on one machine 
 #add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)
 

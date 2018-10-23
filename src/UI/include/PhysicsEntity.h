@@ -135,6 +135,7 @@ namespace Gauss {
     template<typename DataType,  unsigned int Num,
     template<typename Type, typename Energy> class QuadT,
     template<typename Type, typename Energy> class QuadU,
+    template<typename Type, typename Energy> class QuadBF,
     template<typename Type, typename Func> class KE,
     template<typename Type, typename Func> class PE,
     template<typename Type, typename Func> class BF,
@@ -142,16 +143,17 @@ namespace Gauss {
     template<   typename A, unsigned int N,
     template<typename Type, typename Energy> class QuadratureRuleT,
     template<typename Type, typename Energy> class QuadratureRuleU,
+    template<typename Type, typename Energy> class QuadratureRuleBF,
     template<typename Type, typename Func> class KineticEnergy,
     template<typename Type, typename Func> class PotentialEnergy,
     template<typename Type, typename Func> class BodyForce,
     template<typename Type> class ShapeFunction >
     class ElementBase >
-    class PhysicalEntity<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType, ElementBase<DataType, Num, QuadT, QuadU, KE, PE, BF, SF> > > > :
+    class PhysicalEntity<PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType, ElementBase<DataType, Num, QuadT, QuadU, QuadBF, KE, PE, BF, SF> > > > :
     public PhysicalEntity<DataType>
     {
     public:
-        using FEMSystem = PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType, ElementBase<DataType, Num, QuadT, QuadU, KE, PE, BF, SF> > >;
+        using FEMSystem = PhysicalSystem<DataType, FEM::PhysicalSystemFEMImpl<DataType, ElementBase<DataType, Num, QuadT, QuadU, QuadBF, KE, PE, BF, SF> > >;
 
         
         PhysicalEntity(FEMSystem *system) : PhysicalEntity<DataType>()

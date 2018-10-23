@@ -13,5 +13,5 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 file(GLOB HEADER_CODE ${Core_SOURCE_DIR}/include/*.h)
 file(GLOB SRC_CODE ${Core_SOURCE_DIR}/cpp/*.cpp)
 
-include_directories(${Core_SOURCE_DIR}/include)
+include_directories(${GAUSS_INCLUDE_DIR})
 add_library(Core ${HEADER_CODE} ${SRC_CODE})

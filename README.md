@@ -73,6 +73,9 @@ To see if it worked, run the tests and examples
 	./bin/Example3
 	./bin/Example4 # If OpenMP was enabled
 
+#### A Note About the Examples ####
+To play examples in Gauss press 'p' once the Qt window appears.
+
 #### MATLAB Interface ####
 GAUSS Includes a rudimentary MATLAB interface, tested using MATLAB 2015b and 2017a on OSX. To enable the MATLAB interface, build the project Gauss_MATLAB, then open MATLAB and issue the following commands:
 

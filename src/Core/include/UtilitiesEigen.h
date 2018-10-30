@@ -368,52 +368,7 @@ auto generalizedEigenvalueProblemNegative(const Eigen::SparseMatrix<DataType, Fl
     
 } // namespace Spectra
 
-//solve sparse generalized eigenvalue problem using spectra
-//solve the gevp Ax = lambda*Bx
-template<typename DataType, int Flags, typename Indices>
-auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
-                                  const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
-                                  unsigned int numVecs) {
-    
-    //Spectra seems to freak out if you use row storage, this copy just ensures everything is setup the way the solver likes
-    Eigen::SparseMatrix<DataType> K = A;
-    Eigen::SparseMatrix<DataType> M = B;
-    
-    
-    Spectra::SparseSymMatProd<DataType> Aop(K);
-    Spectra::SparseCholesky<DataType>   Bop(M);
-    
-    //Spectra::SparseSymShiftSolve<DataType> Aop(K);
-    
-    //Aop.set_shift(1e-3);
-    
-    // Construct eigen solver object, requesting the smallest three eigenvalues
-    Spectra::SymGEigsSolver<DataType, Spectra::SMALLEST_MAGN, Spectra::SparseSymMatProd<DataType>, Spectra::SparseCholesky<DataType>, Spectra::GEIGS_CHOLESKY > eigs(&Aop, &Bop, numVecs, 5*numVecs);
-    
-    
-    // Initialize and compute
-    eigs.init();
-    //int nconv = eigs.compute();
-    
-    // Retrieve results
-    if(eigs.info() == Spectra::SUCCESSFUL) {
-        
-        return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
-    } else {
-        std::cout<<"Failure: "<<eigs.info()<<"\n";
-        exit(1);
-        return std::make_pair(eigs.eigenvectors(), eigs.eigenvalues());
-        
-    }
-}
 
-//use shift and invert to find Eigenvalues near the shift
-template<typename DataType, int Flags, typename Indices>
-auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Indices> &A,
-                                  const Eigen::SparseMatrix<DataType, Flags,Indices> &B,
-                                  unsigned int numVecs, DataType shift) {
-    
-}
 
 
 //use shift and invert to find Eigenvalues near the shift

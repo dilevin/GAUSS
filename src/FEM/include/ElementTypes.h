@@ -27,9 +27,9 @@ namespace Gauss {
         template<typename DataType>
         using StvkTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvk, BodyForceGravity, ShapeFunctionLinearTet>;
         
-        template<typename DataType>
-        using StvkHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvkHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
-        
+//        template<typename DataType>
+//        using StvkHFixedTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, EnergyKineticNonLumped, EnergyStvkHFixed, BodyForceGravity, ShapeFunctionLinearTet>;
+//        
         template<typename DataType>
         using LinearHex = Element<DataType, 8, QuadratureHex8, EnergyKineticNonLumped, EnergyLinearElasticity, BodyForceGravity, ShapeFunctionHexTrilinear>;
 

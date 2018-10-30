@@ -17,7 +17,7 @@
 #include <EnergyNeohookeanHFixed.h>
 #include <EnergyMuscle.h>
 #include <EnergyStvk.h>
-#include <EnergyStvkHFixed.h>
+//#include <EnergyStvkHFixed.h>
 //Quadrature rules
 #include <Quadrature.h>
 #include <QuadratureExact.h>

@@ -134,7 +134,8 @@ namespace Gauss {
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_test;
         SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_mass;
         //        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso_res;
-#else
+
+        
 #endif
         
     private:
@@ -263,14 +264,45 @@ void TimeStepperImplEigenFitSMWIMImpl<DataType, MatrixAssembler, VectorAssembler
             
             //setup RHS
             eigen_rhs = (*massMatrix)*m_P*(qDot-eigen_v_old) - dt*(*forceVector);
-            
+        
+        
+#ifdef GAUSS_PARDISO
             m_pardiso_mass.symbolicFactorization(*massMatrix);
             m_pardiso_mass.numericalFactorization();
             m_pardiso_mass.solve(*forceVector);
+        
+        res_old = 1.0/2.0 * dt * dt * ((m_pardiso_mass.getX()).transpose()).squaredNorm();
+        
+#else
+        //solve system (Need interface for solvers but for now just use Eigen LLt)
+        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver_mass;
+        
+        if(m_refactor || !m_factored) {
+            solver_mass.compute(*massMatrix);
+        }
+        
+        if(solver_mass.info()!=Eigen::Success) {
+            // decomposition failed
+            assert(1 == 0);
+            std::cout<<"Decomposition Failed \n";
+            exit(1);
+        }
+        
+        if(solver_mass.info()!=Eigen::Success) {
+            // solving failed
+            assert(1 == 0);
+            std::cout<<"Solve Failed \n";
+            exit(1);
+        }
+        
+        
+        x0 = solver_mass.solve((*forceVector));
+        res_old = 1.0/2.0 * dt * dt * ((x0).transpose()).squaredNorm();
+        
+#endif
             
             //        res_old = 1.0/2.0 * dt * dt * ((m_pardiso_mass.getX()).transpose() * (m_pardiso_mass.getX()));
-            res_old = 1.0/2.0 * dt * dt * ((m_pardiso_mass.getX()).transpose()).squaredNorm();
-            
+        
             //            std::cout<<"res_old: "<<res_old << std::endl;
             //        eigen_v_old = qDot;
             
@@ -407,12 +439,21 @@ void TimeStepperImplEigenFitSMWIMImpl<DataType, MatrixAssembler, VectorAssembler
         }
         // add external force
             (*forceVector) = (*forceVector) + m_P*(*fExt);
-            
+        
+#ifdef GAUSS_PARDISO
             m_pardiso_mass.solve(*forceVector);
             std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm()<< std::endl;
             res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*m_pardiso_mass.getX()).squaredNorm();
-            
-//            while (res > res_old + c1 * step_size * res * 2) {
+#else
+        
+        
+        x0 = solver_mass.solve((*forceVector));
+        std::cout << "res: " << 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*x0).squaredNorm()<< std::endl;
+        res  = 1.0/2.0 * (m_P*(eigen_v_temp - eigen_v_old) - dt*x0).squaredNorm();
+        
+#endif
+        
+        //            while (res > res_old + c1 * step_size * res * 2) {
 //                res_old = res;
 //                it_inner = it_inner + 1;
 //                if (it_inner > 40) {

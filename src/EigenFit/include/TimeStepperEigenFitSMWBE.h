@@ -293,6 +293,9 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
         //setup RHS
         eigen_rhs = (*massMatrix)*m_P*(qDot-eigen_v_old) - dt*(*forceVector);
         
+        
+        Eigen::VectorXd x0;
+        
 #ifdef GAUSS_PARDISO
         m_pardiso_mass.symbolicFactorization(*massMatrix);
         m_pardiso_mass.numericalFactorization();
@@ -328,7 +331,6 @@ void TimeStepperImplEigenFitSMWBEImpl<DataType, MatrixAssembler, VectorAssembler
 #endif
         // std::cout<<"res_old: "<<res_old << std::endl;
         
-        Eigen::VectorXd x0;
         // last term is damping
         Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = -(*m_massMatrix)+ dt*dt*(*m_stiffnessMatrix)- dt * (a *(*m_massMatrix) + b * (*m_stiffnessMatrix));
         

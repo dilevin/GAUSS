@@ -25,7 +25,6 @@
 #include <igl/hausdorff.h>
 #include <fstream>
 #include <SolverPardiso.h>
-#include <SparseRegularInversePardiso.h>
 
 using namespace Gauss;
 using namespace FEM;

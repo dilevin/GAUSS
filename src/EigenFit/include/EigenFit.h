@@ -24,7 +24,7 @@
 #include <igl/unique_rows.h>
 #include <igl/hausdorff.h>
 #include <fstream>
-#include <SolverPardiso.h>
+//#include <SolverPardiso.h>
 
 using namespace Gauss;
 using namespace FEM;
@@ -1270,8 +1270,11 @@ public:
     AssemblerEigenVector<double> m_forceVector;
     
     AssemblerEigenSparseMatrix<double> N;
-    
-    SolverPardiso<Eigen::SparseMatrix<double, Eigen::RowMajor> > m_pardiso_test;
+//
+//    #ifdef GAUSS_PARDISO
+//    SolverPardiso<Eigen::SparseMatrix<double, Eigen::RowMajor> > m_pardiso_test;
+//    #endif
+//
     Eigen::VectorXd minvf;
     Eigen::VectorXd minvfCP;
     

@@ -1,5 +1,5 @@
-#ifndef TimeStepperNewmarkBeta_h
-#define TimeStepperNewmarkBeta_h
+#ifndef TimeStepperNewmarkLinear_h
+#define TimeStepperNewmarkLinear_h
 
 #include <World.h>
 #include <Assembler.h>
@@ -56,7 +56,7 @@ namespace Gauss {
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
 void TimeStepperImpNewmarkLinear<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
-	// todo precompute and prefactor Hessian
+	// precompute and prefactor Hessian
 	if (!initialized) {
 		getMassMatrix(m_massMatrix, world);
 		getStiffnessMatrix(m_stiffnessMatrix, world);
@@ -82,4 +82,4 @@ void TimeStepperImpNewmarkLinear<DataType, MatrixAssembler, VectorAssembler>::st
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 using TimeStepperNewmarkLinear = TimeStepper<DataType, TimeStepperImpNewmarkLinear<DataType, MatrixAssembler, VectorAssembler> >;
 
-#endif //TimeStepperNewmarkBeta_h
+#endif //TimeStepperNewmarkLinear_h

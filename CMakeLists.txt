@@ -218,6 +218,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/Core)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/SolversLinear) 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Optimization)
 
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/Base)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/ParticleSystem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/FEM)

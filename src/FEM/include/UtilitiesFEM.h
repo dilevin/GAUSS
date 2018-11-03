@@ -83,9 +83,16 @@ namespace Gauss {
             element.resize(x.rows(),1);
                 
             ASSEMBLEMATINIT(N, 3*x.rows(), fem.getQ().getNumScalarDOF());
-        
+//            int vert_count = 0;
+            bool counted = false;
             for(unsigned int ii=0; ii<x.rows(); ++ii) {
                 
+                // to find the closest element, if the vert is not inside any
+                counted = false;
+                double smallest_bary = -1;
+                int smallest_bary_element = 0;
+                double y_smallest_bary[3];
+
                 for(unsigned int jj=0; jj<fem.getElements().size(); ++jj) {
                     //compute shape function matrix for an element, if it has negative values we're outside so carry on.
                     y[0]= x(ii,0);
@@ -93,19 +100,50 @@ namespace Gauss {
                     y[2]= x(ii,2);
                     
                     auto Jmat = fem.getElements()[jj]->N(y);
+//                    std::cout<<Jmat.cols()<<std::endl;
+//                    std::cout<<Jmat.rows()<<std::endl;
+//                    std::cout<<Jmat<<std::endl;
+//                    if (Jmat.minCoeff() >= 0 && Jmat.maxCoeff() > 0) {
                     
-                    if (Jmat.minCoeff() >= 0 && Jmat.maxCoeff() > 0) {
-                        //use the assembler to add it to the current matrix
+                    if (Jmat.minCoeff() >= -1e-12) {
+                            //use the assembler to add it to the current matrix
                         N.set(std::array<ConstraintIndex,1>{{cIndex}}, fem.getElements()[jj]->q(), Jmat);
                         element[ii] = jj;
+//                        ++vert_count;
+                        counted = true;
                         break;
+                    }
+                    else
+                    {
+                        if(Jmat.minCoeff() > smallest_bary)
+                        {
+                            smallest_bary = Jmat.minCoeff();
+//                            y_smallest_bary = y;
+                            y_smallest_bary[0]= y[0];
+                            y_smallest_bary[1]= y[1];
+                            y_smallest_bary[2]= y[2];
+                            
+//                            N.set(std::array<ConstraintIndex,1>{{cIndex}}, fem.getElements()[jj]->q(), Jmat);
+                            element[ii] = jj;
+                        }
                     }
                     
                     
-                }   
+                }
                 
+                
+                if(counted == false)
+                {
+                    auto Jmat = fem.getElements()[element[ii]]->N(y_smallest_bary);
+                    N.set(std::array<ConstraintIndex,1>{{cIndex}}, fem.getElements()[element[ii]]->q(), Jmat);
+//                    std::cout<<y<<std::endl;
+//                    std::cout<<ii<<std::endl;
+                }
                 cIndex.offsetGlobalId(3); //increment global id by 3 for the next point
             }
+//            std::cout<<x.rows()<<std::endl;
+//            std::cout<<vert_count<<std::endl;;
+//            std::cout<<fem.getElements().size();
             
             ASSEMBLEEND(N);
         }

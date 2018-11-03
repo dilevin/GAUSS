@@ -4,12 +4,12 @@
 [submodule "ThirdParty/libccd"]
 	path = ThirdParty/libccd
 	url = https://github.com/danfis/libccd.git
-[submodule "ThirdParty/Spectra"]
-	path = ThirdParty/Spectra
-	url = https://github.com/yixuan/spectra.git
 [submodule "ThirdParty/eigen-gurobi"]
 	path = ThirdParty/eigen-gurobi
 	url = https://github.com/dilevin/eigen-gurobi.git
+[submodule "ThirdParty/Spectra"]
+	path = ThirdParty/Spectra
+	url = https://github.com/yixuan/Spectra.git
 [submodule "ThirdParty/libigl"]
 	path = ThirdParty/libigl
 	url = https://github.com/libigl/libigl.git

@@ -103,7 +103,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     };
     
     auto Aeq = [&world, &massMatrix, &AeqMatrix, &dt, &qDot](auto &a)->auto & {
-        //get stiffness matrix
+        
         ASSEMBLEMATINIT(AeqMatrix, world.getNumConstraints(), world.getNumQDotDOFs());
         ASSEMBLELISTCONSTRAINT(AeqMatrix, world.getConstraintList(), getGradient);
         ASSEMBLEEND(AeqMatrix);

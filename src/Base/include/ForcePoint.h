@@ -32,7 +32,7 @@ namespace Gauss {
                 
                 return -mapDOFEigen(*m_dof, state).dot(m_fPoint);
                 
-                
+        
             }
             
             //forces always act on at least one DOF of the system this function returns which DOF the are acting on.

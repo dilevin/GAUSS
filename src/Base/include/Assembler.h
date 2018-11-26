@@ -99,6 +99,10 @@ namespace Gauss {
         inline auto & operator*() { return m_impl.getMatrix(); }
         inline const auto & operator*() const { return m_impl.getMatrix(); }
         
+        inline auto operator-() { return -m_impl.getMatrix(); }
+        inline const auto operator-() const { return -m_impl.getMatrix(); }
+        
+        
         //next step, this needs to change to take in a list of i's, j's and sizes
         //take in std::vectors for indices and size
         

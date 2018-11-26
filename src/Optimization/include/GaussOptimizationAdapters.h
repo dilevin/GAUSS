@@ -11,6 +11,7 @@
 #include <igl/cat.h>
 #include <climits>
 #include <Newton.h>
+#include <AndersonAcceleration.h>
 #include <UtilitiesEigen.h>
 
 namespace Gauss {
@@ -161,11 +162,11 @@ namespace Gauss {
                   typename JacobianEq, typename Solver, typename PostStepCallback, typename Vector>
         inline bool minimizeBacktracking(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Solver &solver, PostStepCallback &pscallback, double tol1 = 1e-5, unsigned int numIterations = UINT_MAX) {
             
-            auto linesearch = [&solver, &pscallback](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto  &tol1) {
-                return backTrackingLinesearch(x0, f, g, H, ceq, Aeq, solver, pscallback, tol1);
+            auto linesearch = [&pscallback](auto &x0, auto &p, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto  &tol1) {
+                return backTrackingLinesearch(x0, p, f, g, H, ceq, Aeq, pscallback, tol1);
             };
             
-            return optimizeWithLineSearch(x0, f, g, H, ceq, Aeq, linesearch, tol1, numIterations);
+            return optimizeWithLineSearch(x0, f, g, H, ceq, Aeq, solver, linesearch, tol1, numIterations);
         }
         
         //functors are annoying but when I have solvers that require initialization they seem to be a necessary evil to avoid reinitilization
@@ -187,6 +188,44 @@ namespace Gauss {
         private:
             
             DirectionNewtonAssembler<DataType> m_solver;
+        };
+        
+        template<typename DataType>
+        class NewtonSearchWithAndersonAcceleration {
+        public:
+            
+            
+            inline NewtonSearchWithAndersonAcceleration(unsigned int m = 5) {
+                m_m = m;
+            };
+            
+            template <typename Energy, typename Gradient, typename Hessian, typename ConstraintEq,
+            typename JacobianEq, typename PostStepCallback, typename Vector>
+            inline bool operator()(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq,
+                                   JacobianEq &Aeq, PostStepCallback &pscallback, double tol1=1e-5, unsigned int numIterations= 10000) {
+                
+                auto linesearch = [](auto &x0, auto &p, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto &pscallback, auto  &tol1) {
+                    return backTrackingLinesearch(x0, p, f, g, H, ceq, Aeq, pscallback, tol1);
+                };
+                
+                //make sure working space matrices are intialized properly
+                
+                if(m_F.rows() != x0.rows()) {
+                    //reinitialize
+                    m_F.resize(x0.rows(), m_m);
+                    m_G.resize(x0.rows(), m_m);
+                    m_dF.resize(x0.rows(), m_m);
+                    m_dG.resize(x0.rows(), m_m);
+                    
+                }
+                return optimizeAndersonAcceleration(x0, f, g, H, ceq, Aeq, m_F, m_dF, m_G, m_dG, m_solver, linesearch, pscallback, tol1, numIterations);
+            }
+        protected:
+        private:
+            
+            DirectionNewtonAssembler<DataType> m_solver;
+            Eigen::MatrixXx<DataType> m_F, m_G, m_dF, m_dG;
+            unsigned int m_m;
         };
     }
     

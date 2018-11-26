@@ -55,6 +55,7 @@ namespace Gauss {
         
         //Newton solver 
         Optimization::NewtonSearchWithBackTracking<DataType> m_newton;
+        //Optimization::NewtonSearchWithAndersonAcceleration<DataType> m_newton;
         
         //storage for lagrange multipliers
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
@@ -126,7 +127,7 @@ void TimeStepperImpNewmark<DataType, MatrixAssembler, VectorAssembler>::step(Wor
         ASSEMBLEEND(forceVector);
         
         (*forceVector).head(world.getNumQDotDOFs()) *= -0.25*(dt*dt);
-        (*forceVector).head(world.getNumQDotDOFs()) += ((*massMatrix)*delta - b);
+        (*forceVector).head(world.getNumQDotDOFs()) += ((*massMatrix)*a.head(world.getNumQDOFs()) - b);
         
         return forceVector;
     };
@@ -135,7 +136,7 @@ void TimeStepperImpNewmark<DataType, MatrixAssembler, VectorAssembler>::step(Wor
         ASSEMBLEVECINIT(bVector, world.getNumConstraints());
         ASSEMBLELISTCONSTRAINT(bVector, world.getConstraintList(), getDbDt);
         ASSEMBLEEND(bVector);
-        //(*bVector) = 0.0*(*bVector);
+        
         return bVector;
     };
     

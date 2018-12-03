@@ -47,11 +47,18 @@ namespace Eigen {
     template<typename DataType>
     using Matrix66x = Eigen::Matrix<DataType, 6,6>;
     
+    //My own ad-hoc tensor classes since GAUSS uses libigl's Eigen 
     //useful maps
     template<typename DataType>
     using Map3x = Eigen::Map<Vector3x<DataType> >;
     
     
+    //Derivative of 3x3 SVD
+    //Returns SVD along with derivatives of both orthonormal matrices and the singular values
+    //The derivative uses fast SVD code by Eftychois Sifakis via libigl which only works corectly for single precision floating point values
+    //Inputs
+    //
+    //Output
 }
 
 namespace Gauss {

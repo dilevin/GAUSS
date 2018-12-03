@@ -38,6 +38,9 @@ namespace Gauss {
 
         template<typename DataType>
         using MuscleTri = ElementBase<DataType, 3, QuadratureExact, QuadraturePlaneTri1, QuadraturePlaneTri1, EnergyKineticNonLumped, EnergyMuscle, BodyForceGravity, ShapeFunctionPlaneLinear>;
+        
+        template<typename DataType, template<typename A, typename B> class EnergyPS>
+        using FEMPrincipalStretchTet = ElementBase<DataType, 4, QuadratureExact, QuadratureTetConstant, QuadratureTetConstant, EnergyKineticNonLumped, EnergyPS, BodyForceGravity, ShapeFunctionLinearTet>;
 
     }
 }

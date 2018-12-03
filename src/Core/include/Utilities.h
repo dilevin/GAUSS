@@ -223,7 +223,14 @@ namespace Gauss {
     #endif
     
    
-
+    //used for neohookean energies to avoid error when determinant is -ve.
+    //we need J^(2/3) std::pow throws an error if J is -ve and the exponent is non-integer. instead find the cubed root
+    //of the number then square it.
+    template<typename DataType>
+    inline DataType stablePow(DataType a, DataType b) {
+        
+        return static_cast<DataType> (std::pow(std::cbrt(static_cast<DataType>(a)),static_cast<DataType>(b)));
+    }
     
 #ifdef GAUSS_OPENMP
     //Parallel version

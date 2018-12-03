@@ -3,17 +3,6 @@
 
 #include<cmath>
 
-template<typename DataType>
-inline DataType stablePow(DataType a, DataType b) {
-    
-    
-    return static_cast<DataType> (std::pow(std::cbrt(static_cast<double>(a)),static_cast<double>(b)));
-    //return std::cbrt(std::pow(a,b));
-    //double val = std::pow(std::abs(a),b/3.0);
-    //return val;
-    
-        
-}
 template<typename DataType, typename ShapeFunction>
 class EnergyNeohookean : public virtual ShapeFunction {
 public:

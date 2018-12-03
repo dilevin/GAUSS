@@ -119,7 +119,7 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     };
     
     LBFGSpp::LBFGSParam<DataType> param;
-    param.epsilon = 1e-4;
+    param.epsilon = 1e-1;
     param.max_iterations = 1000;
     param.past = 2;
     param.m = 5;

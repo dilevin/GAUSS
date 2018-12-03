@@ -34,6 +34,7 @@ add_executable(ExampleTestFCL exampleTestFCL.cpp)
 add_executable(ExampleTwistingBar exampleTwistingBar.cpp)
 add_executable(ExampleRigidBody exampleRigidBody.cpp)
 add_executable(ExampleNewmarkNonlinear exampleNewmarkNonlinear.cpp)
+add_executable(ExamplePrincipalStretch examplePrincipalStretch.cpp)
 
 #add_executable(ExampleFloatingFrame exampleFloatingFrame.cpp)
 
@@ -64,4 +65,6 @@ target_link_libraries(ExampleTestFCL Core Base FEM fcl ccd UI ${GAUSS_LIBS})
 target_link_libraries(ExampleTwistingBar Core Base FEM UI ${GAUSS_LIBS})
 target_link_libraries(ExampleRigidBody Core Base RigidBodies UI ${GAUSS_LIBS})
 target_link_libraries(ExampleNewmarkNonlinear Core Base FEM UI ${GAUSS_LIBS})
+target_link_libraries(ExamplePrincipalStretch Core Base FEM UI ${GAUSS_LIBS})
+
 #target_link_libraries(ExampleFloatingFrame Core Base RigidBodies UI ${GAUSS_LIBS})

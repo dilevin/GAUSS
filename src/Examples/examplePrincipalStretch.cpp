@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
     
     F << 0, 1, 2, 3;*/
     
+   /* Testing SVD derivative
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
@@ -148,7 +149,53 @@ int main(int argc, char **argv) {
     GAUSSVIEW(scene);
     
     std::cout << "Done." << std::endl;
-    return app.exec();
+    return app.exec();*/
     
+    Eigen::Vector3x<float> S;
+    Eigen::Matrix33x<float> U,V;
+    Eigen::Tensor3333x<float> dU, dV, dUfd, dVfd;
+    Eigen::Tensor333x<float> dS, dSfd;
     
+    Eigen::Matrix33x<float> A = Eigen::Matrix33x<float>::Random();
+    Eigen::Matrix33x<float> Ap1, Am1;
+    
+    igl::svd3x3(A,U,S,V);
+    
+    std::cout<<"V:\n"<<V<<"\n";
+    std::cout<<"S:\n"<<S.transpose()<<"\n";
+    
+    Eigen::dSVD(dU, dS,dV,U,S,V); 
+    
+    std::cout<<"A: \n"<<A<<"\n";
+    
+    //Finite Difference Approximations
+    float dif = 1e-3;
+    for(unsigned int r=0; r<3; ++r) {
+        for(unsigned int s = 0; s<3; ++s) {
+            Ap1 = A;
+            Am1 = A;
+            Ap1(r,s) += dif;
+            Am1(r,s) -= dif;
+    
+            igl::svd3x3(Ap1,dUfd[r][s],dSfd[r][s],dVfd[r][s]);
+            igl::svd3x3(Am1,U,S,V);
+            dUfd[r][s] -= U;
+            dUfd[r][s] /= (2.0*dif);
+            
+            dSfd[r][s] -= S;
+            dSfd[r][s] /= (2.0*dif);
+            
+            dVfd[r][s] -= V;
+            dVfd[r][s] /= (2.0*dif);
+    
+        }
+    }
+    
+    std::cout<<"dV(0,0):\n"<<dV[1][0]<<"\n";
+    std::cout<<"dVfd(0,0):\n"<<dVfd[1][0]<<"\n";
+    std::cout<<"dU(0,0):\n"<<dU[1][0]<<"\n";
+    std::cout<<"dUfd(0,0):\n"<<dUfd[1][0]<<"\n";
+    std::cout<<"dS(0,0): "<<dS[1][0].transpose()<<"\n";
+    std::cout<<"dSfd(0,0): "<<dSfd[1][0].transpose()<<"\n";
+
 }

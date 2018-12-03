@@ -47,18 +47,91 @@ namespace Eigen {
     template<typename DataType>
     using Matrix66x = Eigen::Matrix<DataType, 6,6>;
     
-    //My own ad-hoc tensor classes since GAUSS uses libigl's Eigen 
+    template<typename DataType>
+    using Tensor333x = std::array<std::array<Eigen::Vector3x<DataType>,3>, 3>;
+    
+    template<typename DataType>
+    using Tensor3333x = std::array<std::array<Eigen::Matrix33x<DataType>,3>, 3>;
+    
     //useful maps
     template<typename DataType>
     using Map3x = Eigen::Map<Vector3x<DataType> >;
     
     
     //Derivative of 3x3 SVD
-    //Returns SVD along with derivatives of both orthonormal matrices and the singular values
+    //takes in the svd of a 3x3 matrix (U,S,V s.t A = U*S*V^T) where U,V are orthornomal, S is diagonal stored as a vector.
     //The derivative uses fast SVD code by Eftychois Sifakis via libigl which only works corectly for single precision floating point values
     //Inputs
     //
     //Output
+    template<typename DataType,
+             typename DerivedU,
+             typename DerivedV,
+             typename DerivedS>
+    inline void dSVD(Tensor3333x<DataType> &dU,
+                     Tensor333x<DataType>  &dS,
+                     Tensor3333x<DataType> &dV,
+                     const Eigen::MatrixBase<DerivedU> &U,
+                     const Eigen::MatrixBase<DerivedS> &S,
+                     const Eigen::MatrixBase<DerivedV> &V) {
+        
+        Eigen::Matrix33x<typename DerivedU::Scalar> UVT, tmp;
+        
+        Eigen::Matrix33x<typename DerivedU::Scalar> lambda;
+    
+        //crappy hack for now
+        typename DerivedU::Scalar tol = 1e-4;
+        typename DerivedU::Scalar w01, w02, w12;
+        typename DerivedU::Scalar d01, d02, d12;
+        
+        d01 = S(1)*S(1)-S(0)*S(0);
+        d02 = S(2)*S(2)-S(0)*S(0);
+        d12 = S(2)*S(2)-S(1)*S(1);
+        
+        //corresponds to conservative solution --- if singularity is detected no angular velocity
+        d01 = static_cast<typename DerivedU::Scalar>(1.0)/(std::abs(d01) < tol ? std::numeric_limits<double>::infinity() : d01);
+        d02 = static_cast<typename DerivedU::Scalar>(1.0)/(std::abs(d02) < tol ? std::numeric_limits<double>::infinity() : d02);
+        d12 = static_cast<typename DerivedU::Scalar>(1.0)/(std::abs(d12) < tol ? std::numeric_limits<double>::infinity() : d12);
+        
+        for(unsigned int r=0; r<3; ++r) {
+            for(unsigned int s =0; s <3; ++s) {
+                
+                UVT = U.row(r).transpose()*V.row(s);
+                
+                //Compute dS
+                dS[r][s] = UVT.diagonal();
+                
+                UVT -= dS[r][s].asDiagonal();
+                
+                tmp  = S.asDiagonal()*UVT + UVT.transpose()*S.asDiagonal();
+                w01 = tmp(0,1)*d01;
+                w02 = tmp(0,2)*d02;
+                w12 = tmp(1,2)*d12;
+                tmp << 0, w01, w02,
+                       -w01, 0, w12,
+                       -w02, -w12, 0;
+                
+                dV[r][s] = V*tmp;
+                
+                tmp = UVT*S.asDiagonal() + S.asDiagonal()*UVT.transpose();
+                w01 = tmp(0,1)*d01;
+                w02 = tmp(0,2)*d02;
+                w12 = tmp(1,2)*d12;
+                tmp << 0, w01, w02,
+                -w01, 0, w12,
+                -w02, -w12, 0;
+                
+                dU[r][s] = U*tmp;
+                
+                
+                //compute dV
+                //dU[r][s] = lambda.fullPivLu().solve(S.asDiagonal()*UVT - UVT.transpose()*S.asDiagonal());
+                //dU[r][s] = V.transpose()*dV[r][s];
+                
+            }
+        }
+    }
+    
 }
 
 namespace Gauss {

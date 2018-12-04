@@ -80,7 +80,7 @@ namespace Eigen {
         Eigen::Matrix33x<typename DerivedU::Scalar> lambda;
     
         //crappy hack for now
-        typename DerivedU::Scalar tol = 1e-4;
+        typename DerivedU::Scalar tol = 1e-6;
         typename DerivedU::Scalar w01, w02, w12;
         typename DerivedU::Scalar d01, d02, d12;
         

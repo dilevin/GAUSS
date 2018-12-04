@@ -11,7 +11,8 @@
 #include <tuple>
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
-#include <TimeStepperEulerImplicitBFGS.h>
+#include <TimeStepperEulerImplicit.h>
+#include <TimeStepperEulerImplicitLinear.h>
 #include <TimeStepperEulerImplicitBFGS.h>
 #include <type_traits>
 
@@ -66,10 +67,38 @@ struct NeohookeanPS {
         return tmp;
     }
     
-    template<typename DataType>
-    inline Eigen::Matrix33x<DataType> hessian(Eigen::MatrixBase<DataType> &stretches) {
+    template<typename Derived>
+    inline Eigen::Matrix33x<typename Derived::Scalar> hessian(Eigen::MatrixBase<Derived> &stretches) {
         
-        //Not implemented yet
+        Eigen::Matrix33x<typename Derived::Scalar> tmp;
+        
+        using DataType = typename Derived::Scalar;
+        
+        DataType s0 = stretches(0);
+        DataType s1 = stretches(1);
+        DataType s2 = stretches(2);
+        DataType C = m_C;
+        DataType D = m_D;
+        
+        tmp(0,0) = 2*D*std::pow(s1,static_cast<DataType>(2.0))*std::pow(s2,static_cast<DataType>(2.0)) - (0.6666666666666665*C)/stablePow(s0*s1*s2, static_cast<DataType>(2.0)) + (1.111111111111111*C*std::pow(s1,static_cast<DataType>(2.0))*std::pow(s2,static_cast<DataType>(2.0))*(std::pow(s0, static_cast<DataType>(2.0)) + std::pow(s1,static_cast<DataType>(2.0)) + std::pow(s2,static_cast<DataType>(2.0))))/stablePow(s0*s1*s2, static_cast<DataType>(8.0));
+        
+        tmp(1,0) = (s2*(-0.8888888888888891*C*std::pow(s0, static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s1,static_cast<DataType>(2.0)) + 0.4444444444444443*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(2,0) = (s1*(-0.8888888888888891*C*std::pow(s0, static_cast<DataType>(2.0)) + 0.4444444444444443*C*std::pow(s1,static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(0,1) = (s2*(-0.8888888888888891*C*std::pow(s0, static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s1,static_cast<DataType>(2.0)) + 0.4444444444444443*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(1,1) = 2*D*std::pow(s0, static_cast<DataType>(2.0))*std::pow(s2,static_cast<DataType>(2.0)) - (0.6666666666666665*C)/stablePow(s0*s1*s2, static_cast<DataType>(2.0)) + (1.111111111111111*C*std::pow(s0, static_cast<DataType>(2.0))*std::pow(s2,static_cast<DataType>(2.0))*(std::pow(s0, static_cast<DataType>(2.0)) + std::pow(s1,static_cast<DataType>(2.0)) + std::pow(s2,static_cast<DataType>(2.0))))/stablePow(s0*s1*s2, static_cast<DataType>(8.0));
+        
+        tmp(2,1) = (s0*(0.4444444444444443*C*std::pow(s0, static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s1,static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(0,2) = (s1*(-0.8888888888888891*C*std::pow(s0, static_cast<DataType>(2.0)) + 0.4444444444444443*C*std::pow(s1,static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(1,2) = (s0*(0.4444444444444443*C*std::pow(s0, static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s1,static_cast<DataType>(2.0)) - 0.8888888888888891*C*std::pow(s2,static_cast<DataType>(2.0)) - 2.*D*stablePow(s0*s1*s2, static_cast<DataType>(5.0)) + 4.*D*stablePow(s0*s1*s2, static_cast<DataType>(8.0))))/stablePow(s0*s1*s2, static_cast<DataType>(5.0));
+        
+        tmp(2,2) = 2*D*std::pow(s0, static_cast<DataType>(2.0))*std::pow(s1,static_cast<DataType>(2.0)) - (0.6666666666666665*C)/stablePow(s0*s1*s2, static_cast<DataType>(2.0)) + (1.111111111111111*C*std::pow(s0, static_cast<DataType>(2.0))*std::pow(s1,static_cast<DataType>(2.0))*(std::pow(s0, static_cast<DataType>(2.0)) + std::pow(s1,static_cast<DataType>(2.0)) + std::pow(s2,static_cast<DataType>(2.0))))/stablePow(s0*s1*s2, static_cast<DataType>(8.0));
+        
+        return tmp;
         
     }
 
@@ -91,7 +120,7 @@ typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitBFGS<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 //typedef TimeStepperEulerImplicitBFGS<double, AssemblerEigenSparseMatrix<double>,
@@ -123,7 +152,6 @@ int main(int argc, char **argv) {
     
     F << 0, 1, 2, 3;*/
     
-   /* Testing SVD derivative
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
@@ -131,16 +159,17 @@ int main(int argc, char **argv) {
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     world.addSystem(test);
+    fixDisplacementMin(world, test);
     world.finalize(); //After this all we're ready to go (clean up the interface a bit later)
     
     auto q = mapStateEigen(world);
     q.setZero();
     
     std::cout << "Starting now." << std::endl;
-    Eigen::VectorXi indices = minVertices(test, 0);
-    Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
+    //Eigen::VectorXi indices = minVertices(test, 0);
+    //Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
-    MyTimeStepper stepper(0.1, P);
+    MyTimeStepper stepper(0.1);
     
     //Display
     QGuiApplication app(argc, argv);
@@ -149,53 +178,7 @@ int main(int argc, char **argv) {
     GAUSSVIEW(scene);
     
     std::cout << "Done." << std::endl;
-    return app.exec();*/
+    return app.exec();
     
-    Eigen::Vector3x<float> S;
-    Eigen::Matrix33x<float> U,V;
-    Eigen::Tensor3333x<float> dU, dV, dUfd, dVfd;
-    Eigen::Tensor333x<float> dS, dSfd;
-    
-    Eigen::Matrix33x<float> A = Eigen::Matrix33x<float>::Random();
-    Eigen::Matrix33x<float> Ap1, Am1;
-    
-    igl::svd3x3(A,U,S,V);
-    
-    std::cout<<"V:\n"<<V<<"\n";
-    std::cout<<"S:\n"<<S.transpose()<<"\n";
-    
-    Eigen::dSVD(dU, dS,dV,U,S,V); 
-    
-    std::cout<<"A: \n"<<A<<"\n";
-    
-    //Finite Difference Approximations
-    float dif = 1e-3;
-    for(unsigned int r=0; r<3; ++r) {
-        for(unsigned int s = 0; s<3; ++s) {
-            Ap1 = A;
-            Am1 = A;
-            Ap1(r,s) += dif;
-            Am1(r,s) -= dif;
-    
-            igl::svd3x3(Ap1,dUfd[r][s],dSfd[r][s],dVfd[r][s]);
-            igl::svd3x3(Am1,U,S,V);
-            dUfd[r][s] -= U;
-            dUfd[r][s] /= (2.0*dif);
-            
-            dSfd[r][s] -= S;
-            dSfd[r][s] /= (2.0*dif);
-            
-            dVfd[r][s] -= V;
-            dVfd[r][s] /= (2.0*dif);
-    
-        }
-    }
-    
-    std::cout<<"dV(0,0):\n"<<dV[1][0]<<"\n";
-    std::cout<<"dVfd(0,0):\n"<<dVfd[1][0]<<"\n";
-    std::cout<<"dU(0,0):\n"<<dU[1][0]<<"\n";
-    std::cout<<"dUfd(0,0):\n"<<dUfd[1][0]<<"\n";
-    std::cout<<"dS(0,0): "<<dS[1][0].transpose()<<"\n";
-    std::cout<<"dSfd(0,0): "<<dSfd[1][0].transpose()<<"\n";
 
 }

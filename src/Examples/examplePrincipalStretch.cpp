@@ -12,6 +12,7 @@
 //Any extra things I need such as constraints
 #include <ConstraintFixedPoint.h>
 #include <TimeStepperEulerImplicit.h>
+#include <TimeStepperNewmark.h>
 #include <TimeStepperEulerImplicitLinear.h>
 #include <TimeStepperEulerImplicitBFGS.h>
 #include <type_traits>
@@ -117,7 +118,7 @@ using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSNH>;
 typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
 //typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
-typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
+typedef World<double, std::tuple<FEMLinearTets *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,

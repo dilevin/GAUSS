@@ -42,7 +42,7 @@ namespace Gauss {
                 
                 scallback(x0+alpha*p);
                 
-                if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm() - E0) < tol1) {
+                if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()) - E0 < tol1) {
                     break;
                 }
                 

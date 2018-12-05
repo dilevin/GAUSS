@@ -76,7 +76,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
 
     
     Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix;
-    Eigen::VectorXd x0;
+    Eigen::VectorXx<DataType> x0;
     
     if(m_refactor || !m_factored) {
         
@@ -113,8 +113,8 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     ASSEMBLEEND(forceVector);
 
     //Grab the state
-    Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
-    Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
+    Eigen::Map<Eigen::VectorXx<DataType> > q = mapStateEigen<0>(world);
+    Eigen::Map<Eigen::VectorXx<DataType> > qDot = mapStateEigen<1>(world);
     
     //setup RHS
     (*forceVector).head(world.getNumQDotDOFs()) = (*m_massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot + dt*(*forceVector).head(world.getNumQDotDOFs());
@@ -131,7 +131,7 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     //m_pardiso.cleanup();
 #else
     //solve system (Need interface for solvers but for now just use Eigen LLt)
-    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+    Eigen::SimplicialLDLT<Eigen::SparseMatrix<DataType> > solver;
     
     if(m_refactor || !m_factored) {
         solver.compute(systemMatrix);

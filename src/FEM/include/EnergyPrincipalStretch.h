@@ -8,7 +8,7 @@ template<typename DataType, typename ShapeFunction, typename EnergyPS>
 class EnergyPrincipalStretch : public virtual ShapeFunction {
 public:
     template<typename QDOFList, typename QDotDOFList>
-    EnergyPrincipalStretch(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
+    EnergyPrincipalStretch(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : ShapeFunction(V, F, qDOFList, qDotDOFList) {
         
         
     }
@@ -49,7 +49,7 @@ public:
     }
     
     template<typename Matrix>
-    inline void getHessian(Matrix &H, double *x, const State<DataType> &state) {
+    inline void getHessian(Matrix &H, DataType *x, const State<DataType> &state) {
         
         //Deformation Gradient
         Eigen::Matrix33x<float> F = (ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity()).template cast<float>();

@@ -20,7 +20,7 @@ namespace Gauss {
             using Energy::m_qDotDofs;
             
             template<typename QDOFList, typename QDotDOFList>
-            inline QuadratureTetConstant(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
+            inline QuadratureTetConstant(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) :
             Energy(V,F,qDOFList, qDotDOFList){ }
             
             inline DataType getValue(const State<DataType> &state) {

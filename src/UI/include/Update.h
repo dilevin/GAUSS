@@ -124,9 +124,9 @@ namespace Gauss {
 
         Qt3DCore::QEntity * getEntity(Qt3DCore::QEntity *root, State<DataType> &state) {
             
-            Eigen::Vector3d q0 = m_dof0(state);
-            Eigen::Vector3d q1 = m_dof1(state);
-            Eigen::Vector3d dq = q1 - q0;
+            Eigen::Vector3x<DataType> q0 = m_dof0(state);
+            Eigen::Vector3x<DataType> q1 = m_dof1(state);
+            Eigen::Vector3x<DataType> dq = q1 - q0;
             
             //geometry
             m_cylinder = new Qt3DExtras::QCylinderMesh();
@@ -154,11 +154,11 @@ namespace Gauss {
         }
 
         void update(State<DataType> &state) const {
-            Eigen::Vector3d q0 = m_dof0(state);
-            Eigen::Vector3d q1 = m_dof1(state);
-            Eigen::Vector3d dq = q1 + q0;
-            Eigen::Vector3d difq = (q1 - q0).normalized();
-            Eigen::Vector3d axis = difq.cross(Eigen::Vector3d(0.0, 1.0, 0.0));
+            Eigen::Vector3x<DataType> q0 = m_dof0(state);
+            Eigen::Vector3x<DataType> q1 = m_dof1(state);
+            Eigen::Vector3x<DataType> dq = q1 + q0;
+            Eigen::Vector3x<DataType> difq = (q1 - q0).normalized();
+            Eigen::Vector3x<DataType> axis = difq.cross(Eigen::Vector3x<DataType>(0.0, 1.0, 0.0));
             
             m_transform->setScale3D(QVector3D(m_r, (q1-q0).norm(), m_r));
             m_transform->setTranslation(QVector3D(0.5*dq[0], 0.5*dq[1], 0.5*dq[2]));

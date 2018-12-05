@@ -45,7 +45,7 @@ namespace Gauss {
             ShapeFunctionLinearTet() { }
             
             template<typename QDOFList, typename QDotDOFList>
-            ShapeFunctionLinearTet(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(3,3) {
+            ShapeFunctionLinearTet(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F, QDOFList &qDOFList, QDotDOFList &qDotDOFList) : m_T(3,3) {
                 //build up stuff I need for barycentric coordinates
               
                 m_T << (Vert(1,0) - Vert(0,0)), (Vert(2,0) - Vert(0,0)), (Vert(3,0) - Vert(0,0)),
@@ -75,7 +75,7 @@ namespace Gauss {
             
             //drop my gets for this just because my hands get tired of typing it all the time
             template<unsigned int Vertex>
-            inline double phi(double *x) {
+            inline DataType phi(DataType *x) {
                 assert(Vertex >= 0);
                 assert(Vertex < 4);
                 
@@ -93,7 +93,7 @@ namespace Gauss {
             }
             
             template<unsigned int Vertex>
-            inline std::array<DataType, 3> dphi(double *x) {
+            inline std::array<DataType, 3> dphi(DataType *x) {
                 
                 std::array<DataType, 3> temp;
                 static_if<(Vertex >0)>([&](auto f){
@@ -110,7 +110,7 @@ namespace Gauss {
             }
             
         
-            inline Eigen::Matrix<DataType, 3,3> F(double *x, const State<DataType> &state) {
+            inline Eigen::Matrix<DataType, 3,3> F(DataType *x, const State<DataType> &state) {
                 
                 Eigen::Matrix<DataType,3,3> Ftemp;
                 
@@ -123,16 +123,16 @@ namespace Gauss {
             }
 
             //Shape function matrix at point x
-            inline MatrixJ N(double *x) {
+            inline MatrixJ N(DataType *x) {
                 
                 MatrixJ output;
                 
                 //just a 3x12 matrix of shape functions
                 //kind of assuming everything is initialized before we get here
-                double phi0 = phi<0>(x);
-                double phi1 = phi<1>(x);
-                double phi2 = phi<2>(x);
-                double phi3 = phi<3>(x);
+                DataType phi0 = phi<0>(x);
+                DataType phi1 = phi<1>(x);
+                DataType phi2 = phi<2>(x);
+                DataType phi3 = phi<3>(x);
                 
                 output.resize(3,12);
                 output.setZero();
@@ -147,7 +147,7 @@ namespace Gauss {
             
             
             //Jacobian: derivative with respect to degrees of freedom
-            inline MatrixJ J(double *x, const State<DataType> &state) {
+            inline MatrixJ J(DataType *x, const State<DataType> &state) {
             
                 return N(x);
                 
@@ -185,7 +185,7 @@ namespace Gauss {
                 return tmp;
             }
 
-            inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) {
+            inline MatrixJ GradJ(unsigned int component, DataType *x, const State<DataType> &state) {
                 
                 MatrixJ tmp;
                 
@@ -199,7 +199,7 @@ namespace Gauss {
                 
             }
 
-            inline Eigen::Vector3x<DataType> x(double alphaX, double alphaY, double alphaZ) const {
+            inline Eigen::Vector3x<DataType> x(DataType alphaX, DataType alphaY, DataType alphaZ) const {
                 Eigen::Vector3x<DataType> lambda;
                 lambda << alphaX, alphaY, alphaZ;
                 return m_T.inverse()*lambda + m_x3;
@@ -210,7 +210,7 @@ namespace Gauss {
                 return m_qDofs;
             }
             
-            inline double volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
+            inline DataType volume() { return (1.0/6.0)*(1.0/m_T.determinant()); }
             
             constexpr unsigned int getNumVerts() { return 4; }
 
@@ -235,7 +235,7 @@ namespace Gauss {
         //B is the standard matrix form of the engineering linear strain (i.e with cross strains are multiplied by 2)
         //For lots of element types B is constant
         template<typename ShapeFunction, typename DataType>
-        inline typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, double *x, const State<DataType> &state) {
+        inline typename ShapeFunction::template MatrixDOF<6> B(ShapeFunction *N, DataType *x, const State<DataType> &state) {
             
             typename ShapeFunction::template MatrixDOF<6> tmp;
             

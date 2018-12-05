@@ -105,7 +105,7 @@ namespace Gauss {
                 
                 Eigen::Vector3x<DataType> dq = q1-q0;
                
-                double mag = (q1-q0).norm();
+                DataType mag = (q1-q0).norm();
                 if(fabs(mag) < 1e-8) {
                     mag = 1e-8;
                }
@@ -113,11 +113,11 @@ namespace Gauss {
                 Eigen::Vector3x<DataType> dqN = dq/mag;
                 
                 //double strain = 1.0 - l/m_l0;
-                double b = m_k/m_l0;
-                double a = b*(1.0/mag - 1.0/m_l0);
-                double c = b/(mag);
+                DataType b = m_k/m_l0;
+                DataType a = b*(1.0/mag - 1.0/m_l0);
+                DataType c = b/(mag);
                 
-                Eigen::Matrix<double, 6,3> B;
+                Eigen::Matrix<DataType, 6,3> B;
                 B << -1,  0,  0,
                       0, -1,  0,
                       0,  0, -1,
@@ -125,7 +125,7 @@ namespace Gauss {
                       0,  1,  0,
                       0,  0,  1;
                 
-                Eigen::Matrix<double, 6,6> Hspring;
+                Eigen::Matrix<DataType, 6,6> Hspring;
                 Hspring = -a*B*B.transpose() - c*B*dqN*dqN.transpose()*B.transpose();
                 assign(H, Hspring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}}, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 

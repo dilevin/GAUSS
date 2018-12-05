@@ -28,6 +28,9 @@ namespace Gauss
     {
         
     public:
+        
+        using Scalar = DataType;
+        
         explicit World();
         explicit World(const World &toCopy);
         

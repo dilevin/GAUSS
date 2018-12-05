@@ -37,7 +37,7 @@ namespace Gauss {
             using PotentialEnergy<DataType, ShapeFunction<DataType> >::getCauchyStress;
                              
             template<typename QDOFList, typename QDotDOFList>
-            ElementBase(Eigen::MatrixXd &V, Eigen::MatrixXi &F, QDOFList qDOFList, QDotDOFList qDotDOFList)  :
+            ElementBase(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F, QDOFList qDOFList, QDotDOFList qDotDOFList)  :
                              ShapeFunction<DataType>(V,F, qDOFList, qDotDOFList), 
                              QuadratureU(V,F, qDOFList, qDotDOFList), QuadratureT(V,F, qDOFList, qDotDOFList),
                              QuadratureBF(V,F, qDOFList, qDotDOFList) {

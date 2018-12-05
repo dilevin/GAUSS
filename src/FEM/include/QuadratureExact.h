@@ -27,7 +27,7 @@ namespace Gauss {
             using ShapeFunction::m_qDotDofs;
                                         
             template<typename QDOFList, typename QDotDOFList>
-            inline QuadratureExact(Eigen::MatrixXd &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) : EnergyKineticNonLumped<DataType, ShapeFunction>(V,F, qDOFList, qDotDOFList) {
+            inline QuadratureExact(Eigen::MatrixXx<DataType> &V, Eigen::MatrixXi &F,QDOFList &qDOFList, QDotDOFList &qDotDOFList) : EnergyKineticNonLumped<DataType, ShapeFunction>(V,F, qDOFList, qDotDOFList) {
                 
                 //need the volume of this tetrahedron
                 Eigen::Matrix<DataType, 3,3> V0;

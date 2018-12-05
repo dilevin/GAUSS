@@ -412,7 +412,7 @@ namespace Gauss {
             float *rawOriginalData = const_cast<float *>(reinterpret_cast<const float *>(m_vertexBufferData.data()));
             
             //2.) Update using mesh data + state which for linear FEM is the displacement of the node
-            Eigen::Map<Eigen::VectorXd> pos = mapDOFEigen(m_fem->getQ(), state);
+            Eigen::Map<Eigen::VectorXx<DataType> > pos = mapDOFEigen(m_fem->getQ(), state);
             
             unsigned int vertexId, idx;
             idx = 0;

@@ -32,9 +32,9 @@ namespace Gauss {
         public:
             //temporary global indices until I update the state to give these to me
             //automatically
-            PhysicalSystemFEMImpl(const Eigen::Ref<Eigen::MatrixXd> &V, const Eigen::Ref<Eigen::MatrixXi> &F) : m_q(V.rows()), m_qDot(V.rows()) {
+            PhysicalSystemFEMImpl(const Eigen::Ref<Eigen::MatrixXd > &V, const Eigen::Ref<Eigen::MatrixXi> &F) : m_q(V.rows()), m_qDot(V.rows()) {
                 
-                m_V = V;
+                m_V = V.template cast<DataType>();
                 m_F = F;
                 m_numVerts = m_V.rows();
                 m_numElements = m_F.rows();
@@ -255,7 +255,7 @@ namespace Gauss {
         protected:
             
             //Mesh
-            Eigen::MatrixXd m_V;
+            Eigen::MatrixXx<DataType> m_V;
             Eigen::MatrixXi m_F;
             long m_numVerts;
             long m_numElements;

@@ -30,6 +30,12 @@ namespace Gauss {
             
             double E0 = f(x0) + 100000.0*(J*x0.head(gradient.rows()) - b).norm(); //merit function
             Vector p = solver(H(x0), gradient, ceq(x0), Aeq(x0), x0);
+            
+            //if step is too small, we aren;t going anywhere so return converged.
+            if(p.norm() < tol1) {
+                return true;
+            }
+            
             double gStep = gradient.transpose()*p.head(gradient.rows());
             
             //back tracking line search
@@ -42,15 +48,18 @@ namespace Gauss {
                 
                 scallback(x0+alpha*p);
                 
-                if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()) - E0 < tol1) {
+                //std::cout<<"Line Search Step: "<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
+                
+                if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()) - E0 - c*alpha*gStep< -tol1) {
+                  //  std::cout<<"Finished: "<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
                     break;
                 }
                 
-                //std::cout<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
+                
                 alpha = alpha*rho;
                 
                 if(alpha < 1e-8) {
-                  alpha = 0;
+                    break;
                 }
             }
             

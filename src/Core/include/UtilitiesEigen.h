@@ -137,16 +137,16 @@ namespace Eigen {
 namespace Gauss {
     //state ptr direct to eigen map for a single property (position or velocity)
     template<unsigned int Property, typename World>
-    Eigen::Map<Eigen::VectorXd> mapStateEigen(World &world) {
-        std::tuple<double *, unsigned int> ptr = world.getState().template getStatePtr<Property>();
-        return Eigen::Map<Eigen::VectorXd>(std::get<0>(ptr), std::get<1>(ptr));
+    Eigen::Map<Eigen::VectorXx<typename World::Scalar> > mapStateEigen(World &world) {
+        std::tuple<typename World::Scalar *, unsigned int> ptr = world.getState().template getStatePtr<Property>();
+        return Eigen::Map<Eigen::VectorXx<typename World::Scalar> >(std::get<0>(ptr), std::get<1>(ptr));
     }
     
     //state ptr for the whole thing
     template<typename World>
-    Eigen::Map<Eigen::VectorXd> mapStateEigen(World &world) {
-        std::tuple<double *, unsigned int> ptr = world.getState().getStatePtr();
-        return Eigen::Map<Eigen::VectorXd>(std::get<0>(ptr), std::get<1>(ptr));
+    Eigen::Map<Eigen::VectorXx<typename World::Scalar> > mapStateEigen(World &world) {
+        std::tuple<typename World::Scalar *, unsigned int> ptr = world.getState().getStatePtr();
+        return Eigen::Map<Eigen::VectorXx<typename World::Scalar> >(std::get<0>(ptr), std::get<1>(ptr));
     }
     
     template<typename DOF, typename DataType, typename ...SystemTypes, typename ...ForceTypes, typename ...ConstraintTypes>
@@ -161,10 +161,10 @@ namespace Gauss {
     }
     
     template<typename DOF, typename DataType>
-    inline Eigen::Map<Eigen::VectorXd> mapDOFEigen(DOF &dof, const State<DataType> &state) {
-        std::tuple<double *, unsigned int> qPtr = dof.getPtr(state);
+    inline Eigen::Map<Eigen::VectorXx<DataType> > mapDOFEigen(DOF &dof, const State<DataType> &state) {
+        std::tuple<DataType *, unsigned int> qPtr = dof.getPtr(state);
         //set position DOF and check
-        return Eigen::Map<Eigen::VectorXd>(std::get<0>(qPtr), dof.getNumScalarDOF());
+        return Eigen::Map<Eigen::VectorXx<DataType> >(std::get<0>(qPtr), dof.getNumScalarDOF());
     }
     
     //functor for getting position of a DOF

@@ -31,7 +31,7 @@ namespace Gauss {
     {
     public:
 
-        TimeStepperImplEulerImplicit(unsigned int num_iterations = 10000)  {
+        TimeStepperImplEulerImplicit(unsigned int num_iterations = 100)  {
             m_num_iterations = num_iterations;
         }
 
@@ -87,8 +87,11 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     ASSEMBLEEND(massMatrix);
 
     //we're going to build equality constraints into our gradient and hessian calcuations
-    auto E = [&world, &massMatrix, &qDot](auto &a) { return (getEnergy(world) -
-                                                             mapStateEigen<1>(world).transpose()*(*massMatrix)*qDot); };
+    auto E = [&world, &massMatrix, &qDot](auto &a) { //return (getEnergy(world) -
+                                                             //mapStateEigen<1>(world).transpose()*(*massMatrix)*qDot);
+        
+        return getEnergy(world) - a.head(world.getNumQDOFs()).transpose()*(*massMatrix)*qDot;
+    };
     
     auto H = [&world, &massMatrix, &stiffnessMatrix, &dt, &qDot](auto &a)->auto & {
         //get stiffness matrix
@@ -118,7 +121,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
         ASSEMBLEEND(forceVector);
         
         (*forceVector).head(world.getNumQDotDOFs()) *= -dt;
-        (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix)*(mapStateEigen<1>(world)-qDot);
+        (*forceVector).head(world.getNumQDotDOFs()) += (*massMatrix)*(a.head(world.getNumQDOFs())-qDot);
         
         return forceVector;
     };
@@ -135,7 +138,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
 
         //std::cout<<"NORM: "<<dx.head(world.getNumQDOFs()).norm()<<"\n";
         mapStateEigen<1>(world) = dx.head(world.getNumQDOFs());
-        mapStateEigen<0>(world) = q + dt*mapStateEigen<1>(world);
+        mapStateEigen<0>(world) = q + dt*dx.head(world.getNumQDOFs());
 
     };
 
@@ -143,6 +146,7 @@ void TimeStepperImplEulerImplicit<DataType, MatrixAssembler, VectorAssembler>::s
     auto x0 = Eigen::VectorXd(world.getNumQDotDOFs()+world.getNumConstraints());
     x0.setZero();
     m_newton(x0, E, g, H, b, Aeq, update, 1e-4, m_num_iterations);
+    
 
 }
 

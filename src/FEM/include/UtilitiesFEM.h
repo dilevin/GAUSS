@@ -48,7 +48,7 @@ namespace Gauss {
         template <typename DataType, typename DOF>
         class PositionFEMEigen {
         public:
-            inline PositionFEMEigen(DOF *dof = nullptr, unsigned int vId = 0, Eigen::MatrixXd *V = 0) {
+            inline PositionFEMEigen(DOF *dof = nullptr, unsigned int vId = 0, Eigen::MatrixXx<DataType> *V = 0) {
                 m_dof = dof;
                 m_V  = V;
                 m_vId = vId;
@@ -60,7 +60,7 @@ namespace Gauss {
             inline DOF * getDOF() { return m_dof; }
         protected:
             DOF *m_dof;
-            Eigen::MatrixXd *m_V;
+            Eigen::MatrixXx<DataType> *m_V;
             unsigned int m_vId;
         };
         

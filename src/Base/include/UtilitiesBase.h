@@ -94,6 +94,17 @@ void getInternalForceVector(Matrix &forceVector, System &system, World &world) {
     ASSEMBLEEND(forceVector);
 }
 
+template<typename Matrix, typename System, typename DataType>
+void getInternalForceVector(Matrix &forceVector, System &system, Gauss::State<DataType> &state) {
+    ASSEMBLEVECINIT(forceVector, system.getQ().getNumScalarDOF());
+    forceVector.setOffset(-system.getQ().getGlobalId(), 0);
+    system.getInternalForce(forceVector, state);
+    //ASSEMBLELIST(forceVector, world.getForceList(), getForce);
+    //ASSEMBLELIST(forceVector, world.getSystemList(), getForce);
+    ASSEMBLEEND(forceVector);
+}
+
+
 template<typename Matrix, typename World>
 void getInternalForceVector(Matrix &forceVector, World &world) {
     ASSEMBLEVECINIT(forceVector, world.getNumQDotDOFs());

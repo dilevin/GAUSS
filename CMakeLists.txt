@@ -1,11 +1,14 @@
 cmake_minimum_required (VERSION 3.2)
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
-project (Gauss)
+project (Gauss C CXX)
 
 include(${PROJECT_SOURCE_DIR}/cmake/DownloadProject.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
+
+#CMake Modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
@@ -102,6 +105,7 @@ add_definitions(-DGAUSS_DATA_DIR=${PROJECT_SOURCE_DIR}/data)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #libigl include directory
+set(LIBIGL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl" FORCE)
 set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
 
 #Spectra
@@ -251,6 +255,12 @@ endif(GAUSS_USE_UI)
 
 #Example codes 
 if(GAUSS_USE_UI)
+    #LIBIGL Stuff
+    option(LIBIGL_WITH_OPENGL            "Use OpenGL"         ON)
+    option(LIBIGL_WITH_OPENGL_GLFW       "Use GLFW"           ON)
+    option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
+    option(LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui"          ON)
+    find_package(LIBIGL REQUIRED)
     add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
 endif(GAUSS_USE_UI)
 #Disable tests for now because I'm not using them and they only build on one machine 

@@ -1,7 +1,6 @@
 #include <UtilitiesEigen.h>
 
 #include <FEMIncludes.h>
-#include <DOFStress.h>
 #include <EnergyLoubignac.h>
 #include <ConstraintFixedPoint.h>
 

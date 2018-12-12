@@ -18,6 +18,7 @@
 #include <EnergyMuscle.h>
 #include <EnergyStvk.h>
 #include <EnergyPrincipalStretch.h>
+#include <MaterialsPrincipalStretch.h>
 
 //Quadrature rules
 #include <Quadrature.h>

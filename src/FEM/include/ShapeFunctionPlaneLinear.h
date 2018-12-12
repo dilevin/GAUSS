@@ -72,7 +72,7 @@ namespace Gauss {
 
             //drop my gets for this just because my hands get tired of typing it all the time
             template<unsigned int Vertex>
-            inline double phi(double *x) {
+            inline double phi(double *x) const {
                 assert(Vertex >= 0);
                 assert(Vertex < 3);
 
@@ -91,7 +91,7 @@ namespace Gauss {
             }
 
             template<unsigned int Vertex>
-            inline std::array<DataType, 3> dphi(double *x) {
+            inline std::array<DataType, 3> dphi(double *x) const {
 
                 std::array<DataType, 3> temp;
                 static_if<(Vertex >0)>([&](auto f){
@@ -167,7 +167,7 @@ namespace Gauss {
 
             //spatial derivative of Jacobian (needed to evaluate spatial gradient of displacement/positions
             //rows are derivatives in different directions
-            inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) {
+            inline MatrixJ GradJ(unsigned int component, double *x, const State<DataType> &state) const {
 
                 MatrixJ tmp;
 
@@ -181,15 +181,15 @@ namespace Gauss {
             }
 
             //get DOFs
-            inline std::array<DOFBase<DataType,3> *, 8> & q() {
+            inline std::array<DOFBase<DataType,3> *, 8> & q() const {
                 return m_qDofs;
             }
             
-            inline std::array<DOFBase<DataType,3> *, 8> & qDot() {
+            inline std::array<DOFBase<DataType,3> *, 8> & qDot() const {
                 return m_qDotDofs;
             }
             
-            inline VectorQ q(const State<DataType> &state) {
+            inline VectorQ q(const State<DataType> &state) const {
 
                 VectorQ tmp;
 

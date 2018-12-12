@@ -104,40 +104,6 @@ namespace Gauss {
             
                 assign(H, m_rho*m_massMatrix, m_qDotDofs, m_qDotDofs);
 
-                
-                //Only need two numbers for element mass matrix
-                /*double mass = m_rho*m_V0;
-                double c0 = (1.0/10.0)*mass;
-                double c1 = (1.0/20.0)*mass;
-                int status = 1;
-                
-                //Point Indices
-                unsigned int p0 = 3*m_pointIndices.get(0);
-                unsigned int p1 = 3*m_pointIndices.get(1);
-                unsigned int p2 = 3*m_pointIndices.get(2);
-                unsigned int p3 = 3*m_pointIndices.get(3);
-                
-                //Assemble these bad boys //really big 4x4 block matrix
-                status *= LinearAlgebra::assemble(matrix, c0, 3, offset+p0, offset+p0, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p0, offset+p1, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p0, offset+p2, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p0, offset+p3, false);
-                
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p1, offset+p0, false);
-                status *= LinearAlgebra::assemble(matrix, c0, 3, offset+p1, offset+p1, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p1, offset+p2, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p1, offset+p3, false);
-                
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p2, offset+p0, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p2, offset+p1, false);
-                status *= LinearAlgebra::assemble(matrix, c0, 3, offset+p2, offset+p2, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p2, offset+p3, false);
-                
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p3, offset+p0, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p3, offset+p1, false);
-                status *= LinearAlgebra::assemble(matrix, c1, 3, offset+p3, offset+p2, false);
-                status *= LinearAlgebra::assemble(matrix, c0, 3, offset+p3, offset+p3, false);*/
-
             }
             
         protected:

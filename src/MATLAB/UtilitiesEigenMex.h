@@ -14,6 +14,8 @@
 #include "mex.h"
 #include "matrix.h"
 
+typedef Eigen::SparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> MatlabSparse;
+
 Eigen::MatrixXd matlabToDouble(const mxArray *matlabMatrix) {
     
     //check array type
@@ -149,6 +151,22 @@ mxArray * eigenDenseToMATLAB(const Eigen::DenseBase<Derived> &matrixIn) {
     mxArray *denseArray = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
     memcpy(mxGetPr(denseArray), matrix.data(), sizeof(double)*matrix.rows()*matrix.cols());
     return denseArray;
+}
+
+Eigen::MappedSparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> matlabToEigenSparse(const mxArray * mat)
+{
+    mxAssert(mxGetClassID(mat) == mxDOUBLE_CLASS,
+             "Type of the input matrix isn't double");
+    mwSize     m = mxGetM (mat);
+    mwSize     n = mxGetN (mat);
+    mwSize    nz = mxGetNzmax (mat);
+    /*Theoretically fails in very very large matrices*/
+    mxAssert(nz <= std::numeric_limits< std::make_signed<mwIndex>::type>::max(), "Unsupported Data size.");
+    double  * pr = mxGetPr (mat);
+    MatlabSparse::StorageIndex* ir = reinterpret_cast<MatlabSparse::StorageIndex*>(mxGetIr (mat));
+    MatlabSparse::StorageIndex* jc = reinterpret_cast<MatlabSparse::StorageIndex*>(mxGetJc (mat));
+    Eigen::MappedSparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> result(m, n, nz, jc, ir, pr);
+    return result;
 }
 
 

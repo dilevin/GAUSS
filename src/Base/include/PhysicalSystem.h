@@ -96,6 +96,7 @@ namespace Gauss {
         
         //get geometry (had to add this for collision detection code)
         inline decltype(auto) getGeometry() { return m_systemImpl.getGeometry(); }
+        inline decltype(auto) getGeometry() const { return m_systemImpl.getGeometry(); }
         
     protected:
         

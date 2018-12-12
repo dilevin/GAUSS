@@ -118,7 +118,7 @@ namespace Gauss {
             }
 
             template<typename Matrix>
-            inline void getCauchyStress(Matrix &S, double *x, State<DataType> &state) {
+            inline void getCauchyStress(Matrix &S, double *x, const State<DataType> &state) const {
                 
                 Eigen::Matrix<DataType, 6, 1> s = m_C*B(this,x,state)*ShapeFunction::q(state);
                 

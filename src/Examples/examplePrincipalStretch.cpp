@@ -129,7 +129,6 @@ AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
-
 void preStepCallback(MyWorld &world) {
     // This is an example callback
 }

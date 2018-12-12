@@ -12,6 +12,9 @@
 #include <TimeStepperEulerImplicitLinear.h>
 #include <AssemblerMVP.h>
 
+//Other fun things
+#include <LoubignacIterations.h>
+
 //Utilities
 #include "UtilitiesEigenMex.h"
 
@@ -419,6 +422,34 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         
         return;
     }
+    
+    //loubignacIterations(stress, (*K), P, world.getState(), (*f), *test, 1e-7);
+    //matlab command s = loubignac(fem, P, f, u, tol, numIterations)
+    if (!strcmp("loubignac", cmd)) {
+        // Check parameters
+        if (nlhs < 1 || nrhs < 7)
+            mexErrMsgTxt("loubignac: not enough arguments.");
+        
+        // Call the method
+        AssemblerParallel<double, AssemblerEigenSparseMatrix<double> > K;
+        
+        getStiffnessMatrix(K, *dummy_instance);
+        Eigen::SparseMatrix<double> P = matlabToEigenSparse(prhs[2]);
+        Eigen::VectorXd f = matlabToDouble(prhs[3]);
+        
+        Eigen::MatrixXd stress;
+        State<double> state = dummy_instance->getState().mappedState(mxGetPr(prhs[4]));
+        
+        double tol = mxGetPr(prhs[5])[0];
+        int numIter = (int)(mxGetPr(prhs[6])[0]);
+        
+        loubignacIterations(stress, (*K), P, state, f , *dummy_instance->getSystemList().get<0>(0), tol, numIter);
+        
+        plhs[0] = eigenDenseToMATLAB(stress);
+        
+        return;
+    }
+
     
     // Got here, so command not recognized
     mexErrMsgTxt("Command not recognized.");

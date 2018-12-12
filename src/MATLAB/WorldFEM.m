@@ -59,7 +59,8 @@ classdef WorldFEM < handle
           function varargout = strainEnergyPerElement(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('strenertet', this.objectHandle, varargin{:});
           end          
-          %% bodyForceEnergy - get the body force energy
+
+        %% bodyForceEnergy - get the body force energy
          function varargout = bodyForceEnergy(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('bdfener', this.objectHandle, varargin{:});
          end
@@ -97,6 +98,11 @@ classdef WorldFEM < handle
         %% duplicates matlab functionality, just for testing  things
         function varargout = modalAnalysis(this, varargin)
             [varargout{1:nargout}] = WorldFEM_Interface('linmode', this.objectHandle, varargin{:});
+        end
+
+        %%loubignac iteration for stress smoothing
+        function varargout = loubignac(this, varargin)
+            [varargout{1:nargout}] = WorldFEM_Interface('loubignac', this.objectHandle, varargin{:});
         end
     end
 end

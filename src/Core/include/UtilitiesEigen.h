@@ -123,7 +123,6 @@ namespace Eigen {
                 
                 dU[r][s] = U*tmp;
                 
-                
                 //compute dV
                 //dU[r][s] = lambda.fullPivLu().solve(S.asDiagonal()*UVT - UVT.transpose()*S.asDiagonal());
                 //dU[r][s] = V.transpose()*dV[r][s];
@@ -140,6 +139,18 @@ namespace Gauss {
     Eigen::Map<Eigen::VectorXx<typename World::Scalar> > mapStateEigen(World &world) {
         std::tuple<typename World::Scalar *, unsigned int> ptr = world.getState().template getStatePtr<Property>();
         return Eigen::Map<Eigen::VectorXx<typename World::Scalar> >(std::get<0>(ptr), std::get<1>(ptr));
+    }
+    
+    template<unsigned int Property, typename DataType>
+    Eigen::Map<Eigen::VectorXx<typename Gauss::State<DataType>::StateDataType> > mapStateEigen(Gauss::State<DataType> &state) {
+        std::tuple<typename Gauss::State<DataType>::StateDataType *, unsigned int> ptr = state.template getStatePtr<Property>();
+        return Eigen::Map<Eigen::VectorXx<typename Gauss::State<DataType>::StateDataType> >(std::get<0>(ptr), std::get<1>(ptr));
+    }
+    
+    template<unsigned int Property, typename DataType>
+    Eigen::Map<Eigen::VectorXx<typename Gauss::State<DataType>::StateDataType> > mapStateEigen(const Gauss::State<DataType> &state) {
+        std::tuple<typename Gauss::State<DataType>::StateDataType *, unsigned int> ptr = state.template getStatePtr<Property>();
+        return Eigen::Map<Eigen::VectorXx<typename Gauss::State<DataType>::StateDataType> >(std::get<0>(ptr), std::get<1>(ptr));
     }
     
     //state ptr for the whole thing

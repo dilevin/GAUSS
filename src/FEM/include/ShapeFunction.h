@@ -75,7 +75,7 @@ namespace Gauss {
             
             //drop my gets for this just because my hands get tired of typing it all the time
             template<unsigned int Vertex>
-            inline DataType phi(DataType *x) {
+            inline DataType phi(DataType *x) const {
                 assert(Vertex >= 0);
                 assert(Vertex < 4);
                 
@@ -93,7 +93,7 @@ namespace Gauss {
             }
             
             template<unsigned int Vertex>
-            inline std::array<DataType, 3> dphi(DataType *x) {
+            inline std::array<DataType, 3> dphi(DataType *x) const {
                 
                 std::array<DataType, 3> temp;
                 static_if<(Vertex >0)>([&](auto f){
@@ -185,7 +185,7 @@ namespace Gauss {
                 return tmp;
             }
 
-            inline MatrixJ GradJ(unsigned int component, DataType *x, const State<DataType> &state) {
+            inline MatrixJ GradJ(unsigned int component, DataType *x, const State<DataType> &state) const {
                 
                 MatrixJ tmp;
                 

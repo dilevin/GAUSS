@@ -252,6 +252,8 @@ namespace Gauss {
             
             inline auto getGeometry() { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
             
+            inline const auto getGeometry() const { return std::make_pair(std::ref(m_V), std::ref(m_F)); }
+            
         protected:
             
             //Mesh

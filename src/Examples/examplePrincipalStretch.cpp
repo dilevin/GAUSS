@@ -28,10 +28,13 @@ using  EnergyPSNH = EnergyPrincipalStretch<DataType, ShapeFunction, PSNeohookean
 template<typename DataType, typename ShapeFunction>
 using  EnergyPSARAP = EnergyPrincipalStretch<DataType, ShapeFunction, PSARAP>;
 
+template<typename DataType, typename ShapeFunction>
+using  EnergyPSCoRot = EnergyPrincipalStretch<DataType, ShapeFunction, PSCorotatedLinear>;
+
 
 /* Tetrahedral finite elements */
 template<typename DataType>
-using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSARAP>;
+using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSCoRot>; //Change EnergyPSCoRot to any other energy defined above to try out other marterials
 
 typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
 //typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
@@ -41,9 +44,6 @@ std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
 typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
-
-//typedef TimeStepperEulerImplicitBFGS<double, AssemblerEigenSparseMatrix<double>,
-//AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 
@@ -59,17 +59,6 @@ int main(int argc, char **argv) {
     //Setup Physics
     MyWorld world;
     
-    //new code -- load tetgen files
-    /*Eigen::MatrixXd V(4,3);
-    Eigen::MatrixXi F(1,4);
-    
-    V << 0,0,0,
-     1,0,0,
-     0,1,0,
-     0,0,1;
-    
-    F << 0, 1, 2, 3;*/
-    
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     
@@ -82,10 +71,6 @@ int main(int argc, char **argv) {
     
     auto q = mapStateEigen(world);
     q.setZero();
-    
-    std::cout << "Starting now." << std::endl;
-    //Eigen::VectorXi indices = minVertices(test, 0);
-    //Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
     MyTimeStepper stepper(0.1);
     

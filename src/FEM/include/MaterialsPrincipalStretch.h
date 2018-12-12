@@ -97,7 +97,7 @@ namespace Gauss {
         struct PSARAP {
             
             PSARAP() {
-                m_k = 1e7;
+                m_k = 1e6;
             }
             
             template<typename DataType>
@@ -144,7 +144,7 @@ namespace Gauss {
             
         };
         
-        /*struct PSCorotatedLinear {
+        struct PSCorotatedLinear {
             
             PSCorotatedLinear() {
                 double youngsModulus = 2e6;
@@ -175,9 +175,9 @@ namespace Gauss {
                 
                 Eigen::Vector3x<typename Derived::Scalar> tmp;
                 
-                tmp[0] = static_cast<typename Derived::Scalar>(2) * (S[0] - static_cast<typename Derived::Scalar>(1));
-                tmp[1] = static_cast<typename Derived::Scalar>(2) * (S[1] - static_cast<typename Derived::Scalar>(1));
-                tmp[2] = static_cast<typename Derived::Scalar>(2) * (S[2] - static_cast<typename Derived::Scalar>(1));
+                tmp[0] = 2.0*m_mu*(-1.0+S[0])+m_lambda*(-3.0+S[0]+S[1]+S[2]);
+                tmp[1] = 2.0*m_mu*(-1.0+S[1])+m_lambda*(-3.0+S[0]+S[1]+S[2]);
+                tmp[2] = 2.0*m_mu*(-1.0+S[2])+m_lambda*(-3.0+S[0]+S[1]+S[2]);
                 
                 return tmp;
             }
@@ -188,13 +188,14 @@ namespace Gauss {
                 Eigen::Matrix33x<typename Derived::Scalar> tmp;
                 
                 tmp.setIdentity();
-                
+                tmp *= 2.0*m_mu;
+                tmp += Eigen::Matrix33x<typename Derived::Scalar>::Constant(m_lambda);
                 
                 return tmp;
                 
             }
             
             double m_mu, m_lambda;
-        };*/DOFS
+        };
     }
 }

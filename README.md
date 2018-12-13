@@ -87,4 +87,4 @@ An example of using the MATLAB interface is given in {Gauss_Root_Dir}/src/Exampl
 
 #### Notes for Visual Studio ####
 To build the MATLAB interface using Visual Studio, currnetly you have to manually modify a couple of linker inputs. After building the VS solution using CMake, open it in VS, and go to the linker input for the Gauss_MATLAB project. That is, Gauss_MATLAB (Solution Explorer) > Properties > Linker > Input > Additional Dependencies.
-Change `libmx.dylib` to `libmx.lib`, and remove the input `libiomp5.lib`. Now you should be able to build hte MATLAB interface on Windows.
+Change `libmx.dll` to `libmx.lib`, and remove the input `libiomp5.dylib`. Now you should be able to build the MATLAB interface on Windows.

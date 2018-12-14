@@ -30,10 +30,21 @@ namespace Gauss {
     public:
         
         template<typename Matrix>
-        TimeStepperImplEulerImplicitBFGS(Matrix &P)  {
+        TimeStepperImplEulerImplicitBFGS(Matrix &P, bool precondition=false)  {
             
            //P is constraint projection matrix
             m_P = P;
+            m_precondition = precondition;
+            
+            //setup solver
+            LBFGSpp::LBFGSParam<DataType> param;
+            param.epsilon = 1e-1;
+            param.max_iterations = 1000;
+            param.past = 2;
+            param.m = 5;
+            param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
+            
+            m_bfgsSolver.setParam(param);
             
         }
         
@@ -54,9 +65,21 @@ namespace Gauss {
         
         MatrixAssembler m_massMatrix;
         VectorAssembler m_forceVector;
+        MatrixAssembler m_stiffnessMatrix;
+        
         Eigen::SparseMatrix<DataType> m_P;
         
+        bool m_precondition;
+        
+        LBFGSpp::LBFGSSolver<DataType> m_bfgsSolver;
+        
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
+        
+        #ifdef GAUSS_PARDISO
+            SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_solver;
+        #else
+            Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > m_solver;
+        #endif
         
     private:
     };
@@ -68,6 +91,7 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     
     //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
     MatrixAssembler &massMatrix = m_massMatrix;
+    MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
     VectorAssembler &forceVector = m_forceVector;
     Eigen::SparseMatrix<DataType> &P = m_P;
     
@@ -80,19 +104,6 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
     ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
     ASSEMBLEEND(massMatrix);
-    
-    //std::cout<<"F: "<<(*forceVector)<<"\n";
-    //setup RHS
-    
-    
-    //toMatlab(*massMatrix, "./testMHex.txt");
-    //toMatlab(*stiffnessMatrix, "./testKHex.txt");
-    //toMatlab(*forceVector, "./testfHex.txt");
-    
-    //std::cout<<"F: \n"<<(*forceVector)<<"\n";
-    
-    
-    //Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
     
     //we're going to build equality constraints into our gradient and hessian calcuations
     auto objective = [&world, &q, &qDot, &dt, &forceVector, &massMatrix, &P](Eigen::VectorXd &x, Eigen::VectorXd &grad) -> double {
@@ -118,21 +129,21 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
         
     };
     
-    LBFGSpp::LBFGSParam<DataType> param;
-    param.epsilon = 1e-1;
-    param.max_iterations = 1000;
-    param.past = 2;
-    param.m = 5;
-    param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
-    
-    // Create solver and function object
-    LBFGSpp::LBFGSSolver<DataType> m_solver(param);
-    
     double fx = 0.0;
     Eigen::VectorXd qNew = P*qDot;
     qNew.setZero();
    
-    m_solver.minimize(objective, qNew, fx);
+    if(m_precondition) {
+        ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+        ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
+        ASSEMBLEEND(stiffnessMatrix);
+        
+        Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = P*((*m_massMatrix)- dt*dt*(*m_stiffnessMatrix))*P.transpose();
+        m_bfgsSolver.minimizeWithPreconditioner(objective, qNew, fx, systemMatrix, m_solver);
+    } else {
+        m_bfgsSolver.minimize(objective, qNew, fx);
+    }
+    
     mapStateEigen<1>(world) = P.transpose()*qNew;
     mapStateEigen<0>(world) = q + dt*P.transpose()*qNew;
     

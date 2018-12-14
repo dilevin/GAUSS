@@ -23,7 +23,7 @@ private:
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
     typedef Eigen::Map<Vector> MapVec;
 
-    const LBFGSParam<Scalar>& m_param;  // Parameters to control the LBFGS algorithm
+    LBFGSParam<Scalar> m_param;  // Parameters to control the LBFGS algorithm
     Matrix                    m_s;      // History of the s vectors
     Matrix                    m_y;      // History of the y vectors
     Vector                    m_ys;     // History of the s'y values
@@ -56,9 +56,19 @@ public:
     /// \param param An object of \ref LBFGSParam to store parameters for the
     ///        algorithm
     ///
+    
+    LBFGSSolver() : m_param() {
+        
+    }
+    
     LBFGSSolver(const LBFGSParam<Scalar>& param) :
         m_param(param)
     {
+        m_param.check_param();
+    }
+    
+    inline void setParam(const LBFGSParam<Scalar>& param) {
+        m_param = param;
         m_param.check_param();
     }
 

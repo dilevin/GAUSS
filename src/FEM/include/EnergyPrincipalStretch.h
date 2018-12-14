@@ -38,6 +38,12 @@ public:
         
         igl::svd3x3(F,m_U,m_S,m_V);
         
+        //check multiplicity, small random permutation if eigenvalues not unique
+        if(std::fabs(m_S[0] - m_S[1]) < 1e-5 || std::fabs(m_S[1] - m_S[2]) < 1e-5 || std::fabs(m_S[0] - m_S[2]) < 1e-5) {
+            F += Eigen::Matrix33x<float>::Random()*1e-5;
+            igl::svd3x3(F,m_U,m_S,m_V);
+        }
+        
         Eigen::Vector3x<float> Plam = m_ps.gradient(m_S);
         
         //Eigen::MatrixXx<DataType> P = svd.matrixU()*(Plam.asDiagonal()*svd.matrixV().transpose());

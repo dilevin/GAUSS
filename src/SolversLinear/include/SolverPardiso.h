@@ -119,6 +119,11 @@ public:
         return 1;
     }
     
+    int compute(Eigen::SparseMatrix<double, Eigen::RowMajor> &A, unsigned int nrhs = 1) {
+        symbolicFactorization(A,1);
+        numericalFactorization();
+    }
+    
     int numericalFactorization() {
     
         int phase = 22;

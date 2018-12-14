@@ -36,8 +36,8 @@ using  EnergyPSCoRot = EnergyPrincipalStretch<DataType, ShapeFunction, PSCorotat
 template<typename DataType>
 using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSCoRot>; //Change EnergyPSCoRot to any other energy defined above to try out other marterials
 
-//typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
-typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
+typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
+//typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,

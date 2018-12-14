@@ -75,11 +75,11 @@ namespace Gauss {
         
         typename VectorAssembler::MatrixType m_lagrangeMultipliers;
         
-        #ifdef GAUSS_PARDISO
-            SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_solver;
-        #else
+        //#ifdef GAUSS_PARDISO
+          //  SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_solver;
+        //#else
             Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > m_solver;
-        #endif
+        //#endif
         
     private:
     };

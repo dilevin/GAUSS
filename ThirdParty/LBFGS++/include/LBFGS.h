@@ -233,8 +233,7 @@ public:
         // Initial step
         Scalar step = Scalar(1.0);
         
-        solver.symbolicFactorization(preconditioner);
-        solver.numericalFactorization();
+        solver.compute(preconditioner);
         
         int k = 1;
         int end = 0;
@@ -300,8 +299,7 @@ public:
             
             //I think you are hitting H0 here so here we'd apply a prefactored hessian
             //m_drt *= (ys / yy);
-            solver.solve(m_drt);
-            m_drt = solver.getX();
+            m_drt = solver.solve(m_drt);
             
             for(int i = 0; i < bound; i++)
             {

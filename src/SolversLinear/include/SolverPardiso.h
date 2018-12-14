@@ -143,7 +143,7 @@ public:
     }
 
     template<typename Vector>
-    int solve(Vector &rhs) {
+    const auto &  solve(Vector &rhs) {
         int phase = 33;
         int      idum = 0;              /* Integer dummy. */
         int error = 0;
@@ -164,7 +164,7 @@ public:
             return 0;
         }
 
-        return 1;
+        return m_x;
     }
     
     template<typename Vector>

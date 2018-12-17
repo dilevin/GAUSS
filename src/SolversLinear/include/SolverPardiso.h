@@ -122,6 +122,7 @@ public:
     int compute(Eigen::SparseMatrix<double, Eigen::RowMajor> &A, unsigned int nrhs = 1) {
         symbolicFactorization(A,1);
         numericalFactorization();
+        return 0;
     }
     
     int numericalFactorization() {
@@ -161,7 +162,7 @@ public:
         
         if (error != 0) {
             printf("\nERROR during solution: %d", error);
-            return 0;
+            return m_x;
         }
 
         return m_x;

@@ -21,8 +21,9 @@ namespace Gauss {
                 m_mass = 1.5; //temporary set mass to avoid weird failures
             }
             
-            inline double getEnergy(const State<DataType> &state) const {
-                return 0.0;
+            inline DataType getEnergy(const State<DataType> &state) const {
+                DataType E = 0.5*m_mass*mapDOFEigen(m_xDot, state).transpose()*mapDOFEigen(m_xDot, state);
+                return E;
             }
             template<typename Assembler>
             inline void getMassMatrix(Assembler &assembler, const State<DataType> &state) const {

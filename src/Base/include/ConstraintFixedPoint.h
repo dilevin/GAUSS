@@ -247,6 +247,11 @@ namespace Gauss {
         
         P.resize(m,n);
         
+        //add ones up to global index of system
+        for(unsigned int ii=0; ii<system.getQ().getGlobalId(); ++ii) {
+            triplets.push_back(Eigen::Triplet<DataType>(ii, ii, 1));
+        }
+        
         //number of unconstrained DOFs
         unsigned int rowIndex =0;
         for(unsigned int vIndex = 0; vIndex < system.getImpl().getV().rows(); vIndex++) {
@@ -265,6 +270,12 @@ namespace Gauss {
             triplets.push_back(Eigen::Triplet<DataType>(system.getQ().getGlobalId() +rowIndex+2, system.getQ().getGlobalId() + 3*vIndex+2, 1));
             
             rowIndex+=3;
+        }
+        
+        //add ones on the diagonal after this system
+        unsigned int ii, jj;
+        for(ii=system.getQ().getGlobalId()+rowIndex, jj=system.getQ().getGlobalId()+system.getQ().getNumScalarDOF(); jj<world.getNumQDOFs(); ++ii, ++jj) {
+            triplets.push_back(Eigen::Triplet<DataType>(ii, jj, 1));
         }
         
         P.setFromTriplets(triplets.begin(), triplets.end());

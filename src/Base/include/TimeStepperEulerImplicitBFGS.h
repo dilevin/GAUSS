@@ -39,10 +39,11 @@ namespace Gauss {
             //setup solver
             LBFGSpp::LBFGSParam<DataType> param;
             param.epsilon = 1e-1;
-            param.max_iterations = 1000;
-            param.past = 2;
+            param.max_iterations = 2000;
+            param.past = 3;
             param.m = 5;
-            param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_WOLFE;
+            param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE;
+            
             
             m_bfgsSolver.setParam(param);
             
@@ -136,6 +137,7 @@ void TimeStepperImplEulerImplicitBFGS<DataType, MatrixAssembler, VectorAssembler
     if(m_precondition) {
         ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
         ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
+        ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
         ASSEMBLEEND(stiffnessMatrix);
         
         Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix = P*((*m_massMatrix)- dt*dt*(*m_stiffnessMatrix))*P.transpose();

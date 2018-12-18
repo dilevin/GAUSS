@@ -25,7 +25,7 @@ typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
 typedef World<double, std::tuple<FEMLinearTets *,PhysicalSystemParticleSingle<double> *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitLinear<double, AssemblerEigenSparseMatrix<double>,
+typedef TimeStepperEulerImplicit<double, AssemblerEigenSparseMatrix<double>,
 AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -49,10 +49,10 @@ int main(int argc, char **argv) {
     
     FEMLinearTets *test = new FEMLinearTets(V,F);
     PhysicalSystemParticleSingle<double> *test1 = new PhysicalSystemParticleSingle<double>();
-    test1->getImpl().setMass(1000);
+    test1->getImpl().setMass(10000);
     ForceSpringFEMParticle<double> *forceSpring = new ForceSpringFEMParticle<double>(PosFEM<double>(&test->getQ()[0],0, &test->getImpl().getV()),
                                                                                      PosParticle<double>(&test1->getQ()),
-                                                                                     5, 20000.0);
+                                                                                     5, 2000.0);
     world.addSystem(test);
     world.addSystem(test1);
     world.addForce(forceSpring);
@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
     q1[1] = 7.0;
     
     MyTimeStepper stepper(0.1);
+    
     
     //Display
     QGuiApplication app(argc, argv);

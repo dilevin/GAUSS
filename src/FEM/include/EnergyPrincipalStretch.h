@@ -38,15 +38,30 @@ public:
         
         igl::svd3x3(F,m_U,m_S,m_V);
         
-        //check multiplicity, small random permutation if eigenvalues not unique
-        if(std::fabs(m_S[0] - m_S[1]) < 1e-5 || std::fabs(m_S[1] - m_S[2]) < 1e-5 || std::fabs(m_S[0] - m_S[2]) < 1e-5) {
-            F += Eigen::Matrix33x<float>::Random()*1e-5;
-            igl::svd3x3(F,m_U,m_S,m_V);
+        //Fix for inverted elements (thanks to Danny Kaufman)
+        DataType det = m_S.determinant();
+        
+        if(det <= -1e-10)
+        {
+            if(m_S[2] < 0) m_S[2] *= -1;
+        }
+        
+        if(m_U.determinant() <= 0)
+        {
+            m_U(0, 2) *= -1;
+            m_U(1, 2) *= -1;
+            m_U(2, 2) *= -1;
+        }
+        
+        if(m_V.determinant() <= 0)
+        {
+            m_V(0, 2) *= -1;
+            m_V(1, 2) *= -1;
+            m_V(2, 2) *= -1;
         }
         
         Eigen::Vector3x<float> Plam = m_ps.gradient(m_S);
         
-        //Eigen::MatrixXx<DataType> P = svd.matrixU()*(Plam.asDiagonal()*svd.matrixV().transpose());
         Eigen::MatrixXx<float> P = m_U*(Plam.asDiagonal()*m_V.transpose());
         P.transposeInPlace();
         P.resize(9,1);
@@ -73,6 +88,12 @@ public:
         Eigen::Matrix33x<float> Plam2 = m_ps.hessian(m_S);
         
         //derivative of SVD wrt to F
+        //check multiplicity, small random permutation if eigenvalues not unique
+        if(std::fabs(m_S[0] - m_S[1]) < 1e-5 || std::fabs(m_S[1] - m_S[2]) < 1e-5 || std::fabs(m_S[0] - m_S[2]) < 1e-5) {
+            F += Eigen::Matrix33x<float>::Random()*1e-5;
+            igl::svd3x3(F,m_U,m_S,m_V);
+        }
+        
         Eigen::dSVD(m_dU, m_dS, m_dV, m_U, m_S, m_V);
         Eigen::Matrix33x<DataType> rowMat;
         

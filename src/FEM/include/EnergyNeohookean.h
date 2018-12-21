@@ -23,7 +23,6 @@ public:
         double detF = F.determinant();
         double J23 = stablePow(detF,2.0);
         J23=1.0/J23;
-        //double J23 = 1.0/(std::pow(detF*detF, 1.0/3.0));
         Eigen::Matrix<DataType, 3,3> Cbar = J23*F.transpose()*F;
         return m_C*(Cbar.trace() - 3.0) + m_D*(detF - 1)*(detF - 1);
     }

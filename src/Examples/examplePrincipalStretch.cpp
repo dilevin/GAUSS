@@ -14,7 +14,7 @@
 #include <TimeStepperEulerImplicit.h>
 #include <TimeStepperNewmark.h>
 #include <TimeStepperEulerImplicitLinear.h>
-#include <TimeStepperEulerImplicitBFGS.h>
+#include <TimeStepperEulerImplicit.h>
 #include <type_traits>
 
 using namespace Gauss;
@@ -33,16 +33,15 @@ using  EnergyPSCoRot = EnergyPrincipalStretch<DataType, ShapeFunction, PSCorotat
 
 
 /* Tetrahedral finite elements */
-//template<typename DataType>
-//using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSCoRot>; //Change EnergyPSCoRot to any other energy defined above to try out other marterials
+template<typename DataType>
+using FEMPSNHTet = FEMPrincipalStretchTet<DataType, EnergyPSCoRot>; //Change EnergyPSCoRot to any other energy defined above to try out other marterials
 
-//typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
-typedef PhysicalSystemFEM<double, NeohookeanTet> FEMLinearTets;
+typedef PhysicalSystemFEM<double, FEMPSNHTet> FEMLinearTets;
 
 typedef World<double, std::tuple<FEMLinearTets *>,
 std::tuple<ForceSpringFEMParticle<double> *, ForceParticlesGravity<double> *>,
 std::tuple<ConstraintFixedPoint<double> *> > MyWorld;
-typedef TimeStepperEulerImplicitBFGS<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
+typedef TimeStepperEulerImplicitLinear<double, AssemblerParallel<double, AssemblerEigenSparseMatrix<double> >,
 AssemblerParallel<double, AssemblerEigenVector<double> > > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
@@ -76,7 +75,7 @@ int main(int argc, char **argv) {
     
     Eigen::SparseMatrix<double> P = fixedPointProjectionMatrix(indices, *test,world);
     
-    MyTimeStepper stepper(0.05, P, true);
+    MyTimeStepper stepper(0.05);
     
     //Display
     QGuiApplication app(argc, argv);

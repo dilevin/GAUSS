@@ -342,16 +342,16 @@ auto generalizedEigenvalueProblem(const Eigen::SparseMatrix<DataType, Flags, Ind
     Eigen::MatrixXx<DataType> evsCorrected; //magnitude of eigenvectors can be wrong in this formulation
     eigsCorrected.resize(eigs.eigenvalues().rows());
     evsCorrected.resize(eigs.eigenvectors().rows(), eigs.eigenvectors().cols());
-    
-    //TO DO optimize this so there's not so much data copying going on.
-    //Eigenvector magnitudes are wrong ... need to make sure this isn't a theoretical bug if not just rescale properly
+
     
     // Retrieve results
+    evsCorrected = eigs.eigenvectors();
+    
     if(eigs.info() == Spectra::SUCCESSFUL) {
         //correct eigenvalues
         for(unsigned int ii=0; ii<eigs.eigenvalues().rows(); ++ii) {
             eigsCorrected[ii] = -(static_cast<DataType>(1)/(eigs.eigenvalues()[ii]) + shift);
-            evsCorrected.col(ii)  = eigs.eigenvectors().col(ii)/sqrt(eigs.eigenvectors().col(ii).transpose()*M*eigs.eigenvectors().col(ii));
+            evsCorrected.col(ii) /= sqrt(eigs.eigenvectors().col(ii).transpose()*M*eigs.eigenvectors().col(ii));
         }
         
         return std::make_pair(evsCorrected, eigsCorrected);

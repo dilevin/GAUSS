@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     
     
     //Modal analysis
-    auto modes = linearModalAnalysis(world, 10);
+    auto modes = linearModalAnalysis(world, 250);
     
     //generate wiggly animations
     MyTimeStepper stepper(1e-3, modes.first, modes.second, 9);

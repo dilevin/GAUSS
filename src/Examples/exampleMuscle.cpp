@@ -57,10 +57,10 @@ int main(int argc, char **argv) {
     Eigen::MatrixXi F;
 
     
-    igl::readDMAT("/home/vismay/recode/fast_muscles/data/simple_muscle/generated_files/tet_mesh_T.dmat", F);
-    igl::readDMAT("/home/vismay/recode/fast_muscles/data/simple_muscle/generated_files/tet_mesh_V.dmat", V);
-    igl::readDMAT("/home/vismay/recode/fast_muscles/data/simple_muscle/generated_files/combined_fiber_directions.dmat", Ufibre);
-    igl::readDMAT("/home/vismay/recode/fast_muscles/data/simple_muscle/generated_files/muscle_muscle_indices.dmat", imuscle);
+    igl::readDMAT("../../data/simple_muscle/generated_files/tet_mesh_T.dmat", F);
+    igl::readDMAT("../../data/simple_muscle/generated_files/tet_mesh_V.dmat", V);
+    igl::readDMAT("../../data/simple_muscle/generated_files/combined_fiber_directions.dmat", Ufibre);
+    igl::readDMAT("../../data/simple_muscle/generated_files/muscle_muscle_indices.dmat", imuscle);
     // readTetgen(V, F, dataDir()+"/meshesTetgen/Beam/Beam.node", dataDir()+"/meshesTetgen/Beam/Beam.ele");
 
     test = new FEMLinearTets(V,F);

@@ -1,0 +1,23 @@
+{
+	"muscles": {
+		"muscle": {
+			"surface_obj": "muscle_1.obj",
+			"mass_g": 300.0
+		}
+	},
+
+	"bones": {
+		"top_bone": {
+			"surface_obj": "bone_1.obj",
+			"mass_g": 100.0
+		},
+		"bottom_bone": {
+			"surface_obj": "bone_2.obj",
+			"mass_g": 100.0
+		}
+	},
+
+	"joints": {
+		
+	}
+}

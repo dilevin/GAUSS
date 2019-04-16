@@ -29,7 +29,7 @@ AssemblerEigenVector<double> > MyTimeStepper;
 
 typedef Scene<MyWorld, MyTimeStepper> MyScene;
 FEMLinearTets *test;
-double muscleStart = 60000;
+double muscleStart = 200000;
 Eigen::MatrixXd Ufibre;
 Eigen::VectorXi imuscle;
 

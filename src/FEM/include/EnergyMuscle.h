@@ -43,8 +43,8 @@ public:
         //double J23 = 1.0/(std::pow(detF*detF, 1.0/3.0));
         Eigen::Matrix<DataType, 3,3> Cbar = J23*F.transpose()*F;
         double neo_e =  m_C*(Cbar.trace() - 3.0) + m_D*(detF - 1)*(detF - 1);
-        double musc_e =  0.5*muscle_magnitude*(fibre_direction.transpose()*F.transpose()*F*fibre_direction - 1);
-        return musc_e + neo_e;
+        double musc_e =  (fibre_direction.transpose()*F.transpose()*F*fibre_direction);
+        return 0.5*muscle_magnitude*musc_e + neo_e;
 
         //stable neohookean flesh
         // Eigen::Matrix<DataType, 3,3> F = ShapeFunction::F(x,state) + Eigen::Matrix<DataType,3,3>::Identity();
@@ -151,6 +151,11 @@ public:
         double C,D;
         C = m_C;
         D = m_D;
+        
+        double v1, v2, v3;
+        v1 = fibre_direction(0);
+        v2 = fibre_direction(1);
+        v3 = fibre_direction(2);
         
         // //Stable Neohookean
             ddw(0,0) = 1.*C + 1.*D*std::pow(f23*f32 - 1.*f22*f33,2) + (2.*C*std::pow(f11,2))/std::pow(1 + std::pow(f11,2) + std::pow(f12,2) + std::pow(f13,2) + std::pow(f21,2) + std::pow(f22,2) + std::pow(f23,2) + std::pow(f31,2) + std::pow(f32,2) + std::pow(f33,2),2) - (1.*C)/(1 + std::pow(f11,2) + std::pow(f12,2) + std::pow(f13,2) + std::pow(f21,2) + std::pow(f22,2) + std::pow(f23,2) + std::pow(f31,2) + std::pow(f32,2) + std::pow(f33,2));
@@ -315,6 +320,18 @@ public:
 
             ddw(8,8) = 1.*C + 1.*D*std::pow(f12*f21 - 1.*f11*f22,2) + (2.*C*std::pow(f33,2))/std::pow(1 + std::pow(f11,2) + std::pow(f12,2) + std::pow(f13,2) + std::pow(f21,2) + std::pow(f22,2) + std::pow(f23,2) + std::pow(f31,2) + std::pow(f32,2) + std::pow(f33,2),2) - (1.*C)/(1 + std::pow(f11,2) + std::pow(f12,2) + std::pow(f13,2) + std::pow(f21,2) + std::pow(f22,2) + std::pow(f23,2) + std::pow(f31,2) + std::pow(f32,2) + std::pow(f33,2));
         
+        //muscle hessian
+        ddw.block(0,0,3,1) += (fibre_direction*v1)*muscle_magnitude;
+        ddw.block(0,1,3,1) += (fibre_direction*v2)*muscle_magnitude;
+        ddw.block(0,2,3,1) += (fibre_direction*v3)*muscle_magnitude;
+        
+        ddw.block(3,3,3,1) += (fibre_direction*v1)*muscle_magnitude;
+        ddw.block(3,4,3,1) += (fibre_direction*v2)*muscle_magnitude;
+        ddw.block(3,5,3,1) += (fibre_direction*v3)*muscle_magnitude;
+        
+        ddw.block(6,6,3,1) += (fibre_direction*v1)*muscle_magnitude;
+        ddw.block(6,7,3,1) += (fibre_direction*v2)*muscle_magnitude;
+        ddw.block(6,8,3,1) += (fibre_direction*v3)*muscle_magnitude;
         // //Regular NH
         //     C = 0.5*C;
         //     D = 0.5*D;
@@ -494,19 +511,19 @@ public:
         
         
         // hard coded for tet, need to change size for hex
-       Eigen::SelfAdjointEigenSolver<Matrix> es(-H);
-        
+       /*Eigen::SelfAdjointEigenSolver<Matrix> es(-H);
+
         Eigen::MatrixXd DiagEval = es.eigenvalues().real().asDiagonal();
         Eigen::MatrixXd Evec = es.eigenvectors().real();
-        
+
         for (int i = 0; i < 12; ++i) {
-            if (es.eigenvalues()[i]<1e-6) {
-                DiagEval(i,i) = 1e-3;
+            if (es.eigenvalues()[i]<0) {
+                DiagEval(i,i) = 1e-8;
             }
         }
-        //        saveMarket(H, "H.dat");
-        H = -Evec * DiagEval * Evec.transpose();
-        //
+                saveMarket(H, "H.dat");
+        H = -Evec * DiagEval * Evec.transpose();*/
+        
         
     }
     

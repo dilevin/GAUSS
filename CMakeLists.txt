@@ -13,6 +13,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 option(GAUSS_USE_UI     "Use Gauss' UI Library" ON)
+option(GAUSS_BUILD_EXAMPLE "Build Example" ON)
 
 #expose USE_OPENMP variable for OS X only
 if(APPLE)
@@ -25,6 +26,7 @@ endif(APPLE)
 set(USE_PARDISO CACHE BOOL "Use Pardiso if available on system")
 set(USE_MATLAB CACHE BOOL "Build GAUSS MATLAB Interface via homebrew llvm on OSX")
 set(USE_GUROBI CACHE BOOL "USE GUROBI QP Solver")
+
 
 if(APPLE)
     if(USE_OPENMP)
@@ -261,7 +263,9 @@ if(GAUSS_USE_UI)
     option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
     option(LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui"          ON)
     find_package(LIBIGL REQUIRED)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+    if(GAUSS_BUILD_EXAMPLES)
+       add_subdirectory(${PROJECT_SOURCE_DIR}/src/Examples)
+    endif(GAUSS_BUILD_EXAMPLES)
 endif(GAUSS_USE_UI)
 #Disable tests for now because I'm not using them and they only build on one machine 
 #add_subdirectory(${PROJECT_SOURCE_DIR}/src/Tests)

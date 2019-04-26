@@ -13,8 +13,8 @@ public:
     }
     
     inline void setParameters(double youngsModulus, double poissonsRatio) {
-        e
-        
+        m_D = 0.5*(youngsModulus*poissonsRatio)/((1.0+poissonsRatio)*(1.0-2.0*poissonsRatio));
+        m_C = 0.5*youngsModulus/(2.0*(1.0+poissonsRatio));
     }
     
     inline DataType getValue(double *x, const State<DataType> &state) {

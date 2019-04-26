@@ -13,6 +13,9 @@ OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/
 4. The Flexible Collision Library (https://github.com/flexible-collision-library/fcl)
 5. Eigen-Gurobi Interface (https://github.com/jrl-umi3218/eigen-gurobi/)
 
+### New Sample Application ###
+Use this [sample application](https://github.com/dilevin/GaussApplication/) to get a fast start on developping applications using GAUSS. It provides a working (I think ?) CMake file and includes GAUSS as a submodule.
+
 ### "Easy" Install Scripts ###
 Clone this repository with 
 ```bash

@@ -10,6 +10,7 @@
 
 #include <igl/cat.h>
 #include <climits>
+#include <igl/Timer.h>
 #include <Newton.h>
 #include <UtilitiesEigen.h>
 
@@ -160,12 +161,28 @@ namespace Gauss {
         template <typename Energy, typename Gradient, typename Hessian, typename ConstraintEq,
                   typename JacobianEq, typename Solver, typename PostStepCallback, typename Vector>
         inline bool minimizeBacktracking(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Solver &solver, PostStepCallback &pscallback, double tol1 = 1e-5, unsigned int numIterations = UINT_MAX) {
-            
-            auto linesearch = [&solver, &pscallback](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto  &tol1) {
-                return backTrackingLinesearch(x0, f, g, H, ceq, Aeq, solver, pscallback, tol1);
+            double wood= 0;
+            double lst = 0;
+            int nmiters = 0;
+            int lsiters = 0;
+
+            igl::Timer timer;
+            std::cout<<"minimizeBacktracking"<<std::endl;
+            auto linesearch = [&solver, &pscallback, &wood, &lst, &lsiters,  &timer](auto &x0, auto &f, auto &g, auto &H, auto &ceq, auto &Aeq, auto  &tol1) {
+                return backTrackingLinesearch(lsiters, wood, lst, timer, x0, f, g, H, ceq, Aeq, solver, pscallback, tol1);
             };
-            
-            return optimizeWithLineSearch(x0, f, g, H, ceq, Aeq, linesearch, tol1, numIterations);
+            igl::Timer timer1;
+            timer1.start();
+            bool res = optimizeWithLineSearch(nmiters, x0, f, g, H, ceq, Aeq, linesearch, tol1, numIterations);
+            timer1.stop();
+
+            std::cout<<"NM Iters: "<<nmiters<<std::endl;
+            std::cout<<"NM Time: "<<timer1.getElapsedTimeInMicroSec()<<std::endl;
+            std::cout<<"Hess Total: "<<wood<<std::endl;
+            std::cout<<"LS total: "<<lst<<std::endl;
+            std::cout<<"LS iters: "<<lsiters<<std::endl;
+
+            return res;
         }
         
         //functors are annoying but when I have solvers that require initialization they seem to be a necessary evil to avoid reinitilization

@@ -2,6 +2,8 @@
 #define NEWTON_HPP
 #include <vector>
 #include <climits>
+#include <igl/Timer.h>
+
 
 namespace Gauss {
     namespace Optimization {
@@ -18,9 +20,10 @@ namespace Gauss {
         template <typename Energy, typename Gradient, typename Hessian,
                   typename ConstraintEq, typename JacobianEq,
                   typename Direction, typename StepCallback, typename Vector>
-        inline bool backTrackingLinesearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
+        inline bool backTrackingLinesearch(int& lsiters, double & woodburytimes, double& lstime, igl::Timer& timer, Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq,
                                  Direction &solver, StepCallback &scallback, double tol1 = 1e-5) {
             
+	        
             scallback(x0);
             
             Vector gradient;
@@ -29,8 +32,12 @@ namespace Gauss {
             assign(gradient, g(x0));
             
             double E0 = f(x0) + 100000.0*(J*x0.head(gradient.rows()) - b).norm(); //merit function
+            //Get timing for this -> woodbury line
+            timer.start();
             Vector p = solver(H(x0), gradient, ceq(x0), Aeq(x0), x0);
-            
+            timer.stop();
+            woodburytimes += timer.getElapsedTimeInMicroSec();
+
             //if step is too small, we aren;t going anywhere so return converged.
             if(p.norm() < tol1) {
                 return true;
@@ -42,12 +49,15 @@ namespace Gauss {
             double alpha = 1;
             double c = 1e-8; //from Nocedal and Wright pg 31
             double rho = 0.5;
-            
+
+
+            //TIMINGS FOR LINEAEARCH
             //for(unsigned int ii=0; ii < 20; ++ii) {
+            timer.start();
             while(true) {
                 
                 scallback(x0+alpha*p);
-                
+                lsiters +=1;
                 //std::cout<<"Line Search Step: "<<f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()<<" "<<E0 + c*alpha*gStep<<" "<<E0<<" "<<alpha<<"\n";
                 
                 if((f(x0+alpha*p)+ 100000.0*(J*(x0+alpha*p).head(gradient.rows()) - b).norm()) - E0 - c*alpha*gStep< -tol1) {
@@ -58,14 +68,16 @@ namespace Gauss {
                 
                 alpha = alpha*rho;
                 
-                if(alpha < 1e-8) {
+                if(alpha < 1e-9) {
                     break;
                 }
             }
-            
+            timer.stop();
+            lstime += timer.getElapsedTimeInMicroSec();
+
             x0 = x0+alpha*p;
-            
-            return ((fabs(f(x0) - E0)) < tol1  ? true : false);
+            double deltaE = fabs(f(x0) - E0);
+            return (deltaE < 1e-2  ? true : false);
             
         }
         
@@ -78,15 +90,14 @@ namespace Gauss {
         //tol1 - convergence tolerane
         template <typename Energy, typename Gradient, typename Hessian,
         typename ConstraintEq, typename JacobianEq, typename Vector, typename Linesearch>
-        bool optimizeWithLineSearch(Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Linesearch &linesearch, double tol1 = 1e-5, unsigned int maxIter = UINT_MAX) {
-            
+        bool optimizeWithLineSearch(int& nmiters, Vector &x0, Energy &f, Gradient &g, Hessian &H, ConstraintEq &ceq, JacobianEq &Aeq, Linesearch &linesearch, double tol1 = 1e-5, unsigned int maxIter = UINT_MAX) {
             unsigned int iter = 0;
             
             while(iter < maxIter && linesearch(x0, f,g,H, ceq, Aeq, tol1) == false) {
                 iter++;
             }
-            
-            return true;
+            nmiters += iter;
+	        return true;
             
         }
         
@@ -127,7 +138,7 @@ namespace Gauss {
             double alpha =1;
             double c = 1e-4; //from Nocedal and Wright pg 31
             double rho = 0.5;
-            
+            std::cout<<"newton step"<<std::endl;
             while(true) {
                 
                 pscallback(x0+alpha*p);

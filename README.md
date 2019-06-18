@@ -1,7 +1,7 @@
 <img src="GaussLogo.png" height="150"></img> <br>
 OSX (el capitan)/Ubuntu (14.04): [![Build Status](https://travis-ci.org/dilevin/GAUSS.svg?branch=master)](https://travis-ci.org/dilevin/GAUSS) Windows (Visual Studio 2017): [![Build status](https://ci.appveyor.com/api/projects/status/oyvda3s704ibkfer?svg=true)](https://ci.appveyor.com/project/dilevin/gauss)
 
-### External Dependencies ###
+### External Dependencies  ###
 1. Qt >= 5.8 (https://www.qt.io, version 5.9.0 only for Windows build)
 2. OPTIONAL: Pardiso Solver (http://www.pardiso-project.org)
 3. OPTIONAL: Gurobi Solver (http://www.gurobi.com)

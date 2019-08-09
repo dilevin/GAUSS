@@ -13,7 +13,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 #this code uses OpenMP which is supported almost everywhere except for OS X clang
 #to get around this you can choose to install clang via homebrew to get access to OpenMP
 option(GAUSS_USE_UI     "Use Gauss' UI Library" ON)
-option(GAUSS_BUILD_EXAMPLE "Build Example" ON)
+option(GAUSS_BUILD_EXAMPLES "Build Example" ON)
 
 #expose USE_OPENMP variable for OS X only
 if(APPLE)

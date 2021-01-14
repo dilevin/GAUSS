@@ -130,8 +130,8 @@ download_project(
         SOURCE_DIR   ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/build/ThirdParty/.cache/eigen
         QUIET
-        URL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.gz
-        URL_MD5 609286804b0f79be622ccf7f9ff2b660
+        GIT_REPOSITORY 	https://gitlab.com/libeigen/eigen.git
+        GIT_TAG			3.3.7
     )
  
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen/cmake CACHE PATH "Root include directory for Eigen3" FORCE) 

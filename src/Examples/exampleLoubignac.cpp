@@ -12,6 +12,7 @@
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 #include <imgui/imgui.h>
 #include <igl/readMESH.h>
+#include <igl/jet.h>
 
 //Global variables for UI
 igl::opengl::glfw::Viewer viewer;

@@ -10,7 +10,7 @@ using namespace Gauss;
 using namespace FEM;
 using namespace ParticleSystem; //For Force Spring
 
-/* Showing the use of a parallel assembler  for hexahedral elements */
+/* Showing the use of a parallel assembler for hexahedral elements */
 
 //typedef scene
 typedef PhysicalSystemFEM<double, LinearHex> FEMLinearHexes;

@@ -59,7 +59,7 @@ If you are on OSX and you wish to enable OpenMP, install llvm via homebrew and f
 
 Likewise, if you wish to use the pardiso solver, download the pardiso library from the website and set the path in `config.cmake`. If you get errors referring to libgfortran, you may need to follow [this](http://www.alecjacobson.com/weblog/?p=3946) guide to fix the library for your paths.
 
-#### Build ####
+#### Build (Linux and OSX) ####
 
 In the root of this repository do the following
 
@@ -74,7 +74,23 @@ To see if it worked, run the tests and examples
 	./bin/Example1
 	./bin/Example2
 	./bin/Example3
-	./bin/Example4 # If OpenMP was enabled
+	./bin/Example4 # If OpenMP was enabled (OSX only)
+	
+#### Build (Windows) ####
+
+In the root of this repository do the following
+
+    mkdir build
+    cd build
+    cmake -C ../config.cmake ../
+    cmake --build . --config Release
+
+To see if it worked, run the tests and examples
+	
+	./bin/Release/Tests.exe
+	./bin/Release/Example1.exe
+	./bin/Release/Example2.exe
+	./bin/Release/Example3.exe
 
 #### A Note About the Examples ####
 To play examples in Gauss press 'p' once the Qt window appears.
@@ -86,4 +102,8 @@ GAUSS Includes a rudimentary MATLAB interface, tested using MATLAB 2015b and 201
 	addpath('{Gauss_Root_Dir}/build/lib/{Build_Mode_of_Gauss_MATLAB}/')
 	savepath
 
-An example of using the MATLAB interface is given in {Gauss_Root_Dir}/src/Examples/example8.m
+On Windows, an additional path needs to be added:
+
+	addpath('{Gauss_Root_Dir}/build/bin/{Build_Mode_of_Gauss_MATLAB}/')
+
+An example of using the MATLAB interface is given in `{Gauss_Root_Dir}/src/Examples/example8.m`

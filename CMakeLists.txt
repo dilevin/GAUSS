@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.3)
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 project (Gauss C CXX)
@@ -130,8 +130,8 @@ download_project(
         SOURCE_DIR   ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/build/ThirdParty/.cache/eigen
         QUIET
-        URL http://bitbucket.org/eigen/eigen/get/3.2.10.tar.gz
-        URL_MD5 8ad10ac703a78143a4062c9bda9d8fd3
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.gz
+        URL_MD5 609286804b0f79be622ccf7f9ff2b660
     )
  
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/build/ThirdParty/eigen/cmake CACHE PATH "Root include directory for Eigen3" FORCE) 

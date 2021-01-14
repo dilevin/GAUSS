@@ -51,4 +51,3 @@ build
 *.sublime-workspace
 #qt file
 *.run 
-ThirdParty 

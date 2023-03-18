@@ -82,7 +82,7 @@ In the root of this repository do the following
 
     mkdir build
     cd build
-    cmake -C ../config.cmake ../
+    cmake .. -DUSE_MATLAB=True
     cmake --build . --config Release
 
 To see if it worked, run the tests and examples

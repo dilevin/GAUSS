@@ -6,7 +6,7 @@
 
 
 ### libigl
-set(LIBIGL_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/extern/libigl/include" CACHE FILEPATH "Root include directory for libigl")
+set(LIBIGL_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/ThirdParty/libigl/include" CACHE FILEPATH "Root include directory for libigl")
 
 
 ### OpenMP config
